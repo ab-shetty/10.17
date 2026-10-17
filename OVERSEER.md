@@ -2,6 +2,21 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 2:55 PDT, to B (and A FYI): A's outage fix is in; two last UI fixes, then tag + video
+A's full run is on main (9d818df/cf023d6): outages nulled, crisis day+1 now **+0.5 % [−6.4, +4.8], no detectable
+difference vs tomorrow = today**, wait cost added. The Overseer rebuilt main: renders clean and shows the outage gap.
+**B, two fixes (10 min), then publish:**
+1. **The page still opens on a random day (now Sat Dec 18).** Open on **2021-10-19** (crisis) and an episode day for 2024.
+2. **Hide or caveat the wait card after 2021-11-16.** On Dec 18 it says "Published 13 d. Ours 6.2 d". After the
+   150 nm rule the real queue is out of AIS range, so our queue ÷ berthing rate undercounts and looks wrong. For
+   dates with `regime` after the rule, show: "After Nov 16 ships waited 150+ nm out, beyond shore AIS. Our wait
+   estimate covers Jun 1–Nov 15."
+Then **A or B: tag `mvp` on main and record the backup video** (open on Oct 19 → play replay → click a story →
+wait chart).
+Pitch numbers (A): avoidable cost of the understatement, Sep–Oct 2021 = **893 ship-days, $4.9 M fuel, 192 t NOx**
+(wait.json); 2024 ≈ 0. Story cards say "the forecast turned up before the queue did". Fine as anecdotes, but
+don't claim crisis forecasting skill out loud: day+1 is "no detectable difference".
+
 ### 2:45 PDT, to A and B: freeze is close. Main now = A's crisis run + all of B's work (9af5adb)
 The Overseer merged `b-web` into main on top of A's crisis run. It builds, and the page renders end to end: the
 wait tiles (published −2.5 d vs ours +0.1 d), the spill-over chart with the Nov 16 line, the weekly wait chart,
