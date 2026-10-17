@@ -1,0 +1,164 @@
+{
+ "2024:2024-11-05": {
+  "hash": "17193d457f489e72",
+  "brief": {
+   "headline": "Anchorage count likely to tick up to about 12 ships",
+   "brief": "Ten ships sat at anchor yesterday, a bit under the 7-day average of 10.8. The model expects about 12.2 at anchor today, versus 10.4 from the simple rule, and its one-day record is better than the simple rule's. Gusts and berth waits averaging 35.2 hours push the forecast up. Days two and three show no detectable edge over the 7-day average.",
+   "watch": "Check whether berth waits, now averaging 35.2 hours, keep ships anchored longer than the 10.8 average suggests.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2024:2024-11-06": {
+  "hash": "b5f2b1fbfdc996c5",
+  "brief": {
+   "headline": "Anchorage expected to ease as strong gusts approach",
+   "brief": "Yesterday about 9 ships sat at anchor, below the weekly average of 10.8, with 26.5 at berth. The model expects about 8.5 at anchor today, versus 10 from the simple rule, because forecast gusts near 35 knots tend to move ships off anchor. Day one has tested better than the simple rule. Days two and three, about 9.6 and 12, are no better than the 7-day average.",
+   "watch": "Watch whether the 35-knot gusts arrive today and pull anchored ships down toward 8.5 as forecast.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2024:2024-11-07": {
+  "hash": "5ef903caa452779a",
+  "brief": {
+   "headline": "Anchorage count expected to rise modestly after windy day",
+   "brief": "Yesterday 6.2 ships sat at anchor, well below the 7-day average of 9.7, with winds up to 28 knots. The model expects about 8.6 ships at anchor today, a bit above the simple rule's 8.0, and it has tested better than that rule at this one-day range. For Friday and Saturday the model says about 10.8 and 10.7, but those are no proven improvement over the 9.7 average.",
+   "watch": "Watch whether today's gusts near 29 knots push ships off anchor or whether those that left during yesterday's gusts return, since both pull the count in different directions.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2024:2024-11-08": {
+  "hash": "c98a179487a00b51",
+  "brief": {
+   "headline": "Anchorage queue expected to climb back toward 10 ships",
+   "brief": "Yesterday 6.3 ships sat at anchor, below the weekly average of 9.0. The model expects about 9.9 at anchor today, versus 7.7 from the simple rule, and it has beaten that rule in recent testing. Gusts reached 36.3 knots yesterday, and ships that left anchor tend to return. For Saturday and Sunday the model says about 10.7 and 10.4, but that is no better than the 9.0 average.",
+   "watch": "Watch whether wind keeps ships returning to anchor, since today's count of about 9.9 is the one forecast with a proven edge.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2024:2024-11-09": {
+  "hash": "a70c5c158ac9f692",
+  "brief": {
+   "headline": "Anchorage queue above normal; modest rise expected",
+   "brief": "Yesterday 12 ships sat at anchor, above the 7-day average of 9.3, with 13 arrivals against 12 departures. The model expects about 11.9 at anchor on Nov 9, versus 10.7 from the simple rule, and that day-one forecast has tested better. For Nov 10 and 11, the model's about 11.9 and 11.2 are not detectably better than the 7-day average of 9.3.",
+   "watch": "Check whether the anchorage count holds near 12 today, since only the one-day forecast has proven better than the simple rule.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2024:2024-11-15": {
+  "hash": "0d674576cb0ec74e",
+  "brief": {
+   "headline": "Anchorage queue expected to shrink as gusty winds arrive",
+   "brief": "About 11.7 ships sat at anchor yesterday, with 27.1 at berth. The model expects about 9.9 at anchor today, driven by forecast gusts of 31.1 knots and a queue that already shrank by 2.9 ships. That day-one forecast has tested better than the simple rule. For the next two days, the model says about 10.7 and 12.5, but those are no better than the 7-day average of 11.7.",
+   "watch": "Watch whether the 31.1-knot gusts actually clear ships off anchor today, since the day-one forecast depends on that.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2024:2024-11-16": {
+  "hash": "9c57902c42968038",
+  "brief": {
+   "headline": "Anchorage queue shrinking; storm gusts expected to thin it further",
+   "brief": "Yesterday about 7.1 ships sat at anchor, well below the weekly average of 11.0, with 8.0 arrivals and 13.0 departures. For today the model expects about 8.1 at anchor, mainly because forecast gusts near 28.4 knots tend to send ships off anchor. That day-one forecast has beaten the simple rule in testing. Days two and three, about 11.2 and 12.3, are no better than the 7-day average.",
+   "watch": "Watch whether the wind gusts near 28.4 knots arrive today and how quickly ships return to anchor once they ease.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2024:2024-11-17": {
+  "hash": "4584e7aa9c595ad0",
+  "brief": {
+   "headline": "Anchorage queue expected to rebuild from yesterday's low",
+   "brief": "Yesterday only 5.6 ships sat at anchor, well under the weekly average of 10.2. The model expects about 8.2 at anchor today, a bit above the simple rule's 7.9, and it has tested better at this one-day range. Gusts of 27 knots yesterday push the number up, while few inbound ships pull it down. For the next two days the model and the 7-day average of 10.2 are indistinguishable, so treat them as equal.",
+   "watch": "Watch whether ships that left anchor in yesterday's gusts return, since that decides if today lands nearer 8.2 or lower.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2024:2024-11-18": {
+  "hash": "d25ccd7f3353f2af",
+  "brief": {
+   "headline": "Anchorage queue steady near 9 ships, slight rise expected",
+   "brief": "Yesterday about 9.4 ships sat at anchor, close to the 7-day average of 9.5, with 22.3 at berth. The model expects about 9.8 at anchor today, a bit above the simple rule's 9.4, and it has beaten that rule in testing at this one-day range. For the next two days the model says about 11.3 and 11.4, but that is not detectably better than the 7-day average of 9.5.",
+   "watch": "Watch whether the queue climbs toward 11 tomorrow, since the model's two-day outlook is not proven better than simply expecting about 9.5.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2024:2024-12-09": {
+  "hash": "b9a350441d5a8601",
+  "brief": {
+   "headline": "Anchorage queue above normal; expected to ease slowly",
+   "brief": "Yesterday about 19.2 ships sat at anchor, well above the 7-day average of 14.7, while 36.0 were at berth. The model expects about 18.1 at anchor on December 9, and that day-one forecast has beaten the simple rule in testing. For December 10 and 11 the model says about 16.7 and 16.9, but those are no better than just using the 7-day average.",
+   "watch": "Watch whether the anchorage count falls toward the 14.7 weekly average, since only the next-day forecast is reliable and later days are uncertain.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2024:2024-12-10": {
+  "hash": "fa587a46837c1419",
+  "brief": {
+   "headline": "Anchorage queue above normal, but gusty winds may thin it",
+   "brief": "Yesterday 18.1 ships sat at anchor, above the 7-day average of 15.3, with 33 at berth. For today, the model expects about 15.2 at anchor, since forecast gusts near 28.6 knots usually send ships off anchor. That one-day forecast has beaten the simple blend of today and the weekly average (16.7) in recent testing. Days two and three, about 16.6 and 16.8, are no better than the 7-day average.",
+   "watch": "Watch whether the wind gusts near 28.6 knots actually clear ships from anchor today, since the one-day forecast depends on it.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2024:2024-12-11": {
+  "hash": "d2db00722d249a69",
+  "brief": {
+   "headline": "Anchorage queue eases to 10 ships, may edge back up",
+   "brief": "Yesterday about 10.1 ships sat at anchor, well below the 7-day average of 15.1, with 33.5 at berth. The model expects about 13.4 at anchor today, a bit above the simple rule's 12.6, and it has beaten that rule in recent testing. Gusts reached 32.5 knots yesterday, and ships that left anchor tend to return. Forecasts for the next two days (about 14.6 and 13.8) are no better than the 7-day average.",
+   "watch": "Watch whether wind-driven departures from anchor return today, since 8.2 ships are loitering offshore within 60 nautical miles.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2021:2021-09-10": {
+  "hash": "8080711ca38be820",
+  "brief": {
+   "headline": "Ship queue grows to 48 as berthing stays slow",
+   "brief": "Last night 48 container ships were waiting, up from 33 a week earlier, while only about 3.0 ships a day reached a berth. Dividing the queue by that berthing rate suggests a ship joining today could wait about 16 days. The published 7-day average of 7.1 days looks backward at ships already berthed, so it likely understates the wait for new arrivals.",
+   "watch": "Watch whether daily berthings rise above 3.0 ships, since the queue keeps growing if they do not.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2021:2021-09-21": {
+  "hash": "fa1176d29657f666",
+  "brief": {
+   "headline": "Container ship queue grows to 61 as waits lengthen",
+   "brief": "Last night 61 container ships were waiting, up from 53 a week earlier, while about 4.3 ships a day reached a berth over the past week. Dividing the queue by that berthing rate suggests a ship joining today could wait about 14.2 days. The published 7-day average is 10.3 days, but it looks backward at ships already berthed.",
+   "watch": "Watch whether daily berthings stay near 4.3 ships, since a slower pace would push waits past the 14-day estimate.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2021:2021-10-05": {
+  "hash": "547a4d983a540ab9",
+  "brief": {
+   "headline": "Offshore ship queue edges up to 56 waiting",
+   "brief": "Last night 56 ships were waiting, up from 54 a week earlier, while about 4.6 ships per day reached a berth over the last 7 days. Dividing the queue by that berthing rate gives about 12.2 days of wait for a ship joining today. The published 7-day average, which looks backward, is 11.6 days. The two estimates are close, so neither clearly beats the other.",
+   "watch": "Watch whether the daily berthing rate stays near 4.6 ships, since a slowdown would push the wait for new arrivals past 12 days.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2021:2021-10-24": {
+  "hash": "4dfb36bd41812f7f",
+  "brief": {
+   "headline": "Container ship queue grows to 69 as berthing stays slow",
+   "brief": "Last night 69 container ships were waiting, up from 61 a week earlier, while about 3.6 ships a day reached a berth over the past week. Dividing the queue by that berthing rate suggests a ship joining today could wait about 19.3 days. The published figure, a backward-looking 7-day average, says 12.5 days, so it may understate the wait if the queue keeps growing.",
+   "watch": "Watch whether daily berthings rise above about 3.6 ships; if not, the queue will keep growing and waits will lengthen.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2021:2021-11-16": {
+  "hash": "d4d88abb648085ee",
+  "brief": {
+   "headline": "Offshore waiting rule hides part of the ship queue",
+   "brief": "The published 7-day average wait is 14.9 days, but it only looks backward at ships that already reached a berth, about 4.0 per day. Since today, container ships wait about 150 nm offshore, beyond shore AIS range, so we cannot count that queue or estimate its wait. Yesterday's counts, 43.6 at anchor and 57.8 loitering within 60 nm, may now understate the true backlog.",
+   "watch": "Watch whether the anchorage count drops simply because ships moved out of range, not because the backlog is easing.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ },
+ "2021:2021-12-14": {
+  "hash": "f042eaa6c1ea6a7a",
+  "brief": {
+   "headline": "Published wait near 15 days, but offshore queue unseen",
+   "brief": "The published average wait is 14.9 days, but it only counts ships that reached a berth in the last 7 days, so it looks backward. Ships are reaching berths at about 2.4 per day. Since Nov 16, container ships wait about 150 nm offshore, beyond our AIS range, so that queue and its wait cannot be counted. Yesterday 28 ships were at anchor and 18.8 loitering within 60 nm.",
+   "watch": "Watch whether the berth arrival rate stays near 2.4 ships per day, since the offshore queue cannot be seen.",
+   "scorer": "claude-sonnet-5-5"
+  }
+ }
+}
