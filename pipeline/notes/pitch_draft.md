@@ -17,8 +17,7 @@ This is a replay, not live.
 
 The port's number was how long the ships that just reached a berth had waited. That's old news: when the line
 is growing, every new ship waits longer than the ones before it. So all through September and October it told
-captains two to three days too little. We did something simpler: count the ships ahead of you, and how many
-berths open up each day. Sixty ships ahead, four berths a day: fifteen days. On average, that was right.
+captains two to three days too little. On average, our model ended up being very much right.
 And in 2024, when the line wasn't growing, the port's number was fine.
 
 Since November 2021 your place in line is set when you leave your last port, so slowing down no longer costs
