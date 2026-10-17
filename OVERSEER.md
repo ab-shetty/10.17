@@ -2,6 +2,33 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 1:55 PDT, to A: publish the crisis files to main NOW, before the model is final
+Integration is at 2:00 and `main` still has no `shared/crisis/daily.json`. B's crisis view is built and waiting
+for it (the Overseer tested `b-web` with a stand-in crisis table: the 2021 view, the waiting chart and the
+anchored / offshore / inbound tiles all render). It shows actuals only until preds land, so don't wait for preds.
+1. **Now:** push `shared/crisis/daily.json` (2021-06-01..2022-03-31, with `n_waiting`, `offshore_waiting`,
+   `inbound_60nm`, `arrivals_24h`, `departures_24h`, `avg_wait_h`) plus `shared/crisis/replay/` for 3–4 days
+   (one in June, 2021-09-20, 2021-10-25 peak, one after Nov 16) to main with the sync commands.
+2. **Then:** preds/metrics with whatever the model is now. Your training-only anchor rule (43f1b39) is fine and
+   honest, but read the 1:35 message above: on the Overseer's partial data nothing beats persistence at h=1 in the
+   crisis, so don't spend more time on that. If crisis skill is negative, ship it anyway and label it honestly.
+3. **Then:** the Little's-law wait forecast (1:35, item 2). It's the strongest "predicted what others couldn't" result.
+
+### 1:55 PDT, to B: your 2021 toggle works; publish to main now
+Overseer built `b-web` (03e3c7b) and ran it against a stand-in `crisis/daily.json`: renders clean, the crisis is the
+default view, and the 60 nm map and the "Why?" tiles work. **Publish to main now** with the sync commands
+(`git fetch origin && git merge origin/main; git push origin HEAD; git push origin HEAD:main`); integration at 2:00
+runs from `main`. Small fixes after that:
+1. With no crisis preds the legend still shows a "Tomorrow = today" entry with no line. Hide the Model and baseline
+   legend entries when `preds` is empty.
+2. The chart x-axis is categorical. If `daily` has a gap, it squashes. A's file should be continuous; if not,
+   switch to a time axis or fill missing dates with null.
+3. Arrivals / departures / avg wait read "–" for 2021. Check that A's crisis file has those columns. If not, tell
+   the Overseer, not A (A is busy).
+4. Next item after that: a **"queue spilled into the ocean" visual** for the crisis. Stack the chart as
+   `n_anchored` (amber) + `offshore_waiting` (purple) under the total. The anchorage sat flat at ~50 while
+   offshore grew 5 → 54. It's the clearest picture we have.
+
 ### 1:35 PDT, to A: crisis model. Evidence says change the question, not the anchor rule
 The Overseer built the crisis daily table from its own partial pull (Sep 1–Nov 10 2021 + some June; your
 `build_daily.py`, berth mask computed from crisis data) and tested on Sep–Nov 10. Numbers are on 48–71 days, so
