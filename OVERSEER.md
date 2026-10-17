@@ -2,6 +2,75 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 3:50 PDT, to A: two spoken-line fixes in `pitch_draft.md` so the draft matches what the presenter says
+1. **"What it's worth to a shipping company"**: replace
+   "That's $300,000 to $600,000 per large ship, and tens of millions across September and October 2021 alone"
+   with **"That's up to $300,000 of fuel per large ship, and tens of millions across September and October 2021
+   alone"**. $300–600k is MSC Josseline slowing the whole crossing (4.8 d). Our estimate issued a week out
+   absorbs the ~2.5 d shortfall over the last 7 days: ≈ $120–300k per large ship (60–150 t/day at 17 kn,
+   $615/t, fuel per mile ∝ v²). Back-of-envelope.
+2. **"Honest limits + what paid data unlocks"**: after "and could forecast the crisis itself", add **"That would be
+   worth up to $650,000 per ship, and over $100 million in two months, at one port."** Basis: wait known on leaving
+   Asia → cross at 12 kn instead of 17 (5,700 nm, ~14 → ~20 d), saves ~50 % of crossing fuel = $260–650k per
+   large ship × ~266 large container visits Sep–Oct 2021 ≈ $70–170 M. Back-of-envelope, not tested; keep "would".
+Update the source bracket under each line. No other edits.
+
+### 3:35 PDT, to A: final pitch edit, cost savings for a shipping company + what paid data unlocks
+The user wants the pitch to lead on **cost savings for a customer** and **what paid data would let us predict**.
+Replace "What it cost" and "Scale + next" in `pitch_draft.md` with the two sections below (~150 spoken words; cut
+elsewhere to stay ≤ 3:00). Keep "Honest limits". **Only edit `pitch_draft.md`; no judge Q&A.**
+
+**New check (Overseer; reference for the presenter, nothing to write). It closes the hole "if the ship's already here, how can it slow down?"**
+Our wait estimate issued k days **before** the ship joins (still at sea), vs what ships were told at that time,
+scored on the real wait, Sep–Oct 2021, 59 days, `shared/crisis/wait.json` daily shifted by k, 7-day block bootstrap:
+| issued ahead | avg error ours / told | accuracy edge, ours vs told [90 % CI] |
+|---|---|---|
+| 3 d | −0.3 / −2.9 d | +2 % [−12, +17] |
+| 5 d | −0.5 / −3.0 d | +11 % [−4, +25] |
+| 7 d | −0.9 / −3.2 d | +7 % [−13, +25] |
+| 14 d | −1.9 / −3.8 d | **+19 % [+4, +33]** |
+At sea, ours is far less biased and at least as accurate. Only the 14-day edge clears noise. Spoken: "a week out at
+sea, the published figure ran about three days short; ours was within a day."
+
+**Section: What it's worth to a shipping company (~45 s)**
+> In 2021 ships raced across the Pacific to idle off LA, because the line was first-come, first-served. Since
+> November 2021, LA and Long Beach set your place in line when you leave Asia, so slowing down no longer costs your
+> spot. What captains still lack is the right number to slow down to. We tested ours the way a captain would use it:
+> a week out at sea. The published figure ran about three days short; ours was within a day. For one 14,000-container
+> ship, slowing the crossing to match the real wait instead of idling saves roughly $300,000 to $600,000 of fuel
+> per call. Across the container ships that queued at LA and Long Beach in just September and October 2021, that's
+> tens of millions of dollars, and the emissions move from over Wilmington and San Pedro out to sea.
+
+**Section: What paid data unlocks (~30 s)**
+> We did this with free data, so we see 60 miles out. That's why nobody, including us, could forecast the 2021
+> jumps from shore: they were set two weeks earlier in Asia. With satellite ship tracking we'd see every ship
+> bound for LA from the day it leaves Asia. Then the forecast covers the whole crossing, and we can predict the
+> crisis itself, not just the wait.
+
+**Numbers behind it (reference only, no Q&A doc):**
+- Told 2.5–3 d too short in the build-up: **measured** (`wait.json`).
+- A week out, ours within ~1 d on average: **measured** (table above).
+- $320k–620k for MSC JOSSELINE: **back-of-envelope** (`hero_ship.json`).
+- ≈ $70–130k per ship-day of wait known in advance, large container ship: back-of-envelope (hero range ÷ 4.8 d).
+- ≈ $170–320k per large-ship call in a backlog: back-of-envelope (× 2.5 d average shortfall).
+- "Tens of millions" at LA/LB in Sep–Oct 2021: back-of-envelope, upper-bound flavour (≈ 266 large container
+  visits × ~2.6 d × per-day range ≈ $45–90 M; it assumes every captain acts on it and every ship is that size).
+  **Say "tens of millions" out loud, not $45–90 M.**
+- Queue position by departure from Asia since 2021-11-15/16: `crisis_timeline_2021.md`.
+
+**Who pays (one line, already in the section above if you want it):** whoever buys the fuel: charterers (under time charters) and carriers for their own ships.
+Also cargo owners (inventory, rerouting) and ports (emissions targets).
+
+**What paid data would add (reference only; say "would", never "can"):**
+| data (examples) | unlocks | closes which gap |
+|---|---|---|
+| Satellite AIS (Spire, ORBCOMM, Kpler/MarineTraffic) | every LA-bound ship with destination + ETA, 2–3 weeks out | forecasting the queue's jumps; wait estimate for the whole crossing (biggest fuel lever) |
+| Terminal berth schedules (POLA Port Optimizer/Signal, terminal operators) | berthing rate + line-up per terminal | per-ship accuracy (ships wait for *their* terminal: why ours is closer for only 52 % per ship) |
+| Manifests / bills of lading (S&P Panjiva, Descartes Datamyne) | containers per inbound ship → unload time | better berthing rate; which cargo is late |
+| Freight-rate / booking indices (Xeneta, Freightos, Drewry) | demand surges 4–8 weeks ahead | the warning before the wave leaves Asia |
+| Satellite imagery (Planet, Maxar) | container-yard fullness | terminal slowdown before berthing rate drops |
+Satellite claim status: evidence (the jumps followed arrival waves that left Asia ~2 weeks earlier), not tested.
+
 ### 3:20 PDT, to A: the pitch is strong. Last 15 min: these 4 things
 1. **Add who pays (20 words, before "Scale + next").** The judges are an enterprise AI startup. Line: "The product is
    a wait-time feed for any port, sold to carriers, charterers and cargo owners. Every input is free, so the next
