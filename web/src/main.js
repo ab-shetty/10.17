@@ -14,6 +14,10 @@ const YEARS = {
     foot: 'AIS: NOAA MarineCadastre 2021–22. Waiting = anchored in the bay + loitering (< 3 kn) within 60 nm.' },
   2024: { dir: '', note: '2024 replay, not live.', view: 'bay', all: '2024' },
 };
+// 2021-11-16: new queuing process, container ships told to wait far offshore instead of at the anchorage.
+const MARKS = {
+  2021: [{ date: '2021-11-16', label: 'Nov 16: ships told to wait 150 nm out' }],
+};
 const TARGET_LABEL = { n_anchored: 'ships at anchor', n_waiting: 'ships waiting (anchored + loitering < 60 nm)' };
 const AXIS_LABEL = { n_anchored: 'ships at anchor (daily mean)', n_waiting: 'ships waiting, anchor + offshore',
   big_cargo_waiting: 'container-size ships waiting (end of day)' };
@@ -81,7 +85,7 @@ async function main() {
   const state = { h: 1, day: null, replay: null, frame: 0, timer: null, episode: null };
   const { map, ready } = createMap($('map'), VIEWS[Y.view]);
   $('view').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === Y.view));
-  const chart = createChart($('chart'), { daily: D, preds: P, news: N, target, yLabel: AXIS_LABEL[target] ?? targetLabel, onPick: (d) => selectDay(d) });
+  const chart = createChart($('chart'), { daily: D, preds: P, news: N, target, yLabel: AXIS_LABEL[target] ?? targetLabel, spill: year === '2021', actualLabel: year === '2021' ? 'Total waiting' : 'Actual', marks: MARKS[year] ?? [], onPick: (d) => selectDay(d) });
 
   // Replay days: the episode's replay_days (contract), else every day inside it, kept if a file exists.
   const epReplays = await Promise.all(E.map((ep) => findReplays(ep.replay_days ?? daysBetween(ep.start, ep.end), Y.dir)));
@@ -182,7 +186,10 @@ async function main() {
   };
 
   // Start on the test period, on the day with the biggest model win at h=1; preload the first replay.
-  chart.setRange(...ranges.test);
+  // 2021 without crisis forecasts: show the whole backlog (the spill-over and Nov 16 are the story).
+  const openFull = year === '2021' && !P.length && dailyFile;
+  chart.setRange(...(openFull ? ranges.year : ranges.test));
+  if (openFull) document.querySelectorAll('#range button').forEach((x) => x.classList.toggle('on', x.dataset.r === 'year'));
   const h1 = P.filter((p) => p.h === 1);
   const best = h1.reduce((a, p) => {
     const gain = Math.abs(p.baseline - p.actual) - Math.abs(p.pred - p.actual);

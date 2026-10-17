@@ -110,3 +110,4 @@ select, .btn, .seg button { background: #0d1a27; color: var(--text); border: 1px
   .controls select { flex-basis: 100%; }
 }
 .tiles-sep { width: 1px; align-self: stretch; background: var(--line); margin: 0 4px; }
+.caption { margin: -2px 0 8px; font-size: 14px; color: var(--text); }

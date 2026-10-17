@@ -7,11 +7,13 @@ const C = { actual: '#e6edf3', little: '#f5a524', reported: '#7d8794', grid: 'rg
 // daily rows inside wait.window (only days that have all three numbers).
 export function weeklyWaits(wait) {
   if (Array.isArray(wait.weekly) && wait.weekly.length) {
+    // OVERSEER 2:10 shape: [{week, real_d, reported_d, little_d, n}]; older key names accepted too.
     return wait.weekly.map((w) => ({
       week: w.week ?? w.week_start ?? w.date,
-      actual: w.actual_wait_d ?? w.actual ?? w.actual_mean_d,
-      reported: w.reported_wait_d ?? w.reported ?? w.reported_wait_7d,
-      little: w.little_wait_d ?? w.little,
+      actual: w.real_d ?? w.actual_wait_d ?? w.actual,
+      reported: w.reported_d ?? w.reported_wait_d ?? w.reported,
+      little: w.little_d ?? w.little_wait_d ?? w.little,
+      n: w.n ?? w.n_ships,
     }));
   }
   const [w0, w1] = wait.window ?? ['0000', '9999'];
@@ -45,8 +47,20 @@ export function underShare(wait) {
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const fmtWeek = (d) => `${MON[+d.slice(5, 7) - 1]} ${+d.slice(8)}`;
 
+// One slot per week from first to last, so a missing week is a gap rather than a squashed axis.
+function fillWeeks(W) {
+  if (!W.length) return W;
+  const have = new Map(W.map((w) => [w.week, w]));
+  const out = [];
+  for (let t = Date.parse(W[0].week + 'T00:00:00Z'); t <= Date.parse(W.at(-1).week + 'T00:00:00Z'); t += 7 * 864e5) {
+    const week = new Date(t).toISOString().slice(0, 10);
+    out.push(have.get(week) ?? { week, actual: null, reported: null, little: null });
+  }
+  return out;
+}
+
 export function createWaitChart(canvas, wait) {
-  const W = weeklyWaits(wait);
+  const W = fillWeeks(weeklyWaits(wait));
   return new Chart(canvas, {
     type: 'line',
     data: {
@@ -69,7 +83,7 @@ export function createWaitChart(canvas, wait) {
       },
       plugins: {
         legend: { labels: { color: '#c9d1d9', boxWidth: 18, boxHeight: 2 } },
-        tooltip: { callbacks: { title: (it) => `Week of ${it[0].label}`,
+        tooltip: { callbacks: { title: (it) => `Week of ${it[0].label}${W[it[0].dataIndex].n ? ` · ${W[it[0].dataIndex].n} ships` : ''}`,
           label: (it) => it.raw == null ? null : `${it.dataset.label}: ${it.raw.toFixed(1)} d` } },
       },
     },
