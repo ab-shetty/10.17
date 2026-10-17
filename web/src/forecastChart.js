@@ -1,4 +1,5 @@
 import Chart from 'chart.js/auto';
+import { baselineLabel } from './explain.js';
 
 const C = { actual: '#e6edf3', model: '#f5a524', base: '#7d8794', grid: 'rgba(255,255,255,0.06)', tick: '#8b96a3' };
 
@@ -49,6 +50,7 @@ export function createChart(canvas, { daily, preds, news, onPick }) {
   const testIdx = preds.length ? [index.get(preds[0].date), index.get(preds.at(-1).date)] : null;
   const newsMarks = news.filter((n) => index.has(n.date)).map((n) => ({ i: index.get(n.date), score: n.score }));
 
+  const baseName = (h) => baselineLabel(preds.find((p) => p.h === h)?.baseline_name);
   const series = (h, key) => {
     const out = new Array(labels.length).fill(null);
     for (const p of preds) if (p.h === h && index.has(p.date)) out[index.get(p.date)] = p[key];
@@ -62,7 +64,7 @@ export function createChart(canvas, { daily, preds, news, onPick }) {
       datasets: [
         { label: 'Actual at anchor', data: actual, borderColor: C.actual, borderWidth: 1.6, pointRadius: 0, tension: 0.2 },
         { label: 'Model', data: series(1, 'pred'), borderColor: C.model, borderWidth: 2.2, pointRadius: 0, tension: 0.2, spanGaps: false },
-        { label: '“Tomorrow = today”', data: series(1, 'baseline'), borderColor: C.base, borderWidth: 1.4, borderDash: [5, 4], pointRadius: 0, tension: 0 },
+        { label: baseName(1), data: series(1, 'baseline'), borderColor: C.base, borderWidth: 1.4, borderDash: [5, 4], pointRadius: 0, tension: 0 },
       ],
     },
     options: {
@@ -96,6 +98,7 @@ export function createChart(canvas, { daily, preds, news, onPick }) {
       chart.data.datasets[1].data = series(h, 'pred');
       chart.data.datasets[1].label = `Model, ${h} day${h > 1 ? 's' : ''} ahead`;
       chart.data.datasets[2].data = series(h, 'baseline');
+      chart.data.datasets[2].label = baseName(h);
       chart.update('none');
     },
     setRange(d0, d1) {

@@ -35,10 +35,21 @@ const PHRASE = {
   news_score: (v) => `a news risk score of ${n(v, 2)}`,
 };
 
+// A's preds.json carries its own direction-aware `phrase`; the local table is the fallback for older files.
 export function phrase(f) {
-  if (f.value == null) return `${f.name.replaceAll('_', ' ')} (missing that day)`;
-  return (PHRASE[f.name] ?? ((v) => `${f.name.replaceAll('_', ' ')} = ${n(v)}`))(f.value);
+  if (f.phrase) return f.phrase;
+  const name = f.label ?? f.name.replaceAll('_', ' ');
+  if (f.value == null) return `${name} (missing that day)`;
+  return (PHRASE[f.name] ?? ((v) => `${name} = ${n(v)}`))(f.value);
 }
+
+// `baseline` in preds/metrics is the best naive rule on the test set, named by baseline_name.
+const BASELINES = {
+  persistence: '“Tomorrow = today”',
+  ma7: '7-day average',
+  blend: 'Today / 7-day average blend',
+};
+export const baselineLabel = (name) => BASELINES[name] ?? BASELINES.persistence;
 
 export function fmtDay(d, weekday = true) {
   const t = new Date(d + 'T00:00:00Z');
@@ -56,7 +67,8 @@ export function renderExplain(el, { day, h, preds, daily, news }) {
     const better = errM < errB;
     parts.push(`<p class="lead">Issued ${fmtDay(p.issued)}, ${h} day${h > 1 ? 's' : ''} ahead, the model expected
       <b class="num model">${n(p.pred)}</b> ships at anchor on ${fmtDay(day)}.
-      “Tomorrow = today” said <b class="num">${n(p.baseline)}</b>. Actual: <b class="num">${n(p.actual)}</b>.</p>`);
+      The best simple rule (${escapeHtml(baselineLabel(p.baseline_name))}) said <b class="num">${n(p.baseline)}</b>.
+      Actual: <b class="num">${n(p.actual)}</b>.</p>`);
     parts.push(`<p class="verdict ${better ? 'good' : 'bad'}">${better ? 'Model was closer' : 'Baseline was closer'}:
       off by ${n(errM)} vs ${n(errB)} ships.</p>`);
     const max = Math.max(...p.top_features.map((f) => Math.abs(f.shap)), 0.01);
@@ -64,7 +76,7 @@ export function renderExplain(el, { day, h, preds, daily, news }) {
       <li><span class="bar ${f.shap >= 0 ? 'up' : 'down'}" style="--w:${(100 * Math.abs(f.shap) / max).toFixed(0)}%"></span>
         <span class="eff ${f.shap >= 0 ? 'up' : 'down'}">${f.shap >= 0 ? '+' : '−'}${n(Math.abs(f.shap), 2)}</span>
         ${escapeHtml(phrase(f))}</li>`).join('') + '</ul>');
-    parts.push('<p class="fine">Numbers are SHAP contributions, in ships, to the model’s change from today’s count.</p>');
+    parts.push('<p class="fine">Numbers are SHAP contributions, in ships, to how far the model moved away from the simple rule.</p>');
   } else if (d) {
     parts.push(`<p class="lead"><b class="num">${n(d.n_anchored)}</b> ships at anchor on ${fmtDay(day)} (daily mean).</p>
       <p class="fine">Forecasts exist only for the test period, ${preds.length ? `${fmtDay(preds[0].date, false)} – ${fmtDay(preds.at(-1).date, false)}` : 'none yet'}.

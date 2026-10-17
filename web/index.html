@@ -11,7 +11,7 @@
     <div class="brand">
       <h1>Ships waiting at anchor, San Pedro Bay</h1>
       <p class="sub">Ports of Los Angeles + Long Beach. <strong>2024 replay, not live.</strong>
-        1–3 day forecast vs “tomorrow = today”.</p>
+        1–3 day forecast vs the best simple rule (“tomorrow = today”, 7-day average, or a blend).</p>
     </div>
     <div id="tiles" class="tiles"></div>
   </header>
@@ -24,6 +24,9 @@
           <span><i class="dot anchored"></i>at anchor <b id="cnt-anchored">–</b></span>
           <span><i class="dot moored"></i>at berth <b id="cnt-moored">–</b></span>
           <span><i class="dot underway"></i>under way <b id="cnt-underway">–</b></span>
+          <span class="sep" title="Ships within 60 nm outside the bay, same definitions as the model features">offshore:</span>
+          <span><i class="dot inbound"></i>inbound <b id="cnt-inbound">–</b></span>
+          <span><i class="dot waiting_offshore"></i>waiting <b id="cnt-waiting_offshore">–</b></span>
         </div>
       </div>
       <div id="map" class="map"><div id="map-empty" class="map-empty" hidden></div></div>
@@ -32,6 +35,9 @@
         <input id="scrub" type="range" min="0" max="143" value="0" />
         <span id="clock" class="clock">--:-- UTC</span>
         <select id="replay-select" aria-label="Replay day"></select>
+        <div class="seg" id="view">
+          <button data-v="bay" class="on">Bay</button><button data-v="approach" title="Show ships inbound or waiting within 60 nm">60 nm</button>
+        </div>
       </div>
     </section>
 

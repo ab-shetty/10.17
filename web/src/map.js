@@ -1,7 +1,16 @@
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-export const STATE_COLORS = { anchored: '#f5a524', moored: '#38bdf8', underway: '#9aa4b2' };
+// Replay `state` values (CLAUDE.md contract): in the bay anchored/moored/underway; within 60 nm outside it
+// inbound/waiting_offshore/passing. Unknown states fall back to underway.
+export const STATE_COLORS = {
+  anchored: '#f5a524', moored: '#38bdf8', underway: '#9aa4b2',
+  inbound: '#4ade80', waiting_offshore: '#c084fc', passing: '#4b5563',
+};
+export const VIEWS = {
+  bay: [[-118.33, 33.56], [-117.94, 33.79]],      // study bbox, anchorage box fully in view
+  approach: [[-119.45, 32.65], [-117.30, 34.20]], // ~60 nm approach zone
+};
 const ANCHOR_BOX = [[-118.30, 33.58], [-117.97, 33.58], [-117.97, 33.77], [-118.30, 33.77], [-118.30, 33.58]];
 
 const STYLE = {
@@ -26,7 +35,7 @@ export function createMap(el) {
   const map = new maplibregl.Map({
     container: el,
     style: STYLE,
-    bounds: [[-118.33, 33.56], [-117.94, 33.79]], // study bbox, anchorage box fully in view
+    bounds: VIEWS.bay,
     fitBoundsOptions: { padding: 12 },
     attributionControl: { compact: true },
   });
@@ -39,9 +48,9 @@ export function createMap(el) {
       paint: { 'line-color': '#f5a524', 'line-opacity': 0.45, 'line-width': 1.2, 'line-dasharray': [3, 3] } });
     map.addSource('ships', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     map.addLayer({ id: 'ships', type: 'circle', source: 'ships', paint: {
-      'circle-radius': ['interpolate', ['linear'], ['zoom'], 9, 3, 13, 7],
-      'circle-color': ['match', ['get', 'state'],
-        'anchored', STATE_COLORS.anchored, 'moored', STATE_COLORS.moored, STATE_COLORS.underway],
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 2.5, 13, 7],
+      'circle-color': ['match', ['get', 'state'], ...Object.entries(STATE_COLORS).flat(), STATE_COLORS.underway],
+      'circle-opacity': ['match', ['get', 'state'], 'passing', 0.6, 1],
       'circle-stroke-color': '#0b1622', 'circle-stroke-width': 1,
     } });
     resolve();
@@ -52,7 +61,7 @@ export function createMap(el) {
     const p = e.features[0].properties;
     map.getCanvas().style.cursor = 'pointer';
     popup.setLngLat(e.lngLat)
-      .setHTML(`<b>${escapeHtml(p.name || String(p.mmsi))}</b><br>${p.state} · ${p.sog} kn`)
+      .setHTML(`<b>${escapeHtml(p.name || String(p.mmsi))}</b><br>${p.state.replace('_', ' ')} · ${p.sog} kn`)
       .addTo(map);
   });
   map.on('mouseleave', 'ships', () => { map.getCanvas().style.cursor = ''; popup.remove(); });
@@ -74,7 +83,7 @@ export function buildFrames(rows) {
   return [...byT.keys()].sort().map((t, i) => {
     for (const r of byT.get(t)) last.set(r.mmsi, { r, i });
     const features = [];
-    const counts = { anchored: 0, moored: 0, underway: 0 };
+    const counts = Object.fromEntries(Object.keys(STATE_COLORS).map((k) => [k, 0]));
     for (const [mmsi, v] of last) {
       if (i - v.i > HOLD) { last.delete(mmsi); continue; }
       const r = v.r;

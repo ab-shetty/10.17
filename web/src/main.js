@@ -1,7 +1,7 @@
 import { load, findReplays, daysBetween, addDays } from './data.js';
-import { createMap, buildFrames, escapeHtml } from './map.js';
+import { createMap, buildFrames, escapeHtml, VIEWS } from './map.js';
 import { createChart } from './forecastChart.js';
-import { renderExplain, fmtDay } from './explain.js';
+import { renderExplain, fmtDay, baselineLabel } from './explain.js';
 
 const $ = (id) => document.getElementById(id);
 const FRAME_MS = 1000 / 6; // 10-minute frames, 6 per second = 1 hour per second
@@ -24,8 +24,8 @@ async function main() {
   const { map, ready } = createMap($('map'));
   const chart = createChart($('chart'), { daily: D, preds: P, news: N, onPick: (d) => selectDay(d) });
 
-  // Replay days: every day inside an episode that has a replay file.
-  const epReplays = await Promise.all(E.map((ep) => findReplays(daysBetween(ep.start, ep.end))));
+  // Replay days: the episode's replay_days (contract), else every day inside it, kept if a file exists.
+  const epReplays = await Promise.all(E.map((ep) => findReplays(ep.replay_days ?? daysBetween(ep.start, ep.end))));
   const replayDays = [...new Map(epReplays.flat().map((r) => [r.day, r])).values()].sort((a, b) => a.day.localeCompare(b.day));
   const sel = $('replay-select');
   sel.innerHTML = replayDays.length
@@ -70,7 +70,7 @@ async function main() {
     state.frame = i;
     const f = R.frames[i];
     map.getSource('ships').setData(f.fc);
-    for (const k of ['anchored', 'moored', 'underway']) $(`cnt-${k}`).textContent = f.counts[k];
+    for (const k of ['anchored', 'moored', 'underway', 'inbound', 'waiting_offshore']) $(`cnt-${k}`).textContent = f.counts[k];
     $('clock').textContent = `${f.t.slice(11, 16)} UTC`;
     $('scrub').value = i;
     const mins = +f.t.slice(11, 13) * 60 + +f.t.slice(14, 16);
@@ -96,6 +96,7 @@ async function main() {
   $('scrub').oninput = (e) => { stop(); showFrame(+e.target.value); };
 
   segmented('horizon', (b) => { state.h = +b.dataset.h; chart.setHorizon(state.h); explain(); });
+  segmented('view', (b) => map.fitBounds(VIEWS[b.dataset.v], { padding: 12, duration: 600 }));
   const ranges = { year: [first, last], test: [P[0]?.date ?? first, P.at(-1)?.date ?? last] };
   segmented('range', (b) => { chart.setRange(...ranges[b.dataset.r]); });
 
@@ -143,12 +144,18 @@ function renderTiles(m, mock) {
   if (!m) { $('tiles').innerHTML = ''; return; }
   $('tiles').innerHTML = ['1', '2', '3'].filter((h) => m[h]).map((h) => {
     const t = m[h];
-    const win = t.skill_pct > 0;
-    return `<div class="tile ${win ? 'win' : 'lose'}">
+    // skill_pct is vs the best naive rule (t.baseline). If the 90% CI spans 0 it's a tie, not a win or loss.
+    const ci = t.skill_ci90;
+    const tie = ci && ci[0] <= 0 && ci[1] >= 0;
+    const win = !tie && t.skill_pct > 0;
+    const verdict = tie ? 'tie with' : win ? 'better than' : 'worse than';
+    const pct = `${t.skill_pct < 0 ? '−' : t.skill_pct > 0 ? '+' : ''}${Math.abs(t.skill_pct).toFixed(1)}%`;
+    return `<div class="tile ${tie ? 'tie' : win ? 'win' : 'lose'}">
       <span class="lbl">Day +${h}</span>
-      <b>${win ? '' : '−'}${Math.abs(t.skill_pct).toFixed(1)}%</b>
-      <span class="lbl">${win ? 'better' : 'worse'} than “tomorrow = today”</span>
-      <small>MAE ${t.mae_model.toFixed(2)} vs ${t.mae_baseline.toFixed(2)} ships · ${t.n_test} test days</small>
+      <b>${pct}</b>
+      <span class="lbl">${verdict} ${escapeHtml(baselineLabel(t.baseline))}</span>
+      <small>MAE ${t.mae_model.toFixed(2)} vs ${t.mae_baseline.toFixed(2)} ships · ${t.n_test} test days${
+        ci ? ` · 90% CI ${ci[0]}…${ci[1]}%` : ''}</small>
     </div>`;
   }).join('') + (mock ? '<span class="badge mock">MOCK</span>' : '');
 }
