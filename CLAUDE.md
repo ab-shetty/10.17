@@ -28,6 +28,10 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
   **Closing fact from POLA's own CY2021 inventory (Table 3.16): ships hotelling at anchor emitted 2,848 short tons NOx
   in 2021 = 48 % of all POLA ship NOx, 24× the 2023 figure (118 tons). POLA calls only; Long Beach is extra.**
   POLA's 2021 report says the Nov-2021 queuing process was adopted "to increase safety and improve air quality".
+  **Independent check (CARB fact sheets, PDFs in `data/ext/carb/`):** our 2024 rate = 2.2 short tons NOx/day vs CARB's
+  business-as-usual 1.7 tpd for tankers + containers at anchor (we also count bulk/car carriers). CARB Nov 2021: as of
+  Oct 2021 up to 79 container ships (109 total) at anchor, **+20 tpd NOx ≈ 5.8 million passenger cars**, +0.5 tpd PM ≈
+  100,000 Class 8 trucks. CARB Feb 2023 Table 1: excess NOx at anchor 17.9 tpd (Nov 21) → 7.0 → 4.3 → 3.5 → 2.6 (Mar 22).
 - Weather forecasts: Open-Meteo previous-runs (`fc1..3_*`) exist only from 2024-01-19. The crisis model can't see storms coming.
 - Best new signal: **ships inbound within 60 nm** (corr 0.18 with tomorrow's queue change, more than today's arrivals).
 - **The 2024 anchored queue is ~74 % tankers** (11.3 of 15.3 on average). Say "ships waiting at anchor", not "container queue".

@@ -45,6 +45,15 @@ POLA_2023 = dict(anchorage_ship_hours=11312, nox_t=round(118.0 * ST, 1), co2e_t=
 # 48 % of all POLA ocean-going-vessel NOx that year (5,956 short tons). POLA calls only; Long Beach not included.
 POLA_2021 = dict(nox_t=round(2848 * ST), pm25_t=round(60.8 * ST, 1), co2e_t=261649, share_of_pola_ogv_nox=0.48,
                  source="POLA Inventory of Air Emissions CY2021, Table 3.16 (hotelling at-anchorage)")
+# CARB fact sheets (SPBP = both ports), short tons/day NOx from ocean-going vessels at anchor.
+# Feb 2023 update, Fig. 2 insets: business-as-usual averages; Table 1: EXCESS over BAU (containers+cruise+tankers).
+CARB_BAU_TPD = dict(tanker=1.5, container=0.2, cruise=0.6)
+CARB_EXCESS_TPD = {"2021-11": 17.9, "2021-12": 7.0, "2022-01": 4.3, "2022-02": 3.5, "2022-03": 2.6,
+                   "2022-04": 2.0, "2022-05": 0.9, "2022-06": 0.4}
+# Nov 2021 sheet: "as of October 2021 ... 20 tons per day (tpd) of NOx and 0.5 tpd of PM" above pre-pandemic,
+# with up to 79 container vessels (109 total) at anchor; NOx "roughly equivalent to ... 5.8 million passenger cars".
+CARB_OCT2021 = dict(excess_nox_tpd=20, excess_pm_tpd=0.5, container_ships_at_anchor=79, ships_at_anchor=109,
+                    nox_equiv_passenger_cars=5.8e6, pm_equiv_class8_trucks=100000)
 
 
 def main(daily, out):
@@ -73,6 +82,17 @@ def main(daily, out):
                    cross_check=dict(pola_2023_inventory=POLA_2023, pola_2021_inventory=POLA_2021,
                                     note="our rate per ship-day is about half POLA's implied rate (conservative); "
                                          "our ship-days are higher because POLA counts only its own calls"))
+    # month-by-month vs CARB (short tons/day): ours excludes cruise ships (AIS types 70-89 only)
+    mon = res.assign(m=res.date.str[:7]).groupby("m").agg(nox_t=("nox_t", "mean"), days=("nox_t", "size"))
+    carb_bau = CARB_BAU_TPD["tanker"] + CARB_BAU_TPD["container"]
+    summary["vs_carb_monthly"] = [dict(month=m, ours_nox_tpd_short=round(r.nox_t / ST, 2),
+                                       carb_nox_tpd_short=round(carb_bau + CARB_EXCESS_TPD.get(m, 0), 1)
+                                       if m in CARB_EXCESS_TPD or m >= "2022-07" or m < "2020-11" else None)
+                                  for m, r in mon.iterrows()]
+    summary["carb"] = dict(bau_nox_tpd_short=CARB_BAU_TPD, excess_nox_tpd_short=CARB_EXCESS_TPD, oct_2021=CARB_OCT2021,
+                           ours_mean_nox_tpd_short=round(float(res.nox_t.mean() / ST), 2),
+                           source="CARB, Emissions Impact of Ships Anchored at POLA/POLB (Nov 2021); Emissions "
+                                  "Impacts of Vessel Congestion ... February 2023 Update (Table 1, Fig. 2)")
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     Path(out).write_text(json.dumps(dict(summary=summary, daily=json.loads(res.round(3).to_json(orient="records"))), indent=None))
     print(json.dumps(summary, indent=1))
