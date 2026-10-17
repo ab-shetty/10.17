@@ -2,7 +2,8 @@
 
 Usage:
   python model/train.py                                   # 2024: test Oct-Dec, writes shared/preds.json ...
-  python model/train.py --daily shared/crisis/daily.parquet --weather data/crisis/weather_daily.parquet \
+  python model/train.py --daily shared/crisis/daily.parquet \
+                        --weather data/crisis/weather_daily.parquet data/crisis/ext_daily.parquet \
                         --test-start 2021-12-01 --out-prefix shared/crisis
 
 Baselines: persistence (y_t), 7-day mean, and their 50/50 blend. skill_pct is against the BEST of the three on the
@@ -163,8 +164,8 @@ def main(daily, weather, test_start, out_prefix, test_end=None):
     d = pd.read_parquet(daily)
     d["date"] = pd.to_datetime(d.date)
     d = d.set_index("date").sort_index().asfreq("D")
-    if weather:
-        w = pd.read_parquet(weather)
+    for wf in weather or []:  # extra per-day tables (weather, fog/waves) for daily files that lack them
+        w = pd.read_parquet(wf)
         w.index = pd.to_datetime(w.date)
         d = d.drop(columns=[c for c in w.columns if c in d.columns and c != "date"]).join(w.drop(columns="date"))
     test_start = pd.Timestamp(test_start)
@@ -251,7 +252,7 @@ def main(daily, weather, test_start, out_prefix, test_end=None):
 if __name__ == "__main__":
     a = argparse.ArgumentParser()
     a.add_argument("--daily", default="data/daily.parquet")
-    a.add_argument("--weather", help="weather parquet to join (needed when the daily table has no weather)")
+    a.add_argument("--weather", nargs="+", help="per-day parquet(s) to join, e.g. weather + fog/waves")
     a.add_argument("--test-start", default="2024-10-01")
     a.add_argument("--test-end")
     a.add_argument("--out-prefix", default="shared")
