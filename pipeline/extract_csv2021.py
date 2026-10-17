@@ -14,7 +14,11 @@ import duckdb
 URL = "https://coast.noaa.gov/htdata/CMSP/AISDataHandler/{y}/AIS_{y}_{m:02d}_{d:02d}.zip"
 LAT, LON = (33.55, 33.80), (-118.35, -117.95)
 A_LAT, A_LON = (32.5, 34.6), (-121.0, -117.2)
-OUT, AOUT, TMP = Path("data/ais_crisis"), Path("data/approach_crisis"), Path("data/tmp_csv")
+import os  # noqa: E402
+# AIS_OUT / APPR_OUT override the output folders (e.g. a 2023 calm-period pull that must not mix with the crisis set)
+OUT = Path(os.environ.get("AIS_OUT", "data/ais_crisis"))
+AOUT = Path(os.environ.get("APPR_OUT", "data/approach_crisis"))
+TMP = Path("data/tmp_csv")
 
 
 def one_day(c, d0, out, aout, lock):

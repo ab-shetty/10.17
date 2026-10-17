@@ -42,6 +42,11 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
 - **Cost of the gap** (net understatement, bias × 437 visits, Sep–Oct 2021 only): **893 ship-days ≈ 6,500 t fuel ≈ $5.1 M,
   200 t NOx, 21 kt CO2** (priced at the Sep–Oct fleet mix, 7.3 t fuel/ship-day; was $4.9 M / 192 t with the whole-file average) of idling nobody planned for. 2024: −18 ship-days (≈ 0). Per-ship sums mostly reflect scatter of individual waits.
   Total burned at anchor in the crisis: `shared/crisis/emissions.json` fuel_t × $780/t (not all avoidable).
+- **Post-freeze experiments (A, `pipeline/notes/wait_experiments.md`)**: 80 % ranges for each ship's wait
+  (`model/wait_intervals.py`) are calibrated in both years: 85 % of real waits inside in the 2021 crisis, 84 % in 2024.
+  Ranges built on the published figure fall to 69 % coverage by Nov 2021. ML per ship, carrier/terminal-level estimates and
+  ARIMA did not beat the existing figures. **For the Overseer to decide:** add the range (`lo_d`, `hi_d`) to
+  `shared/crisis/wait.json` for the demo, or leave the demo as is. Not in `shared/` yet.
 - **Crisis count forecast, honest** (`shared/crisis/metrics.json`, full run 2021-06-01..2022-03-31, rolling from Sep 2021):
   a day ahead, nothing seen from shore beats tomorrow = today: h=1 +0.5 % [−6.4, +4.8], h=2 −1.7 %, h=3 −6.0 % (no detectable
   difference; pre-rule-change window h=1 −3.0 %). The queue moved in steps set weeks earlier in Asia.
