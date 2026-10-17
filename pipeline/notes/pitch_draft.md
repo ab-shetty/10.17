@@ -33,17 +33,19 @@ published figure is spot on: it goes wrong exactly when the queue grows.
 **What it's worth to a shipping company (≈ 110 words).**
 Since November 2021 your place in line is set when you leave your last port, so slowing down no longer costs
 your spot. What captains lack is the right number to slow down to. We tested ours a week out at sea: the
-published figure ran three days short; ours was within a day. That's $300,000 to $600,000 per large ship, and
+published figure ran three days short; ours was within a day. That's up to $300,000 of fuel per large ship, and
 tens of millions across September and October 2021 alone, with the emissions moved out to sea.
 [issued-ahead check: `shared/crisis/wait.json` daily, estimate issued 7 d before joining, bias ours −0.8 d vs published −3.1 d (measured);
-fleet $ = ~266 large visits × ~2.6 d × $70–130k/day, back-of-envelope upper bound; rule: `pipeline/notes/crisis_timeline_2021.md`]
+per ship: slow the last 7 days (17 → ~12.5 kn) to absorb the ~2.5 d shortfall, 60–150 t/day at 17 kn, fuel per mile ∝ v², $615/t VLSFO ≈ $120–300k, back-of-envelope;
+fleet = ~266 large container visits Sep–Oct 2021 × that, upper bound (every captain acts); rule: `pipeline/notes/crisis_timeline_2021.md`]
 
 **Honest limits + what paid data unlocks (≈ 85 words).**
 With free data we see 60 miles out, so nobody, including us, could forecast the 2021 jumps from shore: a day
 ahead nothing beats "tomorrow equals today". In normal 2024 our model beats the best simple rule by 11 percent,
 mostly in storms. With satellite tracking we'd see every LA-bound ship from the day it leaves Asia, and could
-forecast the crisis itself.
-[`crisis/metrics.json` h=1 +0.5 % [−6.4, +4.8]; `metrics.json` h=1 +10.7 % [+3.3, +17.5]; satellite = not tested]
+forecast the crisis itself. That would be worth up to $650,000 per ship, and on the order of $100 million in
+two months, at one port.
+[`crisis/metrics.json` h=1 +0.5 % [−6.4, +4.8]; `metrics.json` h=1 +10.7 % [+3.3, +17.5]; satellite = not tested; $ = wait known on leaving Asia → cross 5,700 nm at 12 kn instead of 17 (~14 → ~20 d), ~50 % less crossing fuel, 60–150 t/day, $615/t ≈ $260–650k per large ship × ~266 large visits Sep–Oct 2021 ≈ $70–170 M, back-of-envelope, "would"]
 
 **Who pays + close (≈ 40 words).**
 Whoever buys the fuel: charterers and carriers. The next port costs nothing to add. Two of us built this in
