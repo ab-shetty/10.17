@@ -95,8 +95,7 @@ def main(daily, out):
                        offshore_co2_t=round(float(res.offshore_co2_t.sum())),
                        offshore_note="UPPER BOUND, not inventory: loitering ships < 60 nm, < 3 kn, at full "
                                      "large-container-ship hotelling load. Loitering ships often run reduced loads "
-                                     "(POLA CY2021 counts loitering separately and small). Not added to nox_t; "
-                                     "do not headline")),
+                                     "(POLA CY2021 counts loitering separately and small). Not added to nox_t (an upper bound, not an inventory figure)")),
                    method="POLA Inventory of Air Emissions 2023: anchorage hotelling loads (Tables 3.2, 3.5) x "
                           "0.1% S MGO emission factors (Tables 3.12, 3.13); ship-hours at anchor from AIS",
                    scope="every cargo ship and tanker anchored in San Pedro Bay (both ports, plus refinery/crude "

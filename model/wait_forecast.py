@@ -155,13 +155,13 @@ def main(ais_dir, approach_dir, start, end, out, refresh=False, emissions=None):
                                       fuel_t=round(float(under * fuel_d)), fuel_usd_m=round(float(under * fuel_d * FUEL_USD_T / 1e6), 1),
                                       nox_t=round(float(under * nox_d / 1000), 1))
         # the defensible number: the NET (systematic) understatement, bias x visits. The per-ship sums above are mostly
-        # scatter of individual waits around any average (they are as large in calm 2024), so don't headline them.
+        # scatter of individual waits around any average (they are as large in calm 2024), so the net figure is the meaningful one.
         net = float(-(j.reported - j.wait_d).sum())
         res["gap_cost"]["net_understatement"] = dict(
             ship_days=round(net), fuel_t=round(net * fuel_d), fuel_usd_m=round(net * fuel_d * FUEL_USD_T / 1e6, 1),
             nox_t=round(net * nox_d / 1000, 1), co2_t=round(net * es["co2_t"] / es["ship_days_at_anchor"]),
             note="sum over joining ships of (actual wait - reported wait the day before); positive = the published "
-                 "figure was too short on net. Headline this one, not the per-ship sums.")
+                 "figure was too short on net. The per-ship sums above mostly reflect scatter of individual waits.")
         res["gap_cost"]["note"] = (f"{len(j)} visits joining in the window. 'longer than told' = sum over ships of max(0, actual wait - "
                                    f"the figure available the day before it joined): idle time nobody planned for, which slow steaming "
                                    f"could have moved to sea. Priced at {fuel_d:.1f} t fuel and {nox_d:.0f} kg NOx per ship-day at "

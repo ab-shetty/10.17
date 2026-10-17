@@ -36,15 +36,8 @@ two months, at one port.
 Whoever buys the fuel pays for this: charterers and carriers. The next port costs nothing to add. Two of us
 built this in five hours, directing a team of Claude agents. Every captain should get the real number.
 
----
 
-## Don't say
-- "We can predict the crisis with satellite data" (say "would": not tested).
-- "$45–90 million" or "$70–170 million" out loud (say "tens of millions" / "on the order of $100 million").
-- "We predicted the crisis" / "saw it coming in September" (a day ahead in the crisis: no detectable difference).
-- "Our wait estimate is more accurate" (per day it isn't; per ship it beats the published figure for 52 %). Say "right on average".
-- "Avoidable $55 million" ($55 M is everything burned at anchor).
-- "Container queue" for 2024 (74 % tankers).
+---
 
 ## 30-second version
 Off Los Angeles in 2021 the published wait for a berth told captains two to three days less than they really
@@ -55,20 +48,23 @@ a large ship saves up to $300,000 of fuel. The same free inputs exist for every 
 
 ---
 
-## Sources (for us, not for reading aloud)
-- Hook: `shared/crisis/hero_ship.json` (`usd_slow_steam`, `slow_steam_note`). Back-of-envelope: 5,200–6,300 nm,
-  16–18 kn, 90–150 t/day, fuel per mile ∝ v², VLSFO $580–650/t → $320k–620k.
-- Peak day: 48 anchored + 54 loitering = 102.5 vs Marine Exchange 56 + 51 = 107 (CLAUDE.md).
-- Wait: `shared/crisis/wait.json` (published bias −2.5 d, ours +0.1 d, short in all 9 weeks); 2024 control
-  `shared/wait.json` (steady weeks 0.0 d).
-- A week out at sea: estimate issued 7 d before joining, bias ours −0.8 d vs published −3.1 d (measured, Sep–Oct 2021).
-  $: slow the last 7 days 17 → ~12.5 kn to absorb ~2.5 d, 60–150 t/day, $615/t ≈ $120–300k per large ship;
-  fleet = ~266 large container visits × that (upper bound: every captain acts).
-- Queue rule (Nov 15/16 2021, position by departure from last port): `pipeline/notes/crisis_timeline_2021.md`.
-- Forecast skill: crisis day+1 +0.5 % [−6.4, +4.8] (`shared/crisis/metrics.json`); 2024 day+1 +10.7 % [+3.3, +17.5]
-  (`shared/metrics.json`).
-- Satellite $: cross 5,700 nm at 12 kn instead of 17 (~14 → ~20 d), ~50 % less crossing fuel, 60–150 t/day,
-  $615/t ≈ $260–650k per large ship × ~266 visits ≈ $70–170 M. Back-of-envelope, untested ("would").
-- Model: `model/train.py` (mean of LightGBM + CatBoost + ridge on y[t+h] − best naive anchor; day-ahead HRRR gust
-  forecast; rolling-origin monthly refit; 7-day block-bootstrap CI). 677 variants: `pipeline/notes/grid_results.md`
-  (nothing beats the default). The wait estimate itself is queueing theory (Little's law), not ML: don't call it a model.
+## Sources and assumptions
+- Hero ship: `shared/crisis/hero_ship.json`. Back-of-envelope: 5,200–6,300 nm crossing, 16–18 kn, 90–150 t/day
+  main-engine burn, fuel per mile ∝ v², VLSFO $580–650/t → $320k–620k. Across all 122 container-size ships that joined
+  in Oct 2021, our estimate was closer than the published figure for 52 %; the published figure was short for 60 %.
+- Peak day 2021-10-25: 48 anchored + 54 loitering within 60 nm = 102.5 (hourly mean) vs Marine Exchange 56 + 51 = 107.
+- Wait: `shared/crisis/wait.json`, container-size ships joining Sep–Oct 2021. Published-style 7-day average: bias
+  −2.5 d, below the real wait in all 9 weeks. Ships ahead ÷ berths per day: bias +0.1 d, day-to-day error slightly
+  higher (4.3 vs 3.8 d). 2024 control `shared/wait.json`: bias 0.0 d in steady weeks.
+- A week out at sea: estimate issued 7 days before the ship joins, bias −0.8 d (ours) vs −3.1 d (published), Sep–Oct 2021.
+  Per ship: slow the last 7 days from 17 to ~12.5 kn to absorb ~2.5 d, 60–150 t/day, $615/t ≈ $120–300k.
+  Fleet: ~266 large container visits × that range; assumes every ship acts on it.
+- Queue rule from 2021-11-15/16 (position set by departure from last port): `pipeline/notes/crisis_timeline_2021.md`.
+- Forecast skill vs the best simple rule, rolling-origin, 90 % block-bootstrap CI: 2021–22 crisis, day+1 +0.5 %
+  [−6.4, +4.8] (`shared/crisis/metrics.json`); 2024 Oct–Dec, day+1 +10.7 % [+3.3, +17.5] (`shared/metrics.json`).
+- Satellite: wait known on leaving Asia → cross 5,700 nm at 12 kn instead of 17 (~14 → ~20 d), ~50 % less crossing
+  fuel, 60–150 t/day, $615/t ≈ $260–650k per large ship × ~266 visits ≈ $70–170 M. Back-of-envelope, not tested.
+- Model: `model/train.py`, mean of LightGBM + CatBoost + ridge predicting the change from the best simple rule; day-ahead
+  HRRR gust forecast; monthly rolling-origin refit. 677 variants: `pipeline/notes/grid_results.md`. The wait estimate is
+  queueing theory (Little's law: ships ahead ÷ berths freed per day).
+- Fuel burned at anchor over the whole 2021–22 crisis (304 days): 71,216 t ≈ $55 M, 2,162 t NOx (`shared/crisis/emissions.json`).
