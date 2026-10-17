@@ -35,7 +35,7 @@ def main():
     b = ANCHOR_BOX
     c.execute(f"""
       CREATE TABLE p AS
-      SELECT mmsi, ts, lat, lon, sog, status, draft,
+      SELECT mmsi, ts, lat, lon, sog, status, draft, vessel_type, length,
              floor(lat/{CELL})::INT AS cy, floor(lon/{CELL})::INT AS cx
       FROM read_parquet({files})""")
     c.execute(f"""
@@ -61,9 +61,14 @@ def main():
       WITH h AS (
         SELECT date_trunc('hour', ts) AS hr,
                count(DISTINCT mmsi) FILTER (WHERE anchored) AS a,
-               count(DISTINCT mmsi) FILTER (WHERE moored) AS m
+               count(DISTINCT mmsi) FILTER (WHERE moored) AS m,
+               count(DISTINCT mmsi) FILTER (WHERE anchored AND vessel_type BETWEEN 80 AND 89) AS a_tank,
+               count(DISTINCT mmsi) FILTER (WHERE anchored AND vessel_type BETWEEN 70 AND 79) AS a_cargo,
+               count(DISTINCT mmsi) FILTER (WHERE anchored AND vessel_type BETWEEN 70 AND 79 AND length >= 250) AS a_big
         FROM q GROUP BY 1)
-      SELECT hr::DATE AS date, avg(a) AS n_anchored, max(a) AS n_anchored_max, avg(m) AS n_moored
+      SELECT hr::DATE AS date, avg(a) AS n_anchored, max(a) AS n_anchored_max, avg(m) AS n_moored,
+             avg(a_tank) AS n_anchored_tanker, avg(a_cargo) AS n_anchored_cargo,
+             avg(a_big) AS n_anchored_bigcargo  -- >=250 m cargo, mostly container ships (cf. POLA summary)
       FROM h GROUP BY 1""").df()
 
     # visits: new visit when an mmsi reappears after >= GAP_H hours (first-ever ping on day 1 is censored)
@@ -94,8 +99,13 @@ def main():
     d.index = pd.to_datetime(d.index)
     d["n_arrivals_24h"] = arr.groupby(arr.t_in.dt.floor("D")).size()
     d["n_departures_24h"] = dep.groupby(dep.t_out.dt.floor("D")).size()
-    d[["n_arrivals_24h", "n_departures_24h"]] = d[["n_arrivals_24h", "n_departures_24h"]].fillna(0).astype(int)
-    d["n_arrivals_48h"] = d.n_arrivals_24h.rolling(2, min_periods=1).sum().astype(int)
+    d[["n_arrivals_24h", "n_departures_24h"]] = d[["n_arrivals_24h", "n_departures_24h"]].fillna(0)
+    # AIS receiver outages (e.g. 2024-12-25/26: 11-13 h of data) make every ship look like a new arrival.
+    cov = c.sql("SELECT ts::DATE AS date, count(DISTINCT date_trunc('hour', ts)) AS h FROM q GROUP BY 1").df()
+    d["coverage_hours"] = cov.set_index(pd.to_datetime(cov.date)).h
+    gap = (d.coverage_hours < 20) | (d.coverage_hours.shift(1) < 20)
+    d.loc[gap, ["n_arrivals_24h", "n_departures_24h"]] = float("nan")
+    d["n_arrivals_48h"] = d.n_arrivals_24h.rolling(2).sum()
     d["avg_wait_hours"] = waits.groupby(waits.t_berth.dt.floor("D")).wait_h.mean()
 
     w = pd.read_parquet("data/weather_daily.parquet")
