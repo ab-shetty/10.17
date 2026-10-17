@@ -108,7 +108,16 @@ in all 9 weeks (−2.5 d for container-size ships). Our reconstruction matches t
 Sep 9: ~7.3 d 30-day vs POLA 8.5; Oct 14: 13.9 vs NBC4 12). Little's law is unbiased but NOT more accurate per day
 (MAE 4.3 vs 3.8 d): we claim bias, not accuracy.
 
-**Q: Where does $4.9 M come from?**
+**Q: How do you know what the port actually said?**
+We rebuilt the published figure from AIS (trailing average wait of container ships that berthed) and checked it
+against the dated published numbers (`pipeline/notes/wayback_2021.md`):
+| date | published | our reconstruction | what ships joining that week really waited |
+|---|---|---|---|
+| 2021-09-10 | 8.5 d (POLA, 30-day average, range 1–18) | 7.4 d (30-day) / 7.3 d (7-day) | 9.6 d |
+| 2021-10-22 | 10–12 d (Western Overseas advisory) | 11.0 d (7-day) | 17.8 d |
+Agreement within ~1 day; in both weeks the real wait was longer than either.
+
+**Q: Where does $5.1 M come from?**
 Net understatement only: Σ over the 437 ships that joined the queue in Sep–Oct 2021 of (actual wait − the wait published
-the day before) = 893 ship-days, × 7.0 t fuel per ship-day at anchor (POLA inventory loads, our emissions method) ×
-$780/t MGO. Same calculation for 2024 gives −18 ship-days (≈ 0). Offshore loitering is priced at anchor rates (approximation).
+the day before) = 893 ship-days, × 7.3 t fuel per ship-day at anchor (Sep–Oct 2021 fleet mix; POLA inventory loads, our emissions method) ×
+$780/t MGO = 6,500 t ≈ $5.1 M, 200 t NOx. Same calculation for 2024 gives −18 ship-days (≈ 0). Offshore loitering is priced at anchor rates (approximation).

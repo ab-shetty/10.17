@@ -2,6 +2,54 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 3:05 PDT, to A: great work (hero ship, published check, script). Last 20 min, in this order
+1. **Tag `mvp` and record the backup video once B's 2:55 UI fixes land on main** (B is on it now: default day
+   Oct 19, wait card after Nov 16). Do items 2–3 first. When B publishes, `git fetch origin && git tag mvp origin/main && git push origin mvp`,
+   then record from `?year=2021`: Oct 19 → play the replay → click a story → scroll to the wait chart. If B hasn't
+   published by 3:20, tag current main and record anyway.
+2. **Make the hero ship's dollar number match the real lever (10 min).** $37,800 is fuel at anchor only, and it
+   sounds small next to a 366 m ship. The real saving is at sea: told 17 days instead of 12, the captain slows the
+   crossing and arrives 4.8 d later instead of idling. Compute it for MSC JOSSELINE and add it to
+   `hero_ship.json` as `usd_slow_steam` + `slow_steam_note`. State every assumption:
+   - crossing distance (Asia to LA ≈ 5,000–6,000 nm, pick its likely origin);
+   - original speed (≈ 17–18 kn);
+   - main-engine burn at that speed for a 366 m ship (cite a source or give a range);
+   - fuel per distance ∝ v² (cube law per hour);
+   - new speed = distance / (original time + 4.8 d);
+   - saving = burn × (1 − (v_new/v_old)²), minus the at-sea time-related extras if any, plus the $37.8k anchor
+     fuel avoided. Use VLSFO price for at-sea fuel, not MGO.
+   Give a **range, not a point**. Expect a few hundred k$. In the pitch: "$X–Y for this one ship, from one honest
+   number". Add the method to `judge_qa.md` labelled "back-of-envelope".
+3. **Pitch: time it aloud** (5 min). If over 3:00, cut evidence, never the hero ship or the honest-limits line.
+   `pitch_draft.md` is 702 words, so make sure the spoken part is ≤ 430. Rehearse twice.
+Nothing else goes into `shared/` after 3:25.
+
+### 3:00 PDT, to A: the last 25 minutes. Three items that win the room (no model changes)
+1. **One named ship (10 min).** Judges remember a story, not a MAE. From the per-visit waits behind
+   `wait.json`, pick 1 real container ship that joined the queue in Oct 2021 where the **published figure was far
+   off and ours was close** (e.g. "joined Oct 18: published said 12 d, we said 17 d, it waited 16 d"). Give its name,
+   length, join and berth dates, and the three numbers. Add the fuel it could have saved by slowing down instead
+   of idling: wait difference in days × anchor fuel/day from your emissions method. Put it in `pitch_draft.md` and
+   as `shared/crisis/hero_ship.json` `{name, mmsi, length_m, join, berth, real_d, published_d, ours_d, fuel_t, usd}`
+   so B can drop it on screen if time allows. Pick it honestly: say it's an example, and quote the averages too.
+2. **Check our "published" series against what was actually published (5 min).** `wayback_2021.md` has
+   2021-09-10: 30-day average 8.5 d (range 1–18), and 2021-10-22: 10–12 d. Put our reconstructed published value
+   and our real value for those dates in `judge_qa.md`. If they agree, it's the answer to "how do you know what
+   the port said?"
+3. **Final pitch script (10 min), ~420 spoken words**, in `pipeline/notes/pitch_draft.md`:
+   - **Hook:** the hero ship.
+   - **Problem:** ships idle at anchor over Wilmington/San Pedro.
+   - **What we found:** "the published wait ran 2–3 days short exactly when the queue grew (75 % of days), and was
+     fine in calm 2024. Queue ÷ berthing rate from free AIS got it right on average."
+   - **Cost:** 893 ship-days, $4.9 M fuel and 192 t NOx in Sep–Oct 2021 alone, inside ~$50 M burned at anchor.
+   - **Trust:** the peak-day count matched the Marine Exchange (102.5 vs 107).
+   - **Honest limits:** a day ahead, nothing seen from shore beats tomorrow = today in the crisis; the queue moved in
+     steps set in Asia; 2024 day+1 +10.7 %.
+   - **Scale:** "the same two free inputs exist for every major port on earth" (PortWatch + AIS).
+   - **Next:** satellite AIS for a two-week horizon.
+   **Then tag `mvp` and record the video** once B's two UI fixes land (2:55). If B isn't done by 3:20, tag
+   current main and record anyway. Rehearse twice.
+
 ### 2:55 PDT, to B (and A FYI): A's outage fix is in; two last UI fixes, then tag + video
 A's full run is on main (9d818df/cf023d6): outages nulled, crisis day+1 now **+0.5 % [−6.4, +4.8], no detectable
 difference vs tomorrow = today**, wait cost added. The Overseer rebuilt main: renders clean and shows the outage gap.
@@ -203,8 +251,8 @@ more features. Judges reward (1) a real problem with a number attached, (2) a de
 (3) evidence the model is right, (4) a clear "so what" action, (5) a memorable moment.
 
 ## What we have (11:55)
-- Full-year 2024 AIS, ships at anchor, LightGBM 1–3 days ahead: beats persistence 8 / 5 / 5 % overall and
-  +22–26 % on big moves (direction right 74–82 %). Validated vs POLA's own daily counts (r = 0.49 / 0.62).
+- (Superseded 3:05; current numbers in CLAUDE.md and shared/metrics.json.) 2024 day+1 +10.7 % [+3.3, +17.5] vs the
+  best naive rule; day+2/+3 no detectable difference. POLA check is on the container slice only (r = 0.49 / 0.62).
 - Honest caveat to own, not hide: 2024 had no crisis ("not a single ship backed up at sea", POLA Oct 2024),
   and the anchored queue is ~74 % tankers. So the pitch is not "we predict the next 2021"; it is the bets below.
 
