@@ -121,3 +121,11 @@ Agreement within ~1 day; in both weeks the real wait was longer than either.
 Net understatement only: Σ over the 437 ships that joined the queue in Sep–Oct 2021 of (actual wait − the wait published
 the day before) = 893 ship-days, × 7.3 t fuel per ship-day at anchor (Sep–Oct 2021 fleet mix; POLA inventory loads, our emissions method) ×
 $780/t MGO = 6,500 t ≈ $5.1 M, 200 t NOx. Same calculation for 2024 gives −18 ship-days (≈ 0). Offshore loitering is priced at anchor rates (approximation).
+
+**Q: "$320k–620k for one ship": how? (back-of-envelope)**
+MSC JOSSELINE was told 12.5 d and waited 17.3 d. Told the real wait, she could have crossed the Pacific 4.8 d slower
+instead of idling. Assumptions (all ranges): origin East Asia, 5,200–6,300 nm (Busan to Yantian); original speed
+16–18 kn; main-engine burn 90–150 t/day at that speed for a ~14,000 TEU, 366 m ship (typical for the class, not her
+logbook); fuel per mile ∝ v² (cube law per hour); new speed = distance ÷ (original time + 4.8 d) ≈ 12–13.5 kn;
+VLSFO $580–650/t (Oct 2021). Saving = 550–950 t ≈ $320k–620k. The $38k of anchor fuel is NOT added: the generators
+run at sea too, so that burn moves 100+ nm offshore instead of disappearing. It ignores engine-load limits and schedule penalties.

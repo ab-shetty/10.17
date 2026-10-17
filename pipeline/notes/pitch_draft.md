@@ -9,9 +9,10 @@ Demo = a **replay** of 2021 and 2024 AIS, not live. Say so.
 
 **Hook (≈ 50 words).**
 On October 11th, 2021, the MSC Josseline, a 366-metre container ship, joined the queue off Los Angeles.
-The port's published wait that day was twelve and a half days. She waited seventeen. That's almost five days
-idling her generators over Wilmington and San Pedro, roughly 50 tonnes of fuel, about $38,000.
-[`shared/crisis/hero_ship.json`]
+The port's published wait that day was twelve and a half days. She waited seventeen. Told the real number,
+her captain could have crossed the Pacific five days slower instead of idling over Wilmington and San Pedro:
+roughly $300,000 to $600,000 of fuel, for one ship, from one honest number.
+[`shared/crisis/hero_ship.json` usd_slow_steam, back-of-envelope; judge_qa.md]
 
 **Problem (≈ 50 words).**
 In the 2021 backlog, more than a hundred ships waited off San Pedro Bay. Every day at anchor burns fuel and

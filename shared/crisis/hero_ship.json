@@ -13,5 +13,14 @@
  "nox_t": 1.54,
  "note": "One example, not the best case: ships that joined in Oct 2021 with our estimate within 1 d and the published figure >2 d short ranged 3.3-6.5 d short; this one is mid-range. Across all 122 container-size ships joining in Oct 2021, ours was closer for 52 %; the published figure was short for 60 %; on average it ran 2.5 d short (Sep-Oct). Fuel = gap x 10.1 t/day (anchored >=200 m container ship hotelling, POLA inventory loads, pipeline/emissions.py) x $780/t MGO: what slow steaming instead of idling could have saved if the captain had been told the real wait.",
  "published_d_def": "trailing 7-day mean wait of container-size ships that berthed in the 7 days before it joined (what the port quoted)",
- "ours_d_def": "ships waiting at the end of the day before it joined / container berthings per day (7-day mean)"
+ "ours_d_def": "ships waiting at the end of the day before it joined / container berthings per day (7-day mean)",
+ "usd_slow_steam": [
+  322000.0,
+  617000.0
+ ],
+ "fuel_t_slow_steam": [
+  554,
+  949
+ ],
+ "slow_steam_note": "Back-of-envelope, a range, not a measurement. If the captain had been told the real wait (17.3 d, not 12.5), the ship could cross the Pacific 4.8 d slower instead of idling at anchor. Assumptions: origin East Asia (Busan 5,200 nm to Shanghai/Ningbo 5,700 to Yantian 6,300 nm); original speed 16-18 kn; main-engine burn 90-150 t/day at that speed for a ~14,000 TEU, 366 m ship (typical published range for this class; not this ship's logbook); fuel per mile ~ v^2 (cube law per hour); new speed = distance / (original time + gap), 11.8-13.5 kn; VLSFO $580-650/t (Oct 2021, LA ex-wharf ~ $637, pipeline/notes/fuel_prices.md). The anchor fuel ($37.8k MGO) is NOT added: the generators run at sea too, so that burn moves offshore (away from Wilmington and San Pedro) rather than disappearing. Engine-load limits and schedule penalties ignored."
 }
