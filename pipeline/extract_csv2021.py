@@ -17,6 +17,36 @@ A_LAT, A_LON = (32.5, 34.6), (-121.0, -117.2)
 OUT, AOUT, TMP = Path("data/ais_crisis"), Path("data/approach_crisis"), Path("data/tmp_csv")
 
 
+def one_day(c, d0, out, aout, lock):
+    t = time.time()
+    z = TMP / f"{d0}.zip"
+    subprocess.run(["curl", "-s", "--fail", "--retry", "5", "--retry-all-errors", "--max-time", "900", "-o", str(z),
+                    URL.format(y=d0.year, m=d0.month, d=d0.day)], check=True)
+    csv = subprocess.run(["unzip", "-Z1", str(z)], capture_output=True, text=True, check=True).stdout.split()[0]
+    subprocess.run(["unzip", "-o", "-q", str(z), "-d", str(TMP / str(d0))], check=True)
+    f = TMP / str(d0) / csv
+    c.execute(f"""CREATE OR REPLACE TEMP TABLE r AS
+      SELECT MMSI AS mmsi, BaseDateTime::TIMESTAMP AS ts, LAT AS lat, LON AS lon, SOG::FLOAT AS sog,
+             COG::FLOAT AS cog, Heading::INT AS heading, VesselName AS vessel_name, IMO AS imo,
+             VesselType::INT AS vessel_type, Status::INT AS status, Length::FLOAT AS length,
+             Width::INT AS width, Draft::FLOAT AS draft
+      FROM read_csv_auto('{f}', ignore_errors=true)
+      WHERE VesselType BETWEEN 70 AND 89 AND LAT BETWEEN {A_LAT[0]} AND {A_LAT[1]}
+        AND LON BETWEEN {A_LON[0]} AND {A_LON[1]}""")
+    inb = f"lat BETWEEN {LAT[0]} AND {LAT[1]} AND lon BETWEEN {LON[0]} AND {LON[1]}"
+    c.execute(f"COPY (SELECT * FROM r WHERE {inb}) TO '{out.with_suffix('.tmp')}' (FORMAT parquet)")
+    c.execute(f"""COPY (
+      SELECT mmsi, time_bucket(INTERVAL 10 MINUTE, ts) AS t10, arg_max(lat, ts) AS lat, arg_max(lon, ts) AS lon,
+             arg_max(sog, ts) AS sog, arg_max(cog, ts) AS cog, arg_max(status, ts) AS status,
+             arg_max(draft, ts) AS draft
+      FROM r WHERE NOT ({inb}) GROUP BY 1, 2) TO '{aout.with_suffix('.tmp')}' (FORMAT parquet)""")
+    out.with_suffix(".tmp").rename(out)
+    aout.with_suffix(".tmp").rename(aout)
+    subprocess.run(["rm", "-rf", str(z), str(TMP / str(d0)), str(lock)], check=True)
+    n = c.execute(f"SELECT count(DISTINCT mmsi) FROM '{out}'").fetchone()[0]
+    print(f"{d0}: {n} vessels in bbox, {time.time() - t:.0f}s", flush=True)
+
+
 def main(start, end=None):
     for p in (OUT, AOUT, TMP):
         p.mkdir(parents=True, exist_ok=True)
@@ -32,33 +62,18 @@ def main(start, end=None):
             except FileExistsError:
                 d0 += dt.timedelta(days=1)
                 continue
-            t = time.time()
-            z = TMP / f"{d0}.zip"
-            subprocess.run(["curl", "-s", "--retry", "3", "--max-time", "900", "-o", str(z),
-                            URL.format(y=d0.year, m=d0.month, d=d0.day)], check=True)
-            csv = subprocess.run(["unzip", "-Z1", str(z)], capture_output=True, text=True, check=True).stdout.split()[0]
-            subprocess.run(["unzip", "-o", "-q", str(z), "-d", str(TMP / str(d0))], check=True)
-            f = TMP / str(d0) / csv
-            c.execute(f"""CREATE OR REPLACE TEMP TABLE r AS
-              SELECT MMSI AS mmsi, BaseDateTime::TIMESTAMP AS ts, LAT AS lat, LON AS lon, SOG::FLOAT AS sog,
-                     COG::FLOAT AS cog, Heading::INT AS heading, VesselName AS vessel_name, IMO AS imo,
-                     VesselType::INT AS vessel_type, Status::INT AS status, Length::FLOAT AS length,
-                     Width::INT AS width, Draft::FLOAT AS draft
-              FROM read_csv_auto('{f}', all_varchar=false)
-              WHERE VesselType BETWEEN 70 AND 89 AND LAT BETWEEN {A_LAT[0]} AND {A_LAT[1]}
-                AND LON BETWEEN {A_LON[0]} AND {A_LON[1]}""")
-            inb = f"lat BETWEEN {LAT[0]} AND {LAT[1]} AND lon BETWEEN {LON[0]} AND {LON[1]}"
-            c.execute(f"COPY (SELECT * FROM r WHERE {inb}) TO '{out.with_suffix('.tmp')}' (FORMAT parquet)")
-            c.execute(f"""COPY (
-              SELECT mmsi, time_bucket(INTERVAL 10 MINUTE, ts) AS t10, arg_max(lat, ts) AS lat, arg_max(lon, ts) AS lon,
-                     arg_max(sog, ts) AS sog, arg_max(cog, ts) AS cog, arg_max(status, ts) AS status,
-                     arg_max(draft, ts) AS draft
-              FROM r WHERE NOT ({inb}) GROUP BY 1, 2) TO '{aout.with_suffix('.tmp')}' (FORMAT parquet)""")
-            out.with_suffix(".tmp").rename(out)
-            aout.with_suffix(".tmp").rename(aout)
-            subprocess.run(["rm", "-rf", str(z), str(TMP / str(d0)), str(lock)], check=True)
-            n = c.execute(f"SELECT count(DISTINCT mmsi) FROM '{out}'").fetchone()[0]
-            print(f"{d0}: {n} vessels in bbox, {time.time() - t:.0f}s", flush=True)
+            for attempt in range(4):  # NOAA resets connections; one bad day must not kill the worker
+                try:
+                    one_day(c, d0, out, aout, lock)
+                    break
+                except Exception as e:
+                    print(f"{d0}: attempt {attempt + 1} failed: {e.__class__.__name__}: {str(e)[:120]}", flush=True)
+                    subprocess.run(["rm", "-rf", str(TMP / f"{d0}.zip"), str(TMP / str(d0)),
+                                    str(out.with_suffix(".tmp")), str(aout.with_suffix(".tmp"))])
+                    time.sleep(10 * (attempt + 1))
+            else:
+                print(f"{d0}: GAVE UP after 4 attempts", flush=True)
+            lock.unlink(missing_ok=True)
         d0 += dt.timedelta(days=1)
 
 
