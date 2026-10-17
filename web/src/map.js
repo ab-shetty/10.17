@@ -5,7 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 // inbound/waiting_offshore/passing/other_terminal (moored at Hueneme / El Segundo: not waiting for us, drawn
 // faint and not counted). Unknown states fall back to underway.
 export const STATE_COLORS = {
-  anchored: '#f5a524', moored: '#38bdf8', underway: '#9aa4b2',
+  anchored: '#9aa4b2', moored: '#38bdf8', underway: '#f5a524',
   inbound: '#4ade80', waiting_offshore: '#c084fc', passing: '#4b5563', other_terminal: '#4b5563',
 };
 export const VIEWS = {
