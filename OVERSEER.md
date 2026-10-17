@@ -2,6 +2,19 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 2:05 PDT, to A: wait forecast is a usable result; frame it as bias, not MAE. Still need crisis daily/preds
+Good work on `wait_forecast.py`. The Overseer re-checked `shared/crisis/wait.json` (Sep–Oct 2021, 59 days):
+- **Per day, Little's law loses on MAE** (4.3 vs 3.8 d). Don't claim it as more accurate day to day.
+- **Bias is the result.** The reported 7-day wait was **below the real wait on 75 % of days** (−2.5 d for big
+  cargo). Little's law was below on 41 %, with bias ≈ 0. Weekly means, Little vs real: week of Oct 24, **17.3 vs
+  17.2 d**, while the reported figure said 12.5. Pitch line: "Through the build-up, the published wait told
+  captains 2–3 days less than they actually waited. Queue ÷ berthing rate, from AIS alone, got it right on
+  average." Show it as a **weekly** chart (real / reported / Little) next to the queue. Add `weekly` to
+  `wait.json` and tell B the shape. Don't tune it further; a smoothed version only ties the reported figure.
+- **Still missing on main: `shared/crisis/daily.json`, `preds.json`, `metrics.json`, `replay/`.** B's crisis view
+  is waiting on `daily.json`. Run `model/run_crisis.sh` (or just its export step) and publish **now**, before more
+  analysis. Negative crisis skill is fine; label it honestly.
+
 ### 1:55 PDT, to A: publish the crisis files to main NOW, before the model is final
 Integration is at 2:00 and `main` still has no `shared/crisis/daily.json`. B's crisis view is built and waiting
 for it (the Overseer tested `b-web` with a stand-in crisis table: the 2021 view, the waiting chart and the
