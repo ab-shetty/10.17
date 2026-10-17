@@ -11,7 +11,7 @@
   ],
   "title": "Santa Ana gale: the anchorage thins out, then refills",
   "why": "Gusts hit 36 kn on Nov 6-7. Part of the anchored fleet weighed anchor and rode it out under way; the queue fell from 10 to 6 ships. Once the wind dropped they came back: 12 ships on Nov 8.",
-  "model_note": "2024-11-07: model 8.8 vs persistence 6.2, actual 6.3 (persistence closer). Why: gusts reached 36 kn (ships that left anchor tend to return); pushes the forecast up. 2024-11-08: model 8.4 vs persistence 6.3, actual 12.0 (model closer). Why: gusts reached 36.3 kn (ships that left anchor tend to return); pushes the forecast up."
+  "model_note": "2024-11-07: model 8.9 vs persistence 8.0, actual 6.3 (persistence closer). Why: gusts reached 36 kn today (ships that left anchor tend to return); pushes the forecast up. 2024-11-08: model 9.7 vs persistence 7.7, actual 12.0 (model closer). Why: gusts reached 36.3 kn today (ships that left anchor tend to return); pushes the forecast up."
  },
  {
   "start": "2024-11-14",
@@ -24,7 +24,7 @@
   ],
   "title": "Storm swell halves the queue, and it bounces back",
   "why": "3 m waves at the harbor-entrance buoy and 27 kn gusts on Nov 15-16. Anchored ships got under way inside the bay; the anchored count fell to 5.6. By Nov 18 it was back to 15.",
-  "model_note": "2024-11-16: model 8.8 vs persistence 7.1, actual 5.6 (persistence closer). Why: waves reached 2.9 m at the harbor entrance; pushes the forecast up. 2024-11-17: model 8.1 vs persistence 5.6, actual 9.4 (model closer). Why: waves reached 3 m at the harbor entrance; pushes the forecast up. 2024-11-18: model 9.7 vs persistence 9.4, actual 15.3 (model closer). Why: queue shrank by 4.8 ships over a week; pulls the forecast down."
+  "model_note": "2024-11-16: model 8.1 vs persistence 9.1, actual 5.6 (model closer). Why: forecast gusts of 28.4 kn on the target day (storm: ships leave anchor); pulls the forecast down. 2024-11-17: model 8.3 vs persistence 7.9, actual 9.4 (model closer). Why: gusts reached 27 kn today (ships that left anchor tend to return); pushes the forecast up. 2024-11-18: model 9.8 vs persistence 9.4, actual 15.3 (model closer). Why: queue shrank by 4.8 ships over a week; pulls the forecast down."
  },
  {
   "start": "2024-12-08",
@@ -36,6 +36,6 @@
   ],
   "title": "December wind event: 18 -> 10 -> 15 ships",
   "why": "32 kn gusts on Dec 10. Of the 20 ships anchored on Dec 9, five were drifting 20-30 nm offshore the next day, waiting it out at sea. The queue dropped to 10, then refilled to 14.5 on Dec 11. The model has no weather-forecast input, so it can't see a gale coming; what it learned is that the queue refills after one.",
-  "model_note": "2024-12-10: model 16.9 vs persistence 18.1, actual 10.1 (model closer). Why: gusts reached 9.9 kn; pulls the forecast down. 2024-12-11: model 11.8 vs persistence 10.1, actual 14.5 (model closer). Why: gusts reached 32.5 kn (ships that left anchor tend to return); pushes the forecast up."
+  "model_note": "2024-12-10: model 15.5 vs persistence 16.7, actual 10.1 (model closer). Why: forecast gusts of 28.6 kn on the target day (storm: ships leave anchor); pulls the forecast down. 2024-12-11: model 13.3 vs persistence 12.6, actual 14.5 (model closer). Why: gusts reached 32.5 kn today (ships that left anchor tend to return); pushes the forecast up."
  }
 ]

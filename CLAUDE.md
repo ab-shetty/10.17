@@ -13,13 +13,14 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
 - The old `coast.noaa.gov/.../AISDataHandler` zip links 404. Don't use them.
 - Sanity check 2024-01-01: 41 vessels in box, 19 reporting status=1 (at anchor), sog ≈ 0.07.
 
-## Status (A, 12:25 PDT)
+## Status (A, 12:00 PDT)  — HEADLINE is now the 2021–22 backlog (see OVERSEER.md); 2024 = "works in normal times"
 - Full 2024 pulled (366 days, bbox to -117.95), plus an **approach zone** (ships 20–120 nm out, `data/approach/`).
-- Model: LightGBM + CatBoost + ridge on the change target; per-horizon choice by rolling-origin CV inside Jan–Sep
-  (CatBoost at h=1, plain average at h=2/3). Test Oct–Dec (92 days) vs persistence:
-  **+5.9 / +7.8 / +4.2 % MAE at h=1/2/3**, but the 90 % block-bootstrap CIs include 0 (h=1: [−2.4, +11.6]).
-  **On big-move days (queue moves ≥ 3 ships): +13 / +26 / +30 %**, direction right 67 / 76 / 81 %. That's the claim to make.
-  (An earlier 8/5/5 % had a departure leak; fixed: departures are only known a day later.)
+- Model: LightGBM + CatBoost + ridge predicting y[t+h] − blend(persistence, 7-day mean); per-horizon choice by
+  rolling-origin CV on the 3 months before test. `model/train.py --daily --weather --test-start --out-prefix`.
+- **2024 test (Oct–Dec, 92 days) vs the BEST naive baseline: h=1 +8.0 % [90 % CI +0.9, +14.5] (beats it);
+  h=2 −3.7 %, h=3 −1.2 % (7-day mean is as good; CIs include 0). Storm days (forecast gust ≥ 25 kn): h=1 +29 %.**
+  Vs persistence alone: +15 / +11 / +11 %. (Old "big move" metric dropped: it selected days by the outcome.)
+- Weather forecasts: Open-Meteo previous-runs (`fc1..3_*`) exist only from 2024-01-19. The crisis model can't see storms coming.
 - Best new signal: **ships inbound within 60 nm** (corr 0.18 with tomorrow's queue change, more than today's arrivals).
 - **The 2024 anchored queue is ~74 % tankers** (11.3 of 15.3 on average). Say "ships waiting at anchor", not "container queue".
 - Validated against POLA's own daily Container Vessel Activity 2024 (`pipeline/pola_summary.py`, PDF in `data/ext/pola/`,
@@ -94,11 +95,15 @@ Don't import across folders. A and B only talk through `shared/` files.
 | file | owner | shape | needed by |
 |---|---|---|---|
 | `shared/daily.json` | A | `[{date, n_anchored, n_moored, arrivals_24h, departures_24h, avg_wait_h, wind_max_kts, vis_min_m}]` | B chart, by 11:45 |
-| `shared/preds.json` | A | `[{date, issued, h, actual, pred, baseline, top_features:[{name, label, phrase, value, shap}]}]` (**show `phrase`**: plain-English, direction-aware reason; current queue level is excluded as circular) (h = 1,2,3; `date` = target day, `issued` = date - h) | B chart + explanation, by 1:15 |
-| `shared/metrics.json` | A | `{h: {mae_model, mae_baseline, n_test, skill_pct, mae_model_bigmove, mae_baseline_bigmove, n_bigmove, skill_pct_bigmove, direction_hit_bigmove}}` (skill_pct = 100·(1 − mae_model/mae_baseline); negative = loses. *_bigmove = only days where the queue moved ≥ 3 ships over the horizon; direction_hit = share where the predicted change had the right sign). Also `model` (CV-chosen), `cv_mae`, `test_mae_all`, `skill_ci90` = [lo, hi] 7-day block-bootstrap CI of skill_pct | B header tiles |
+| `shared/preds.json` | A | `[{date, issued, h, actual, pred, baseline, baseline_name, persistence, top_features:[{name, label, phrase, value, shap}]}]` (h = 1,2,3; `date` = target day, `issued` = date − h; `baseline` = the best naive baseline on the test set, named in `baseline_name`: persistence / ma7 / blend. **Show `phrase`**: plain-English, direction-aware reason; current queue level excluded as circular) | B chart + explanation, by 1:15 |
+| `shared/metrics.json` | A | `{h: {mae_model, mae_baseline, baseline, n_test, skill_pct, skill_ci90:[lo,hi], skill_vs_persistence_pct, baselines_mae:{persistence, ma7, blend}, model, cv_mae, test_mae_all, n_storm?, mae_model_storm?, mae_baseline_storm?, skill_pct_storm?}}`. skill_pct = 100·(1 − mae_model/mae_baseline) vs the **best** baseline; negative = loses. skill_ci90 = 7-day block-bootstrap. Storm days = forecast gust ≥ 25 kn, known on the issue day (2024 only) | B header tiles |
 | `shared/replay/YYYY-MM-DD.json` | A | `[{mmsi, name, t, lat, lon, status, sog, state}]`, 10-min downsample, only the story days. **Color by `state`** (anchored/moored/underway, same rules as the counts), not raw `status` | B map, by 12:30 |
-| `shared/episodes.json` | A | `[{start, end, title, why, model_note, replay_days:[...]}]` 3 out-of-sample (Oct–Dec) weather-driven dips + rebounds. `replay_days` = which `shared/replay/*.json` exist for it | B story mode, by 2:00 |
+| `shared/episodes.json` | A | `[{start, end, title, why, model_note, replay_days:[...]}]` 3 out-of-sample (Oct–Dec 2024) weather-driven dips + rebounds | B story mode, by 2:00 |
 | `shared/news.json` | B | `[{date, score, title, reason, url}]` | A as a feature (optional) |
+| `shared/crisis/daily.json`, `daily.parquet` | Overseer | same columns as `shared/daily.json` / `data/daily.parquet`, 2021-06-01..2022-03-31, no weather | A model, B chart |
+| `shared/crisis/weather_daily.json` | A | `[{date, wind_max_kts, gust_max_kts, visibility_min_m, fc1..3_gust_max_kts, fc1..3_wind_max_kts}]` (fc* are null before 2024-01-19: no archived forecasts) | A model |
+| `shared/crisis/preds.json`, `metrics.json` | A | same shapes as `shared/preds.json` / `metrics.json` (no storm metric: no archived forecasts for 2021) | B crisis chart |
+| `shared/crisis/replay/YYYY-MM-DD.json` | Overseer | same shape as `shared/replay/` | B map |
 B starts by committing **mock** versions of A's files that have exactly these shapes, so the UI never waits on A.
 A overwrites them with real data. Mocks are tagged with `"mock": true` at the top level, or the file is named `*.mock.json`.
 
