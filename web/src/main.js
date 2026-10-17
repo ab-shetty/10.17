@@ -9,7 +9,7 @@ const FRAME_MS = 1000 / 6; // 10-minute frames, 6 per second = 1 hour per second
 
 // Two datasets with the same contract shapes: 2024 in shared/, the 2021–22 backlog in shared/crisis/.
 const YEARS = {
-  2021: { dir: 'crisis/', title: 'Ships waiting off San Pedro Bay', note: '2021 replay, not live.', view: 'approach', all: 'Full period',
+  2021: { dir: 'crisis/', open: '2021-10-19', title: 'Ships waiting off San Pedro Bay', note: '2021 replay, not live.', view: 'approach', all: 'Full period',
     what: 'The 2021–22 backlog: ships waiting at anchor plus loitering within 60 nm.',
     foot: 'AIS: NOAA MarineCadastre 2021–22. Waiting = anchored in the bay + loitering (< 3 kn) within 60 nm.' },
   2024: { dir: '', note: '2024 replay, not live.', view: 'bay', all: '2024' },
@@ -202,7 +202,10 @@ async function main() {
     const gain = Math.abs(p.baseline - p.actual) - Math.abs(p.pred - p.actual);
     return gain > a.gain ? { gain, day: p.date } : a;
   }, { gain: -Infinity, day: h1[0]?.date ?? last });
-  if (wait) { // 2021: the wait result is the climax, so open on the join day where ours beat the published wait by most
+  const askedDay = new URLSearchParams(location.search).get('day'); // ?day=YYYY-MM-DD, e.g. for the demo video
+  if (askedDay && D.some((r) => r.date === askedDay)) best.day = askedDay;
+  else if (Y.open && D.some((r) => r.date === Y.open)) best.day = Y.open; // OVERSEER 2:55: crisis opens on Oct 19
+  else if (wait) { // otherwise: the join day where ours beat the published wait by most
     best.gain = -Infinity;
     for (const r of wait.daily) {
       const real = r.actual_wait_of_ships_joining_next_day;

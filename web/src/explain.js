@@ -79,7 +79,11 @@ export function renderExplain(el, { day, h, preds, daily, news, target = 'n_anch
 
   // Wait for a container-size ship joining the queue on `day` (wait.json row for the evening before).
   const w = waitRow;
-  if (w && w.little_wait_d != null) {
+  if (w && d?.regime === 'after_150nm_rule') {
+    // After the 150 nm rule the queue is beyond shore AIS, so queue ÷ berthing rate undercounts (OVERSEER 2:55).
+    parts.push(`<div class="wait-block"><p>After Nov 16 2021, container ships waited 150+ nm out, beyond shore AIS.
+      Our wait estimate covers Jun 1 – Nov 15.</p></div>`);
+  } else if (w && w.little_wait_d != null) {
     const real = w.actual_wait_of_ships_joining_next_day;
     parts.push(`<div class="wait-block"><p class="lead">A container ship joining the queue on ${fmtDay(day)}:</p>
       <p>Published 7-day average said <b class="num">${n(w.reported_wait_7d)} d</b>.
@@ -89,7 +93,7 @@ export function renderExplain(el, { day, h, preds, daily, news, target = 'n_anch
       ${real == null ? '<p class="fine">No measured wait for this day (outside Sep–Oct, or berth not seen in the data).</p>'
         : `<p class="verdict ${Math.abs(w.little_wait_d - real) < Math.abs(w.reported_wait_7d - real) ? 'good' : 'bad'}">
           ${Math.abs(w.little_wait_d - real) < Math.abs(w.reported_wait_7d - real) ? 'Ours was closer' : 'Published was closer'}:
-          off by ${n(Math.abs(w.little_wait_d - real))} vs ${n(Math.abs(w.reported_wait_7d - real))} d.</p>`}
+          ours off by ${n(Math.abs(w.little_wait_d - real))} d, published by ${n(Math.abs(w.reported_wait_7d - real))} d.</p>`}
     </div>`);
   }
 

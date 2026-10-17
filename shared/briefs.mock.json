@@ -907,22 +907,17 @@
  {
   "year": "2021",
   "date": "2021-11-16",
-  "headline": "MOCK: 72 container ships waiting",
-  "brief": "MOCK brief. A ship joining today should expect about 18.0 days; the published figure says 14.9.",
+  "headline": "MOCK: the queue moved 150 nm offshore",
+  "brief": "MOCK brief. Since Nov 16 2021, container ships are told to wait about 150 nm offshore instead of at the anchorage. That is beyond shore AIS range, so we cannot count that queue or estimate its wait.",
   "watch": "MOCK: run signals/morning_brief.py with an API key for the real brief.",
   "facts": {
    "brief_date": "2021-11-16",
    "dataset": "2021 container backlog (replay)",
-   "container_size_ships_waiting_last_night": 72,
-   "same_figure_one_week_earlier": 75,
    "ships_reaching_a_berth_per_day_last_7_days": 4.0,
-   "wait_estimate_for_a_ship_joining_today_days": {
-    "ours_queue_divided_by_berthing_rate": 18.0,
-    "published_7_day_average_of_recent_berthings": 14.9
-   },
    "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
    "fuel_price_usd_per_tonne": 780,
-   "rule_change": "Since Nov 16 2021, container ships are told to wait far offshore (about 150 nm) instead of at the anchorage.",
+   "rule_change": "Since Nov 16 2021, container ships are told to wait about 150 nm offshore instead of at the anchorage. That is beyond shore AIS range, so we cannot count that queue or estimate its wait.",
+   "published_7_day_average_wait_days": 14.9,
    "yesterday_all_ships": {
     "at_anchor": 43.6,
     "loitering_offshore_within_60nm": 57.8,
@@ -934,22 +929,17 @@
  {
   "year": "2021",
   "date": "2021-12-14",
-  "headline": "MOCK: 22 container ships waiting",
-  "brief": "MOCK brief. A ship joining today should expect about 9.1 days; the published figure says 14.9.",
+  "headline": "MOCK: the queue moved 150 nm offshore",
+  "brief": "MOCK brief. Since Nov 16 2021, container ships are told to wait about 150 nm offshore instead of at the anchorage. That is beyond shore AIS range, so we cannot count that queue or estimate its wait.",
   "watch": "MOCK: run signals/morning_brief.py with an API key for the real brief.",
   "facts": {
    "brief_date": "2021-12-14",
    "dataset": "2021 container backlog (replay)",
-   "container_size_ships_waiting_last_night": 22,
-   "same_figure_one_week_earlier": 35,
    "ships_reaching_a_berth_per_day_last_7_days": 2.4,
-   "wait_estimate_for_a_ship_joining_today_days": {
-    "ours_queue_divided_by_berthing_rate": 9.1,
-    "published_7_day_average_of_recent_berthings": 14.9
-   },
    "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
    "fuel_price_usd_per_tonne": 780,
-   "rule_change": "Since Nov 16 2021, container ships are told to wait far offshore (about 150 nm) instead of at the anchorage.",
+   "rule_change": "Since Nov 16 2021, container ships are told to wait about 150 nm offshore instead of at the anchorage. That is beyond shore AIS range, so we cannot count that queue or estimate its wait.",
+   "published_7_day_average_wait_days": 14.9,
    "yesterday_all_ships": {
     "at_anchor": 28.0,
     "loitering_offshore_within_60nm": 18.8,
