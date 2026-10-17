@@ -133,7 +133,13 @@ def facts_2021(d, wait, cdaily):
         "fuel_price_usd_per_tonne": FUEL_USD_PER_T["2021"],
     }
     if d >= "2021-11-16":
-        f["rule_change"] = "Since Nov 16 2021, container ships are told to wait far offshore (about 150 nm) instead of at the anchorage."
+        # The queue is now beyond shore AIS: queue / berthing rate undercounts, so don't hand it to the brief.
+        f.pop("wait_estimate_for_a_ship_joining_today_days")
+        f.pop("container_size_ships_waiting_last_night")
+        f.pop("same_figure_one_week_earlier")
+        f["rule_change"] = ("Since Nov 16 2021, container ships are told to wait about 150 nm offshore instead of at the "
+                            "anchorage. That is beyond shore AIS range, so we cannot count that queue or estimate its wait.")
+        f["published_7_day_average_wait_days"] = r1(row["reported_wait_7d"])
     c = cdaily and {r["date"]: r for r in cdaily}.get(prev(d))
     if c:
         f["yesterday_all_ships"] = {"at_anchor": r1(c.get("n_anchored")), "loitering_offshore_within_60nm": r1(c.get("offshore_waiting")),
@@ -148,7 +154,11 @@ def mock_brief(f):
         return {"headline": f"MOCK: {f['yesterday']['ships_at_anchor']} ships at anchor yesterday",
                 "brief": "MOCK brief. " + (f"Today's model forecast is about {t['model']} ships, vs {t['simple_rule']} from the simple rule." if t else ""),
                 "watch": "MOCK: run signals/morning_brief.py with an API key for the real brief."}
-    w = f["wait_estimate_for_a_ship_joining_today_days"]
+    w = f.get("wait_estimate_for_a_ship_joining_today_days")
+    if not w:
+        return {"headline": "MOCK: the queue moved 150 nm offshore",
+                "brief": "MOCK brief. " + f["rule_change"],
+                "watch": "MOCK: run signals/morning_brief.py with an API key for the real brief."}
     return {"headline": f"MOCK: {f['container_size_ships_waiting_last_night']} container ships waiting",
             "brief": f"MOCK brief. A ship joining today should expect about {w['ours_queue_divided_by_berthing_rate']} days; "
                      f"the published figure says {w['published_7_day_average_of_recent_berthings']}.",

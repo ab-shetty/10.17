@@ -117,3 +117,4 @@ select, .btn, .seg button { background: #0d1a27; color: var(--text); border: 1px
 .brief-title { display: block; font-size: 15px; margin-bottom: 4px; }
 .brief p { margin: 4px 0; line-height: 1.45; }
 .brief-watch span { color: var(--sky); font-weight: 600; }
+body.wait .tile { max-width: 228px; } body.wait .tile b { font-size: 22px; }
