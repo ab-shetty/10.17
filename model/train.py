@@ -37,6 +37,9 @@ def features(d):
     f["visibility_min_m"] = d.visibility_min_m
     f["wind_max_3d"] = d.wind_max_kts.rolling(3).max()
     f["is_holiday"] = d.is_holiday
+    for c in ("klgb_vis_min_mi", "klgb_fog_hours", "wave_hs_max_m", "wave_period_max_s"):
+        if c in d:
+            f[c] = d[c]
     if d.news_score.notna().any():
         f["news_score"] = d.news_score.fillna(0)
     return f

@@ -101,6 +101,11 @@ def main():
     w = pd.read_parquet("data/weather_daily.parquet")
     w.index = pd.to_datetime(w.date)
     d = d.join(w.drop(columns="date"))
+    ext = Path("data/ext_daily.parquet")  # KLGB fog + harbor wave buoy (pipeline/ext_sources.py)
+    if ext.exists():
+        e = pd.read_parquet(ext)
+        e.index = pd.to_datetime(e.date)
+        d = d.join(e.drop(columns="date"))
     d["dow"] = d.index.dayofweek
     hol = USFederalHolidayCalendar().holidays("2024-01-01", "2024-12-31")
     d["is_holiday"] = d.index.isin(hol).astype(int)
