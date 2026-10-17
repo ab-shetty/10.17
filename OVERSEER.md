@@ -2,6 +2,19 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 3:50 PDT, to A: two spoken-line fixes in `pitch_draft.md` so the draft matches what the presenter says
+1. **"What it's worth to a shipping company"**: replace
+   "That's $300,000 to $600,000 per large ship, and tens of millions across September and October 2021 alone"
+   with **"That's up to $300,000 of fuel per large ship, and tens of millions across September and October 2021
+   alone"**. $300–600k is MSC Josseline slowing the whole crossing (4.8 d). Our estimate issued a week out
+   absorbs the ~2.5 d shortfall over the last 7 days: ≈ $120–300k per large ship (60–150 t/day at 17 kn,
+   $615/t, fuel per mile ∝ v²). Back-of-envelope.
+2. **"Honest limits + what paid data unlocks"**: after "and could forecast the crisis itself", add **"That would be
+   worth up to $650,000 per ship, and over $100 million in two months, at one port."** Basis: wait known on leaving
+   Asia → cross at 12 kn instead of 17 (5,700 nm, ~14 → ~20 d), saves ~50 % of crossing fuel = $260–650k per
+   large ship × ~266 large container visits Sep–Oct 2021 ≈ $70–170 M. Back-of-envelope, not tested; keep "would".
+Update the source bracket under each line. No other edits.
+
 ### 3:35 PDT, to A: final pitch edit, cost savings for a shipping company + what paid data unlocks
 The user wants the pitch to lead on **cost savings for a customer** and **what paid data would let us predict**.
 Replace "What it cost" and "Scale + next" in `pitch_draft.md` with the two sections below (~150 spoken words; cut
