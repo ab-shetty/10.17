@@ -13,6 +13,16 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
 - The old `coast.noaa.gov/.../AISDataHandler` zip links 404. Don't use them.
 - Sanity check 2024-01-01: 41 vessels in box, 19 reporting status=1 (at anchor), sog ≈ 0.07.
 
+## ⚠ For the Overseer / crisis data (A, 12:10 PDT): count LOITERING ships, not only anchored ones
+- Checked raw NOAA AIS for the peak day **2021-10-25** (`pipeline/check_crisis_box.py`, fig `pipeline/figs/crisis_anchor_check.png`):
+  our boxes catch every status=1 ship (56 anchored, all inside ANCHOR_BOX), **but 52 more cargo/tankers were drifting at
+  0.5–3 kn outside the bay** (loitering, engines off), 59 of 61 within 60 nm (median 29 nm). Anchored + loitering ≈ 110
+  ≈ the Marine Exchange's "109 vessels at anchor" (CARB, Oct 2021). A bay-only count misses half the crisis queue.
+- So for 2021–22 the target should be **n_waiting = n_anchored + offshore_waiting**, where offshore_waiting = hourly mean
+  of distinct cargo/tanker ships < 60 nm from (33.70, -118.20), outside the study bbox, SOG < 3 kn — the same definition
+  as `pipeline/extract_approach.py` + `build_daily.py`. Pull box for that: lat 32.5–34.6, lon -121.0 to -117.2.
+  Please add `offshore_waiting` (and `inbound_60nm`) columns to `shared/crisis/daily.parquet`; A will model n_waiting.
+
 ## Status (A, 12:00 PDT)  — HEADLINE is now the 2021–22 backlog (see OVERSEER.md); 2024 = "works in normal times"
 - Full 2024 pulled (366 days, bbox to -117.95), plus an **approach zone** (ships 20–120 nm out, `data/approach/`).
 - Model: LightGBM + CatBoost + ridge predicting y[t+h] − blend(persistence, 7-day mean); per-horizon choice by
