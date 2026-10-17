@@ -26,7 +26,7 @@ export async function load(name) {
   return null;
 }
 
-async function exists(path) {
+export async function exists(path) {
   try {
     const r = await fetch(BASE + path, { method: 'HEAD' });
     return r.ok;
@@ -35,11 +35,11 @@ async function exists(path) {
   }
 }
 
-// Which replay days are on disk for these dates (real wins over mock).
-export async function findReplays(days) {
+// Which replay days are on disk for these dates (real wins over mock). dir = '' or 'crisis/'.
+export async function findReplays(days, dir = '') {
   const found = await Promise.all(days.map(async (d) => {
-    if (await exists(`replay/${d}.json`)) return { day: d, mock: false };
-    if (await exists(`replay/${d}.mock.json`)) return { day: d, mock: true };
+    if (await exists(`${dir}replay/${d}.json`)) return { day: d, mock: false };
+    if (await exists(`${dir}replay/${d}.mock.json`)) return { day: d, mock: true };
     return null;
   }));
   return found.filter(Boolean);

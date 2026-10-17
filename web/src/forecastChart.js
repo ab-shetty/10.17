@@ -1,7 +1,8 @@
 import Chart from 'chart.js/auto';
 import { baselineLabel } from './explain.js';
 
-const C = { actual: '#e6edf3', model: '#f5a524', base: '#7d8794', grid: 'rgba(255,255,255,0.06)', tick: '#8b96a3' };
+const C = { actual: '#e6edf3', model: '#f5a524', base: '#7d8794', grid: 'rgba(255,255,255,0.06)', tick: '#8b96a3',
+  anchored: 'rgba(245,165,36,0.30)', offshore: 'rgba(192,132,252,0.32)' };
 
 // Shading, cursor and news ticks drawn on top of the line chart.
 const overlay = {
@@ -30,6 +31,17 @@ const overlay = {
       ctx.fillStyle = `rgba(245,165,36,${0.35 + 0.65 * n.score})`;
       ctx.fillRect(px - 1.5, a.bottom - 4 - 14 * n.score, 3, 4 + 14 * n.score);
     }
+    for (const m of o.marks || []) {
+      const px = x.getPixelForValue(m.i);
+      if (px < a.left || px > a.right) continue;
+      ctx.strokeStyle = '#e6edf3';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(px, a.top); ctx.lineTo(px, a.bottom); ctx.stroke();
+      ctx.fillStyle = '#e6edf3'; ctx.font = '11px system-ui';
+      const w = ctx.measureText(m.label).width;
+      ctx.fillText(m.label, px + w + 6 > a.right ? px - w - 4 : px + 4, a.top + 28);
+    }
     if (o.cursor != null) {
       const px = x.getPixelForValue(o.cursor);
       if (px >= a.left && px <= a.right) {
@@ -43,10 +55,22 @@ const overlay = {
   },
 };
 
-export function createChart(canvas, { daily, preds, news, onPick }) {
-  const labels = daily.map((d) => d.date);
+// spill: stack n_anchored + offshore_waiting under the total (2021: "the queue spilled into the ocean").
+// marks: [{date, label}] vertical event lines.
+export function createChart(canvas, { daily, preds, news, onPick, target = 'n_anchored', yLabel = 'ships at anchor (daily mean)',
+  spill = false, marks = [], actualLabel = 'Actual' }) {
+  // Continuous daily axis: a missing date is a gap in the line, not a squashed x-axis.
+  const labels = [];
+  for (let t = Date.parse(daily[0].date + 'T00:00:00Z'); t <= Date.parse(daily.at(-1).date + 'T00:00:00Z'); t += 864e5) {
+    labels.push(new Date(t).toISOString().slice(0, 10));
+  }
   const index = new Map(labels.map((d, i) => [d, i]));
-  const actual = daily.map((d) => d.n_anchored);
+  const byDate = new Map(daily.map((d) => [d.date, d]));
+  const col = (f) => labels.map((d) => { const r = byDate.get(d); return r ? f(r) ?? null : null; });
+  const actual = col((d) => d[target] ?? d.n_anchored);
+  spill = spill && daily.some((d) => d.offshore_waiting != null && d.n_anchored != null);
+  const anchored = spill ? col((d) => d.n_anchored) : [];
+  const anchoredPlusOffshore = spill ? col((d) => (d.n_anchored == null || d.offshore_waiting == null ? null : d.n_anchored + d.offshore_waiting)) : [];
   const testIdx = preds.length ? [index.get(preds[0].date), index.get(preds.at(-1).date)] : null;
   const newsMarks = news.filter((n) => index.has(n.date)).map((n) => ({ i: index.get(n.date), score: n.score }));
 
@@ -62,9 +86,16 @@ export function createChart(canvas, { daily, preds, news, onPick }) {
     data: {
       labels,
       datasets: [
-        { label: 'Actual at anchor', data: actual, borderColor: C.actual, borderWidth: 1.6, pointRadius: 0, tension: 0.2 },
+        { label: actualLabel, data: actual, borderColor: C.actual, borderWidth: 1.6, pointRadius: 0, tension: 0.2 },
         { label: 'Model', data: series(1, 'pred'), borderColor: C.model, borderWidth: 2.2, pointRadius: 0, tension: 0.2, spanGaps: false },
         { label: baseName(1), data: series(1, 'baseline'), borderColor: C.base, borderWidth: 1.4, borderDash: [5, 4], pointRadius: 0, tension: 0 },
+        ...(spill ? [
+          { label: 'At anchor in the bay', data: anchored, borderColor: 'rgba(245,165,36,0.8)', borderWidth: 1, backgroundColor: C.anchored,
+            fill: 'origin', pointRadius: 0, tension: 0.2, order: 10 },
+          // plotted as anchored + offshore so it stacks; the tooltip shows the offshore count itself
+          { label: 'Loitering offshore (< 60 nm)', data: anchoredPlusOffshore, borderColor: 'rgba(192,132,252,0.8)', borderWidth: 1,
+            backgroundColor: C.offshore, fill: '-1', pointRadius: 0, tension: 0.2, order: 11, offshore: true },
+        ] : []),
       ],
     },
     options: {
@@ -75,14 +106,20 @@ export function createChart(canvas, { daily, preds, news, onPick }) {
       scales: {
         x: { ticks: { color: C.tick, maxRotation: 0, autoSkipPadding: 24,
                callback(v) { return fmtTick(labels[v]); } }, grid: { color: C.grid } },
-        y: { beginAtZero: true, title: { display: true, text: 'ships at anchor (daily mean)', color: C.tick },
+        y: { beginAtZero: true, title: { display: true, text: yLabel, color: C.tick },
              ticks: { color: C.tick }, grid: { color: C.grid } },
       },
       plugins: {
-        legend: { labels: { color: '#c9d1d9', boxWidth: 18, boxHeight: 2 } },
+        legend: { labels: { color: '#c9d1d9', boxWidth: 18, boxHeight: 2,
+          filter: (item, data) => data.datasets[item.datasetIndex].data.some((v) => v != null) } }, // no empty series
         tooltip: { callbacks: { title: (it) => labels[it[0].dataIndex],
-          label: (it) => it.raw == null ? null : `${it.dataset.label}: ${it.raw.toFixed(1)}` } },
-        overlay: { test: testIdx, news: newsMarks, cursor: null, episode: null },
+          label: (it) => {
+            if (it.raw == null) return null;
+            const v = it.dataset.offshore ? it.raw - anchored[it.dataIndex] : it.raw;
+            return `${it.dataset.label}: ${v.toFixed(1)}`;
+          } } },
+        overlay: { test: testIdx, news: newsMarks, cursor: null, episode: null,
+          marks: marks.filter((m) => index.has(m.date)).map((m) => ({ i: index.get(m.date), label: m.label })) },
       },
       onClick(_e, _els, ch) {
         const i = Math.round(ch.scales.x.getValueForPixel(_e.x));

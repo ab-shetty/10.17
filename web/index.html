@@ -9,9 +9,12 @@
 <body>
   <header class="top">
     <div class="brand">
-      <h1>Ships waiting at anchor, San Pedro Bay</h1>
-      <p class="sub">Ports of Los Angeles + Long Beach. <strong>2024 replay, not live.</strong>
-        1–3 day forecast vs the best simple rule (“tomorrow = today”, 7-day average, or a blend).</p>
+      <h1 id="title">Ships waiting at anchor, San Pedro Bay</h1>
+      <p class="sub">Ports of Los Angeles + Long Beach. <strong id="replay-note">2024 replay, not live.</strong>
+        <span id="sub-what">1–3 day forecast vs the best simple rule (“tomorrow = today”, 7-day average, or a blend).</span></p>
+    </div>
+    <div class="seg" id="year" hidden>
+      <button data-y="2021">2021 crisis</button><button data-y="2024">2024</button>
     </div>
     <div id="tiles" class="tiles"></div>
   </header>
@@ -43,16 +46,23 @@
 
     <section class="panel chart-panel">
       <div class="panel-head">
-        <h2>Forecast vs actual</h2>
+        <h2 id="chart-title">Forecast vs actual</h2>
         <div class="seg" id="horizon">
           <button data-h="1" class="on">Day +1</button><button data-h="2">Day +2</button><button data-h="3">Day +3</button>
         </div>
         <div class="seg" id="range">
-          <button data-r="year">2024</button><button data-r="test" class="on">Oct–Dec (test)</button>
+          <button data-r="year" id="range-all">2024</button><button data-r="test" id="range-test" class="on">Oct–Dec (test)</button>
         </div>
       </div>
       <div class="chart-wrap"><canvas id="chart"></canvas></div>
       <p class="hint">Click a day to explain it. Orange ticks along the bottom are scored news.</p>
+    </section>
+
+    <section class="panel wait-panel" id="wait-panel" hidden>
+      <div class="panel-head"><h2>How long will a ship wait?</h2></div>
+      <p class="caption">The published wait told captains 2–3 days less than they actually waited.</p>
+      <div class="chart-wrap"><canvas id="wait-chart"></canvas></div>
+      <p class="hint" id="wait-note"></p>
     </section>
 
     <section class="panel explain-panel">
@@ -65,7 +75,7 @@
       <div id="episodes" class="episodes"></div>
     </section>
   </main>
-  <footer class="foot">AIS: NOAA MarineCadastre 2024. Weather: Open-Meteo, IEM ASOS, NDBC 46222. ~74% of the 2024 anchored queue are tankers.</footer>
+  <footer class="foot" id="foot">AIS: NOAA MarineCadastre 2024. Weather: Open-Meteo, IEM ASOS, NDBC 46222. ~74% of the 2024 anchored queue are tankers.</footer>
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>

@@ -20,6 +20,11 @@ const PHRASE = {
   arrivals_24h: (v) => `${n(v, 0)} arrivals in the last 24 h`,
   arrivals_48h: (v) => `${n(v, 0)} arrivals in the last 48 h`,
   departures_24h: (v) => `${n(v, 0)} departures in the last 24 h`,
+  departures_yday: (v) => `${n(v, 0)} departures the day before`,
+  inbound_60nm: (v) => `${n(v, 0)} ships inbound within 60 nm`,
+  offshore_waiting: (v) => `${n(v, 0)} ships loitering offshore within 60 nm`,
+  fc_gust_target: (v) => `gusts of ${n(v, 0)} kn forecast for that day`,
+  fc_gust_tomorrow: (v) => `gusts of ${n(v, 0)} kn forecast for tomorrow`,
   net_inflow_3d: (v) => `net ${v >= 0 ? '+' : '−'}${n(Math.abs(v), 0)} ships over 3 days (arrivals minus departures)`,
   avg_wait_h: (v) => `an average wait of ${n(v, 0)} h for a berth`,
   wind_max_kts: (v) => `wind up to ${n(v)} kts`,
@@ -57,16 +62,42 @@ export function fmtDay(d, weekday = true) {
   return `${wd}${MON[t.getUTCMonth()]} ${t.getUTCDate()}`;
 }
 
-export function renderExplain(el, { day, h, preds, daily, news }) {
+export function renderExplain(el, { day, h, preds, daily, news, target = 'n_anchored', noun = 'ships at anchor', waitRow, brief }) {
   const p = preds.find((r) => r.date === day && r.h === h);
   const d = daily.find((r) => r.date === day);
   const parts = [];
+
+  if (brief) {
+    parts.push(`<div class="brief"><div class="brief-head">Morning brief${brief.mock ? ' <span class="badge mock">MOCK</span>' : ''}</div>
+      <b class="brief-title">${escapeHtml(brief.headline)}</b>
+      <p>${escapeHtml(brief.brief)}</p>
+      <p class="brief-watch"><span>Watch:</span> ${escapeHtml(brief.watch)}</p>
+      <p class="fine">${brief.mock || brief.scorer === 'template'
+        ? 'Template text, not Claude: run signals/morning_brief.py to generate the real briefs.'
+        : `Written by Claude (${escapeHtml(brief.scorer)}) ahead of time, from only the numbers known that morning.`}</p></div>`);
+  }
+
+  // Wait for a container-size ship joining the queue on `day` (wait.json row for the evening before).
+  const w = waitRow;
+  if (w && w.little_wait_d != null) {
+    const real = w.actual_wait_of_ships_joining_next_day;
+    parts.push(`<div class="wait-block"><p class="lead">A container ship joining the queue on ${fmtDay(day)}:</p>
+      <p>Published 7-day average said <b class="num">${n(w.reported_wait_7d)} d</b>.
+        Ours, ${n(w.ships_waiting_eod, 0)} ships waiting ÷ ${n(w.berths_per_day_7d)} berthed per day, said
+        <b class="num model">${n(w.little_wait_d)} d</b>.
+        ${real == null ? '' : `Ships that joined that day really waited <b class="num">${n(real)} d</b>.`}</p>
+      ${real == null ? '<p class="fine">No measured wait for this day (outside Sep–Oct, or berth not seen in the data).</p>'
+        : `<p class="verdict ${Math.abs(w.little_wait_d - real) < Math.abs(w.reported_wait_7d - real) ? 'good' : 'bad'}">
+          ${Math.abs(w.little_wait_d - real) < Math.abs(w.reported_wait_7d - real) ? 'Ours was closer' : 'Published was closer'}:
+          off by ${n(Math.abs(w.little_wait_d - real))} vs ${n(Math.abs(w.reported_wait_7d - real))} d.</p>`}
+    </div>`);
+  }
 
   if (p) {
     const errM = Math.abs(p.pred - p.actual), errB = Math.abs(p.baseline - p.actual);
     const better = errM < errB;
     parts.push(`<p class="lead">Issued ${fmtDay(p.issued)}, ${h} day${h > 1 ? 's' : ''} ahead, the model expected
-      <b class="num model">${n(p.pred)}</b> ships at anchor on ${fmtDay(day)}.
+      <b class="num model">${n(p.pred)}</b> ${escapeHtml(noun)} on ${fmtDay(day)}.
       The best simple rule (${escapeHtml(baselineLabel(p.baseline_name))}) said <b class="num">${n(p.baseline)}</b>.
       Actual: <b class="num">${n(p.actual)}</b>.</p>`);
     parts.push(`<p class="verdict ${better ? 'good' : 'bad'}">${better ? 'Model was closer' : 'Baseline was closer'}:
@@ -77,21 +108,27 @@ export function renderExplain(el, { day, h, preds, daily, news }) {
         <span class="eff ${f.shap >= 0 ? 'up' : 'down'}">${f.shap >= 0 ? '+' : '−'}${n(Math.abs(f.shap), 2)}</span>
         ${escapeHtml(phrase(f))}</li>`).join('') + '</ul>');
     parts.push('<p class="fine">Numbers are SHAP contributions, in ships, to how far the model moved away from the simple rule.</p>');
+  } else if (d && w) {
+    parts.push(`<p><b class="num">${n(d[target] ?? d.n_anchored)}</b> ${escapeHtml(noun)} on ${fmtDay(day)}.</p>`);
   } else if (d) {
-    parts.push(`<p class="lead"><b class="num">${n(d.n_anchored)}</b> ships at anchor on ${fmtDay(day)} (daily mean).</p>
+    parts.push(`<p class="lead"><b class="num">${n(d[target] ?? d.n_anchored)}</b> ${escapeHtml(noun)} on ${fmtDay(day)} (daily mean).</p>
       <p class="fine">Forecasts exist only for the test period, ${preds.length ? `${fmtDay(preds[0].date, false)} – ${fmtDay(preds.at(-1).date, false)}` : 'none yet'}.
-      The model trained on Jan–Sep.</p>`);
+      ${target === 'n_anchored' ? 'The model trained on Jan–Sep.' : ''}</p>`);
   }
 
   if (d) {
     const cell = (label, v) => `<div><span>${label}</span><b>${v}</b></div>`;
+    const opt = (label, v, fmt) => (v == null ? '' : cell(label, fmt(v))); // crisis tables lack weather
     parts.push('<div class="facts">' +
-      cell('at berth', n(d.n_moored)) +
-      cell('arrivals 24 h', d.arrivals_24h == null ? '–' : n(d.arrivals_24h, 0)) +
-      cell('departures 24 h', d.departures_24h == null ? '–' : n(d.departures_24h, 0)) +
-      cell('avg wait', d.avg_wait_h == null ? '–' : `${n(d.avg_wait_h, 0)} h`) +
-      cell('max wind', `${n(d.wind_max_kts)} kts`) +
-      cell('min visibility', d.vis_min_m == null ? '–' : `${n(d.vis_min_m / 1000)} km`) + '</div>');
+      (target !== 'n_anchored' ? opt('at anchor', d.n_anchored, (v) => n(v)) : '') +
+      opt('loitering offshore', d.offshore_waiting, (v) => n(v)) +
+      opt('inbound < 60 nm', d.inbound_60nm, (v) => n(v)) +
+      opt('at berth', d.n_moored, (v) => n(v)) +
+      opt('arrivals 24 h', d.arrivals_24h, (v) => n(v, 0)) +
+      opt('departures 24 h', d.departures_24h, (v) => n(v, 0)) +
+      opt('avg wait', d.avg_wait_h, (v) => `${n(v, 0)} h`) +
+      opt('max wind', d.wind_max_kts, (v) => `${n(v)} kts`) +
+      opt('min visibility', d.vis_min_m, (v) => `${n(v / 1000)} km`) + '</div>');
   }
 
   const t = Date.parse(day);
