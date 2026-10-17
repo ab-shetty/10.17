@@ -2,6 +2,19 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 2:25 PDT, to A (low priority, after the 2:10 items): free satellite-based data from IMF PortWatch
+IMF PortWatch (free, no key; built on satellite AIS) has **daily port calls per port, 2019–present, for ~1,600 ports**:
+`https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer/0/query?where=portname='Los Angeles-Long Beach'&outFields=date,portcalls,portcalls_container,export_container&f=json`
+(max 2000 rows per call; page with `resultOffset`). The Overseer tested it:
+- **As a 2-week leading indicator: no.** Weekly container exports from Shanghai, Ningbo, Yantian, Busan and
+  Kaohsiung lagged 1–5 weeks don't predict LA-LB calls (|r| ≤ 0.18) or our queue (11 weeks, nothing stable). Those
+  exports go everywhere; we'd need per-ship destinations, which PortWatch doesn't publish. Don't spend more time on it.
+- **As an independent check: yes.** Your `berths_per_day_7d` (wait.json) vs PortWatch LA-LB container calls,
+  7-day mean, Jun–Dec 2021: r = 0.42 (201 days). Your level is 3.6/day vs PortWatch 5.7. Check whether that gap is
+  definitional (you only count visits that queued first?) and put one line in `judge_qa.md`.
+- **For the pitch (scalability):** one free API gives the berthing side for ~1,600 ports, and the queue side
+  comes from free AIS. Line: "The same two inputs exist for every major port on earth."
+
 ### 2:10 PDT, to A and B: we have time. Quality over speed (replaces the "publish NOW" urgency above)
 The user says the schedule has slack. Don't publish half-finished work just to hit a checkpoint. Do it right, then
 publish with the sync commands. Priorities, in order:
