@@ -13,7 +13,7 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
 - The old `coast.noaa.gov/.../AISDataHandler` zip links 404. Don't use them.
 - Sanity check 2024-01-01: 41 vessels in box, 19 reporting status=1 (at anchor), sog ≈ 0.07.
 
-## Status (A, 11:35 PDT)
+## Status (A, 11:55 PDT)
 - Full 2024 pulled (366 days, bbox to -117.95). `data/daily.parquet` + `shared/daily.json` built. Model trained on full year:
   **beats persistence at h=1/2/3 by 8.0/5.1/5.1 % MAE** (92 test days, Oct–Dec). `shared/preds.json`, `shared/metrics.json` real.
 - **The 2024 anchored queue is ~74 % tankers** (11.3 of 15.3 on average). Frame it as "ships waiting at anchor", not "container queue".
@@ -22,6 +22,11 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
   at anchor; our moored count r = 0.62 with POLA at berth.
 - Extra features: KLGB observed fog (IEM ASOS), harbor wave buoy 46222 (NDBC) → `pipeline/ext_sources.py`.
 - AIS outage 2024-12-25/26 (11–13 h coverage): arrivals/departures nulled there (`coverage_hours` column).
+- **Big-move days** (queue moves ≥ 3 ships): model beats persistence by **22–26 %** MAE at h=1/2/3, direction right 74–82 %.
+  That's the pitch number; the 5–8 % headline is diluted by quiet days where persistence is near-perfect.
+- **Episodes = weather, not trade news.** In gales/heavy swell part of the anchored fleet weighs anchor and rides it out
+  under way (in the bay or 20–30 nm offshore), then re-anchors; the model learned to expect the rebound. It does NOT
+  foresee the gale itself (no weather-forecast input). POLA's Oct release: record volume "without a single ship backed up".
 - In progress: approach-zone AIS pull (`pipeline/extract_approach.py`, ships 20–120 nm out = tomorrow's arrivals), resumable.
 - Research notes: `pipeline/notes/port_events_2024.md` (events timeline), `pipeline/notes/aistrack2025.md` (2025 tracks: coarse only).
 - Codespace RAM: the full-year build gets SIGTERM'd if run alongside 2+ extract workers. Run heavy jobs one at a time on 8 GB.
@@ -88,9 +93,9 @@ Don't import across folders. A and B only talk through `shared/` files.
 |---|---|---|---|
 | `shared/daily.json` | A | `[{date, n_anchored, n_moored, arrivals_24h, departures_24h, avg_wait_h, wind_max_kts, vis_min_m}]` | B chart, by 11:45 |
 | `shared/preds.json` | A | `[{date, issued, h, actual, pred, baseline, top_features:[{name, value, shap}]}]` (h = 1,2,3; `date` = target day, `issued` = date - h) | B chart + explanation, by 1:15 |
-| `shared/metrics.json` | A | `{h: {mae_model, mae_baseline, n_test, skill_pct}}` (skill_pct = 100·(1 − mae_model/mae_baseline); negative = loses to baseline) | B header tiles |
+| `shared/metrics.json` | A | `{h: {mae_model, mae_baseline, n_test, skill_pct, mae_model_bigmove, mae_baseline_bigmove, n_bigmove, skill_pct_bigmove, direction_hit_bigmove}}` (skill_pct = 100·(1 − mae_model/mae_baseline); negative = loses. *_bigmove = only days where the queue moved ≥ 3 ships over the horizon; direction_hit = share where the predicted change had the right sign) | B header tiles |
 | `shared/replay/YYYY-MM-DD.json` | A | `[{mmsi, name, t, lat, lon, status, sog, state}]`, 10-min downsample, only the story days. **Color by `state`** (anchored/moored/underway, same rules as the counts), not raw `status` | B map, by 12:30 |
-| `shared/episodes.json` | A | `[{start, end, title, why}]` 2–3 spike stories | B story mode, by 2:00 |
+| `shared/episodes.json` | A | `[{start, end, title, why, model_note, replay_days:[...]}]` 3 out-of-sample (Oct–Dec) weather-driven dips + rebounds. `replay_days` = which `shared/replay/*.json` exist for it | B story mode, by 2:00 |
 | `shared/news.json` | B | `[{date, score, title, reason, url}]` | A as a feature (optional) |
 B starts by committing **mock** versions of A's files that have exactly these shapes, so the UI never waits on A.
 A overwrites them with real data. Mocks are tagged with `"mock": true` at the top level, or the file is named `*.mock.json`.

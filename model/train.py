@@ -14,6 +14,7 @@ import shap
 TARGET = "n_anchored"
 TEST_START = pd.Timestamp("2024-10-01")
 HORIZONS = (1, 2, 3)
+BIG = 3  # ships
 PARAMS = dict(objective="l1", learning_rate=0.03, n_estimators=300, num_leaves=7, min_child_samples=15,
               subsample=0.8, subsample_freq=1, colsample_bytree=0.8, reg_lambda=1.0, verbose=-1, seed=0)
 
@@ -63,8 +64,18 @@ def main():
         act = y_fut[te]
         sv = shap.TreeExplainer(m).shap_values(Xh[te])
         mae_m, mae_b = float(np.mean(np.abs(pred - act))), float(np.mean(np.abs(base - act)))
+        # big moves: the queue changes by >= BIG ships over the horizon. Persistence is wrong by construction
+        # there; this is where a forecast earns its keep.
+        big = (act - base).abs() >= BIG
+        mae_mb, mae_bb = float(np.mean(np.abs(pred - act)[big])), float(np.mean(np.abs(base - act)[big]))
+        dir_ok = float(np.mean(np.sign(pred - base)[big] == np.sign(act - base)[big]))
         metrics[str(h)] = dict(mae_model=round(mae_m, 3), mae_baseline=round(mae_b, 3), n_test=int(te.sum()),
-                               skill_pct=round(100 * (1 - mae_m / mae_b), 1))
+                               skill_pct=round(100 * (1 - mae_m / mae_b), 1),
+                               mae_model_bigmove=round(mae_mb, 3), mae_baseline_bigmove=round(mae_bb, 3),
+                               n_bigmove=int(big.sum()), skill_pct_bigmove=round(100 * (1 - mae_mb / mae_bb), 1),
+                               direction_hit_bigmove=round(dir_ok, 2))
+        print(f"   big moves (>= {BIG} ships, n={big.sum()}): MAE model {mae_mb:.2f} vs persistence {mae_bb:.2f}, "
+              f"direction right {dir_ok:.0%}")
         print(f"h={h}: MAE model {mae_m:.3f}  persistence {mae_b:.3f}  n={te.sum()}  "
               f"skill {metrics[str(h)]['skill_pct']}%")
         cols = Xh.columns
