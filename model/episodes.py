@@ -18,8 +18,8 @@ EPISODES = [
     dict(start="2024-12-08", end="2024-12-11", replay_days=["2024-12-09", "2024-12-10", "2024-12-11"],
          title="December wind event: 18 -> 10 -> 15 ships",
          why="32 kn gusts on Dec 10. Of the 20 ships anchored on Dec 9, five were drifting 20-30 nm offshore the "
-             "next day, waiting it out at sea. The queue dropped to 10, then refilled to 14.5 on Dec 11. The model has no weather-forecast input, so it can't see "
-             "a gale coming; what it learned is that the queue refills after one."),
+             "next day, waiting it out at sea. The queue dropped to 10, then refilled to 14.5 on Dec 11. The 2024 model does get a day-ahead gust forecast "
+             "(HRRR via Open-Meteo); the queue refilling after the gale is what it learned from history."),
 ]
 
 KEY_DAYS = {  # turning points to quote per episode (target dates, h=1)
@@ -33,9 +33,11 @@ def model_note(start, preds):
     out = []
     for day in KEY_DAYS[start]:
         r = preds[(day, 1)]
+        bname = {"blend": "blend of the two naive rules", "ma7": "7-day mean", "persistence": "tomorrow = today"}[r["baseline_name"]]
         better = abs(r["pred"] - r["actual"]) < abs(r["baseline"] - r["actual"])
-        out.append(f"{day}: model {r['pred']:.1f} vs persistence {r['baseline']:.1f}, actual {r['actual']:.1f} "
-                   f"({'model closer' if better else 'persistence closer'}). Why: {r['top_features'][0]['phrase']}.")
+        out.append(f"{day}: model {r['pred']:.1f}, tomorrow = today {r['persistence']:.1f}, {bname} {r['baseline']:.1f}; "
+                   f"actual {r['actual']:.1f} ({'model' if better else bname} closer). "
+                   f"Why: {r['top_features'][0]['phrase']}.")
     return " ".join(out)
 
 

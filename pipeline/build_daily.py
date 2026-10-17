@@ -17,6 +17,10 @@ ANCHOR_BOX = dict(lat0=33.58, lat1=33.77, lon0=-118.30, lon1=-117.97)
 CELL = 0.002
 BERTH_MIN_PINGS = 30
 GAP_H = 24  # absence that separates two visits
+# Slow ships in the approach zone that are NOT waiting for San Pedro Bay: moored (status 5), at Port Hueneme, or at
+# the El Segundo offshore tanker terminal (code review: these were 68 % of 2024 "waiting offshore").
+OTHER_TERMINAL = ("status = 5 OR (lat BETWEEN 34.0 AND 34.3 AND lon BETWEEN -119.4 AND -119.0)"
+                  " OR (lat BETWEEN 33.85 AND 33.95 AND lon BETWEEN -118.50 AND -118.40)")
 
 
 def valid(f):
@@ -123,15 +127,16 @@ def main(ais_dir="data/ais", approach_dir="data/approach", weather="data/weather
         # hourly snapshots of ships OUTSIDE the study bbox: loitering offshore (waiting) or inbound toward the bay
         ap = c.sql(f"""
           WITH x AS (
-            SELECT mmsi, date_trunc('hour', t10) AS hr, sog, cog,
+            SELECT mmsi, date_trunc('hour', t10) AS hr, sog, cog, status, lat, lon,
                    sqrt(power((lat - 33.70) * 60, 2) + power((lon + 118.20) * 60 * cos(radians(33.7)), 2)) AS nm,
                    (degrees(atan2((-118.20 - lon) * cos(radians(33.7)), 33.70 - lat)) + 360) % 360 AS brg
             FROM read_parquet({appr})),
+          xt AS (SELECT *, coalesce(({OTHER_TERMINAL}), false) AS other_terminal FROM x),
           h AS (
-            SELECT hr, count(DISTINCT mmsi) FILTER (WHERE nm < 60 AND sog < 3) AS waiting,
+            SELECT hr, count(DISTINCT mmsi) FILTER (WHERE nm < 60 AND sog < 3 AND NOT other_terminal) AS waiting,
                    count(DISTINCT mmsi) FILTER (WHERE nm < 60 AND sog >= 6
                                                 AND abs(((cog - brg + 540) % 360) - 180) < 30) AS inbound
-            FROM x GROUP BY 1)
+            FROM xt GROUP BY 1)
           SELECT hr::DATE AS date, avg(waiting) AS offshore_waiting, avg(inbound) AS inbound_60nm,
                  count(*) AS appr_hours FROM h GROUP BY 1""").df()
         ap.index = pd.to_datetime(ap.date)

@@ -5,7 +5,8 @@ Rows: {mmsi, name, t, lat, lon, status, sog, state}, one per vessel per 10 min (
 `status` is raw AIS nav status; `state` is our derived class (anchored | moored | underway), the same
 definitions build_daily.py counts, so the map and the chart agree. Run build_daily.py first (berth mask).
 If data/approach/ has the day, ships within 60 nm OUTSIDE the study bbox are added with state
-inbound (>= 6 kn, course within 30 deg of the bay) | waiting_offshore (< 3 kn) | passing (the rest): the same
+inbound (>= 6 kn, course within 30 deg of the bay) | other_terminal (moored / Port Hueneme / El Segundo)
+| waiting_offshore (< 3 kn) | passing (the rest): the same
 definitions as the model's inbound_60nm / offshore_waiting features. "We see them coming."
 """
 import json
@@ -14,7 +15,7 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
-from build_daily import ANCHOR_BOX, CELL
+from build_daily import ANCHOR_BOX, CELL, OTHER_TERMINAL
 
 OUT = Path("shared/replay")
 
@@ -48,7 +49,7 @@ def export(day, ais_dir="data/ais", approach_dir="data/approach", out_dir=OUT):
           SELECT x.mmsi, names.name, strftime(t10, '%Y-%m-%dT%H:%M:00Z') AS t, round(lat, 5) AS lat, round(lon, 5) AS lon,
                  status, round(sog::DOUBLE, 1) AS sog,
                  CASE WHEN sog >= 6 AND abs(((cog - brg + 540) % 360) - 180) < 30 THEN 'inbound'
-                      WHEN sog < 3 THEN 'waiting_offshore' ELSE 'passing' END AS state
+                      WHEN coalesce(({OTHER_TERMINAL}), false) THEN 'other_terminal' WHEN sog < 3 THEN 'waiting_offshore' ELSE 'passing' END AS state
           FROM x LEFT JOIN names USING (mmsi) WHERE nm < 60""").df()
         rows = pd.concat([rows, ap]).sort_values(["t", "mmsi"])
     out_dir = Path(out_dir)

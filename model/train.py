@@ -44,7 +44,7 @@ LABELS = {
     "visibility_min_m": "min visibility (model, m)", "wind_max_3d": "max wind over 3 days (kn)",
     "is_holiday": "public holiday", "klgb_vis_min_mi": "min visibility at Long Beach airport (mi)",
     "klgb_fog_hours": "hours of fog at Long Beach airport", "wave_hs_max_m": "max wave height at harbor entrance (m)",
-    "wave_period_max_s": "longest swell period (s)", "target_dow": "day of week", "news_score": "news disruption score",
+    "wave_period_max_s": "longest swell period (s)", "target_dow": "day of week",
     "offshore_waiting": "ships waiting offshore (<60 nm, <3 kn)", "inbound_60nm": "ships inbound within 60 nm",
     "fc_gust_target": "forecast max gust on the target day (kn)", "fc_gust_tomorrow": "forecast max gust tomorrow (kn)",
 }
@@ -56,8 +56,10 @@ def phrase(name, value, contrib):
     pushes = "pushes the forecast up" if up else "pulls the forecast down"
     v = round(value, 1)
     special = {
-        "anchored_vs_7d_mean": (f"queue is {abs(v):g} ships {'above' if v > 0 else 'below'} its weekly normal, "
-                                f"so it tends to {'shrink back' if v > 0 else 'refill'}"),
+        # the causal clause follows the contribution sign, so it can never contradict "pushes up/down"
+        "anchored_vs_7d_mean": (f"queue is {abs(v):g} ships {'above' if v > 0 else 'below'} its weekly normal"
+                                + (", so it tends to refill" if up and v < 0 else
+                                   ", so it tends to shrink back" if not up and v > 0 else "")),
         "net_inflow_3d": (f"{abs(v):g} more ships {'arrived than left' if v > 0 else 'left than arrived'} "
                           f"over the last 3 days"),
         "gust_max_kts": f"gusts reached {v:g} kn today" + (" (ships that left anchor tend to return)" if up and v >= 25 else ""),
@@ -113,8 +115,8 @@ def features(d):
     for c in ("klgb_vis_min_mi", "klgb_fog_hours", "wave_hs_max_m", "wave_period_max_s", "offshore_waiting", "inbound_60nm"):
         if c in d:
             f[c] = d[c]
-    if "news_score" in d and d.news_score.notna().any():
-        f["news_score"] = d.news_score.fillna(0)
+    # news_score (shared/news.json) is deliberately not a feature: tested on 2024 Oct-Dec (B's session) it moved skill
+    # by +-1 %, inside the CI. The web panel shows news as context only.
     return f
 
 
@@ -197,13 +199,15 @@ def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False, t
         for m0 in cv_months:
             m1 = m0 + pd.DateOffset(months=1)
             ftr, fva = tr & (tgt_date < m0), tr & (tgt_date >= m0) & (tgt_date < m1)
+            if rolling or ftr.sum() < 30 or not fva.any():
+                continue  # rolling mode fixes the model in advance; tiny/empty folds can't be fit
             fm = fit_all(Xh[ftr], dy[ftr])
             for k in CANDIDATES:
                 cv[k].append(mae(anchor[fva] + predict(fm, k, Xh[fva]), y_fut[fva]))
             for k in BASELINES:
                 cv[k].append(mae(base_all[k][fva], y_fut[fva]))
-        cv = {k: round(float(np.nanmean(v)), 3) for k, v in cv.items()}
-        chosen = min(CANDIDATES, key=cv.get)
+        cv = {k: round(float(np.nanmean(v)), 3) if v else None for k, v in cv.items()}
+        chosen = "avg" if rolling or cv["avg"] is None else min(CANDIDATES, key=cv.get)
 
         act = y_fut[te]
         if rolling:
@@ -237,7 +241,8 @@ def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False, t
                  skill_pct=round(100 * (1 - mae_m / mae_b), 1),
                  skill_ci90=block_bootstrap_skill(np.abs(pred - act).values, np.abs(base - act).values),
                  skill_vs_persistence_pct=round(100 * (1 - mae_m / test_base["persistence"]), 1),
-                 baselines_mae=test_base, model=chosen, cv_mae=cv, test_mae_all=test_models,
+                 baselines_mae=test_base, model=chosen, test_mae_all=test_models,
+                 **({} if rolling else dict(cv_mae=cv)),
                  evaluation="rolling-origin, monthly refit" if rolling else "single split", target=TARGET)
         if "fc_gust_target" in Xh:
             storm = (Xh.loc[te, ["fc_gust_target", "fc_gust_tomorrow"]].max(axis=1) >= STORM_KTS).values

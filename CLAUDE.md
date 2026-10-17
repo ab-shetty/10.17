@@ -31,27 +31,21 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
 - Model: LightGBM + CatBoost + ridge predicting y[t+h] − blend(persistence, 7-day mean); per-horizon choice by
   rolling-origin CV on the 3 months before test. `model/train.py --daily --weather --test-start --out-prefix`.
 - **2024 test (Oct–Dec, 92 days) vs the BEST naive baseline**, rolling-origin (refit before each month, model fixed
-  in advance = plain average; this is what a deployed system would do and what the crisis run uses):
-  **h=1 +10.2 % [90 % CI +2.9, +16.3] (beats it); h=2 +3.6 %, h=3 +3.4 % (CIs include 0: a tie with the 7-day mean).**
-  Storm days (forecast gust ≥ 25 kn, known on the issue day): h=1 +32 %. Vs persistence alone: +17 / +17 / +15 %.
-  Single split (train Jan–Sep once, CV-chosen model): +8.0 % [+0.9, +14.5] / −3.7 % / −1.2 %. Same story.
-  (Old "big move" metric dropped: it selected days by the outcome.)
-- **Emissions at anchor** (`pipeline/emissions.py`, POLA-inventory method): 2024 all ships anchored in the bay =
-  725 t NOx, 18.5 t PM2.5, 84.7 kt CO2 (5,594 ship-days; conservative per-ship rate, ~½ of POLA's implied rate).
-  **Closing fact from POLA's own CY2021 inventory (Table 3.16): ships hotelling at anchor emitted 2,848 short tons NOx
-  in 2021 = 48 % of all POLA ship NOx, 24× the 2023 figure (118 tons). POLA calls only; Long Beach is extra.**
-  POLA's 2021 report says the Nov-2021 queuing process was adopted "to increase safety and improve air quality".
-  **Independent check (CARB fact sheets, PDFs in `data/ext/carb/`):** our 2024 rate = 2.2 short tons NOx/day vs CARB's
-  business-as-usual 1.7 tpd for tankers + containers at anchor (we also count bulk/car carriers). CARB Nov 2021: as of
-  Oct 2021 up to 79 container ships (109 total) at anchor, **+20 tpd NOx ≈ 5.8 million passenger cars**, +0.5 tpd PM ≈
-  100,000 Class 8 trucks. CARB Feb 2023 Table 1: excess NOx at anchor 17.9 tpd (Nov 21) → 7.0 → 4.3 → 3.5 → 2.6 (Mar 22).
-- **Slide-ready facts (sourced, in `pipeline/notes/`):** Wilmington: all 14 populated tracts in CA's worst quarter on
-  CalEnviroScreen 4.0, 6 at ≥ 97th pct for diesel PM (`health_context.md`, verified live). MGO ≈ $780/t (Jun 21–Mar 22),
-  $760/t (2024) (`fuel_prices.md`, proxy from EIA LA diesel). Crisis timeline + story windows: `crisis_timeline_2021.md`.
-- Weather forecasts: Open-Meteo previous-runs (`fc1..3_*`) exist only from 2024-01-19. The crisis model can't see storms coming.
+  in advance = plain average): **h=1 +10.7 % [90 % CI +3.3, +17.5]; h=2 +6.3 %, h=3 +2.8 % (CIs include 0: ties).**
+  Vs persistence alone: +17 / +19 / +15 %.
+  **Honest caveats (from the code review, `pipeline/notes/code_review.md`):**
+  - The h=1 win is mostly the **day-ahead gust forecast**. Open-Meteo's default ("gfs_seamless") uses HRRR for day 1:
+    a real forecast issued ≥ 24 h ahead (no leakage), and markedly better than global GFS. With pure global GFS instead,
+    h=1 = +6.2 % [−2.1, +12.5] (a tie); without any forecast features +1.6 % [−6.4, +7.0]. Say: "it wins by reading
+    tomorrow's weather forecast the way a pilot would".
+  - Storm-day numbers (n = 10 days) are ~3 events. Don't quote a % for them without saying "3 storms".
+  - The Oct–Dec window was also used for design choices (features, the 25 kn cut, rolling vs split). One winter quarter.
+- `offshore_waiting` now excludes moored ships, Port Hueneme and the El Segundo terminal (they were 68 % of it in 2024);
+  2024 mean 8.0 → 2.4, and it became a better predictor (corr with tomorrow's change 0.13 → 0.25).
 - Best new signal: **ships inbound within 60 nm** (corr 0.18 with tomorrow's queue change, more than today's arrivals).
 - **The 2024 anchored queue is ~74 % tankers** (11.3 of 15.3 on average). Say "ships waiting at anchor", not "container queue".
-- Validated against POLA's own daily Container Vessel Activity 2024 (`pipeline/pola_summary.py`, PDF in `data/ext/pola/`,
+- Plausible agreement with POLA's own daily Container Vessel Activity 2024 **on the container slice only** (the 74 % tanker
+  share has no independent daily check; total n_anchored vs POLA r = −0.01) (`pipeline/pola_summary.py`, PDF in `data/ext/pola/`,
   hand-downloaded because Cloudflare blocks scripts): our ≥250 m cargo anchored count r = 0.49 with POLA container ships
   at anchor; our moored count r = 0.62 with POLA at berth.
 - **Episodes = weather, not trade news.** In gales/heavy swell part of the anchored fleet weighs anchor and rides it out
@@ -125,16 +119,16 @@ Don't import across folders. A and B only talk through `shared/` files.
 | `shared/daily.json` | A | `[{date, n_anchored, n_moored, arrivals_24h, departures_24h, avg_wait_h, wind_max_kts, vis_min_m}]` | B chart, by 11:45 |
 | `shared/preds.json` | A | `[{date, issued, h, actual, pred, baseline, baseline_name, persistence, top_features:[{name, label, phrase, value, shap}]}]` (h = 1,2,3; `date` = target day, `issued` = date − h; `baseline` = the best naive baseline on the test set, named in `baseline_name`: persistence / ma7 / blend. **Show `phrase`**: plain-English, direction-aware reason; current queue level excluded as circular) | B chart + explanation, by 1:15 |
 | `shared/metrics.json` | A | `{h: {mae_model, mae_baseline, baseline, n_test, skill_pct, skill_ci90:[lo,hi], skill_vs_persistence_pct, baselines_mae:{persistence, ma7, blend}, model, cv_mae, test_mae_all, n_storm?, mae_model_storm?, mae_baseline_storm?, skill_pct_storm?}}`. skill_pct = 100·(1 − mae_model/mae_baseline) vs the **best** baseline; negative = loses. skill_ci90 = 7-day block-bootstrap. Storm days = forecast gust ≥ 25 kn, known on the issue day (2024 only) | B header tiles |
-| `shared/replay/YYYY-MM-DD.json` | A | `[{mmsi, name, t, lat, lon, status, sog, state}]`, 10-min downsample, only the story days. **Color by `state`**: anchored / moored / underway inside the bay (same rules as the counts), plus ships within 60 nm outside the bay: **inbound** (≥ 6 kn, heading for the bay) / **waiting_offshore** (< 3 kn) / passing — same definitions as the model features. Not raw `status` | B map, by 12:30 |
+| `shared/replay/YYYY-MM-DD.json` | A | `[{mmsi, name, t, lat, lon, status, sog, state}]`, 10-min downsample, only the story days. **Color by `state`**: anchored / moored / underway inside the bay (same rules as the counts), plus ships within 60 nm outside the bay: **inbound** (≥ 6 kn, heading for the bay) / **waiting_offshore** (< 3 kn) / **other_terminal** (moored, Port Hueneme, El Segundo terminal: not waiting for us; draw faint or hide) / passing — same definitions as the model features. Not raw `status` | B map, by 12:30 |
 | `shared/episodes.json` | A | `[{start, end, title, why, model_note, replay_days:[...]}]` 3 out-of-sample (Oct–Dec 2024) weather-driven dips + rebounds | B story mode, by 2:00 |
-| `shared/news.json` | B | `[{date, score, title, reason, url}]` | A as a feature (optional) |
+| `shared/news.json` | B | `[{date, score, title, reason, url}]` | B explanation panel + chart ticks, **context only**. Tested as a model feature: ±1 % skill, inside the CI → not used (A applied this in `model/train.py`) |
 | `shared/emissions.json` (+ `shared/crisis/emissions.json`) | A | `{summary:{start, end, days, ship_days_at_anchor, nox_t, pm25_t, co2_t, fuel_t, nox_kg_per_ship_day, peak_day, peak_day_nox_kg, method, scope, cross_check}, daily:[{date, ship_hours, nox_t, pm25_t, co2_t, fuel_t, ship_days}]}`. Every anchored cargo ship + tanker in the bay × POLA-inventory loads/factors. Quote `scope` with the number | B closing slide |
-| `shared/crisis/daily.json`, `daily.parquet` | Overseer | same columns as `shared/daily.json` / `data/daily.parquet`, 2021-06-01..2022-03-31, no weather | A model, B chart |
+| `shared/crisis/daily.json`, `daily.parquet` | A (`model/run_crisis.sh`) | same columns as `shared/daily.json` / `data/daily.parquet`, 2021-06-01..2022-03-31, no weather | A model, B chart |
 | `shared/crisis/weather_daily.json` | A | `[{date, wind_max_kts, gust_max_kts, visibility_min_m, fc1..3_gust_max_kts, fc1..3_wind_max_kts}]` (fc* are null before 2024-01-19: no archived forecasts) | A model |
 | `shared/crisis/preds.json`, `metrics.json` | A | same shapes as `shared/preds.json` / `metrics.json` (no storm metric: no archived forecasts for 2021) | B crisis chart |
 | `shared/crisis/chart.json` | A | `{target, window, note, series:[{date, actual, forecast_1d, forecast_2d, tomorrow_equals_today, seven_day_mean, n_anchored, offshore_waiting, inbound_60nm, arrivals_24h, avg_wait_h}]}` Sep–Oct 2021: **the money shot** (forecast turns up before the queue; both naive rules lag). target = n_waiting = anchored + loitering < 60 nm | B crisis chart |
 | `shared/crisis/episodes.json` | A | same shape as `shared/episodes.json` + `lead_score`; the 2–3 days where the 1-day forecast rose above both naive rules on a day the queue really rose | B story mode |
-| `shared/crisis/replay/YYYY-MM-DD.json` | whoever runs `run_crisis.sh` first (A or Overseer) | same shape as `shared/replay/` | B map |
+| `shared/crisis/replay/YYYY-MM-DD.json` | A (`model/run_crisis.sh`) | same shape as `shared/replay/` | B map |
 B starts by committing **mock** versions of A's files that have exactly these shapes, so the UI never waits on A.
 A overwrites them with real data. Mocks are tagged with `"mock": true` at the top level, or the file is named `*.mock.json`.
 
