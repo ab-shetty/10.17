@@ -15,23 +15,24 @@ This is a replay, not live.
 
 *(Screen: weekly wait chart)*
 
-The published wait averages ships that already berthed, so it looks backwards. Through the build-up it told
-captains two to three days less than they waited, every week of September and October. Ships ahead divided by
-berths freed per day, from ship tracking alone, got it right on average. And in calm 2024 the published figure
-is spot on: it goes wrong exactly when the queue grows.
+The port's number was how long the ships that just reached a berth had waited. That's old news: when the line
+is growing, every new ship waits longer than the ones before it. So all through September and October it told
+captains two to three days too little. We did something simpler: count the ships ahead of you, and how many
+berths open up each day. Sixty ships ahead, four berths a day: fifteen days. On average, that was right.
+And in 2024, when the line wasn't growing, the port's number was fine.
 
 Since November 2021 your place in line is set when you leave your last port, so slowing down no longer costs
 your spot. What captains lack is the right number to slow down to. We tested ours a week out at sea: the
 published figure ran three days short; ours was within a day. That's up to $300,000 of fuel per large ship, and
 tens of millions across September and October 2021 alone, with the emissions moved out to sea.
 
-With free data we see 60 miles out, so nobody, including us, could forecast the 2021 jumps from shore: a day
-ahead, nothing beats "tomorrow equals today". In normal 2024 our model beats the best simple rule by 11 percent,
-mostly in storms. Under the hood it's an ensemble of LightGBM, CatBoost and ridge regression that learns only the
-correction to the best simple rule, reads tomorrow's weather forecast, and is refit every month on past data only.
-We tested 677 variants; none beat it. With satellite tracking we'd see every LA-bound ship from the day it leaves Asia, and could
-forecast the crisis itself. That would be worth up to $650,000 per ship, and on the order of $100 million in
-two months, at one port.
+With free data we only see 60 miles out. So a day ahead, we couldn't forecast the 2021 surges any better than
+assuming tomorrow looks like today: those surges were set two weeks earlier in Asia. In normal times, in 2024,
+our forecast was 11 percent more accurate than that guess, mostly by reading the weather forecast before storms.
+Under the hood it's three machine-learning models, LightGBM, CatBoost and ridge regression, averaged together and
+retrained every month on past data only. We tested 677 variations; none did better. With satellite tracking we'd
+see every LA-bound ship from the day it leaves Asia, and could forecast the surges themselves. That would be worth
+up to $650,000 per ship, and on the order of $100 million in two months, at one port.
 
 Whoever buys the fuel pays for this: charterers and carriers. The next port costs nothing to add. Two of us
 built this in five hours, directing a team of Claude agents. Every captain should get the real number.
@@ -40,11 +41,11 @@ built this in five hours, directing a team of Claude agents. Every captain shoul
 ---
 
 ## 30-second version
-Off Los Angeles in 2021 the published wait for a berth told captains two to three days less than they really
-waited, every week of the build-up, because it averages ships that already berthed. From free ship-tracking data
-we rebuilt the queue, matching the Marine Exchange count, and estimated the wait as ships ahead divided by berths
-freed per day: right on average, and the published figure is fine in calm 2024. Told the real number a week out,
-a large ship saves up to $300,000 of fuel. The same free inputs exist for every major port.
+Off Los Angeles in 2021, the port's published wait was how long the ships that just reached a berth had waited.
+With the line growing, that told captains two to three days too little, every week of the build-up. From free
+ship-tracking data we counted the ships ahead and the berths opening each day, and got the wait right on average.
+Told the real number a week out, a large ship saves up to $300,000 of fuel. The same free data exists for every
+major port.
 
 ---
 
