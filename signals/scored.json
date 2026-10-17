@@ -1,0 +1,77 @@
+{
+ "https://www.seatrade-maritime.com/containers/top-container-lines-reroute-from-red-sea-to-avoid-attacks": {
+  "score": 0.3,
+  "reason": "Rerouting bunches Asia schedules and shifts some cargo west, but transpacific lanes are untouched.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://www.news4jax.com/business/2024/01/18/a-drought-has-forced-authorities-to-further-slash-traffic-in-panama-canal-disrupting-global-trade/": {
+  "score": 0.3,
+  "reason": "Canal limits divert some East Coast-bound Asian cargo to LA/Long Beach, a slow indirect push.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://mykn.kuehne-nagel.com/news/article/la-reports-nearrecord-january-volumes-amid-li-19-Feb-2024": {
+  "score": 0.4,
+  "reason": "Near-record January volume means more ship calls competing for the same berths.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://www.logisticsmgmt.com/article/port_of_los_angeles_and_port_of_long_beach_report_strong_february_volumes": {
+  "score": 0.2,
+  "reason": "Post-Lunar New Year lull means fewer arrivals in March, which eases the queue.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://portoflosangeles.org/references/2024-news-releases/news_052024_april_cargo-en": {
+  "score": 0.3,
+  "reason": "Steady double-digit growth adds calls, but no sign of berth congestion.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://portoflosangeles.org/references/2024-news-releases/news_061224_may_cargo": {
+  "score": 0.1,
+  "reason": "A soft month with fewer calls lowers pressure on the anchorage.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://portoflosangeles.org/references/2024-news-releases/news_071724_june_cargo": {
+  "score": 0.3,
+  "reason": "Volume rebound adds calls; a modest upward push.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://www.hellenicshippingnews.com/shipping-panama-canal-raises-maximum-drafts-to-49ft-as-lake/": {
+  "score": 0.15,
+  "reason": "Canal easing pulls some cargo back to the East Coast, slightly reducing West Coast calls.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://portoflosangeles.org/references/2024-news-releases/news_081324_july_cargo": {
+  "score": 0.55,
+  "reason": "Early peak season brings the busiest month in two years, straining berth capacity.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://portoflosangeles.org/references/2024-news-releases/news_091824_august_cargo": {
+  "score": 0.55,
+  "reason": "Record volumes at both ports raise the chance ships wait for a berth.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://www.sheppard.com/insights/blogs/the-skys-the-limit-yet-more-section-301-tariffs-on-china": {
+  "score": 0.35,
+  "reason": "Tariff deadline front-loads Chinese imports, a short burst of extra arrivals.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://www.ajot.com/news/ship-queue-grows-at-us-ports-as-dockworker-strike-enters-third-day": {
+  "score": 0.6,
+  "reason": "East and Gulf Coast strike diverts some cargo west, adding arrivals at San Pedro Bay.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://portoflosangeles.org/references/2024-news-releases/news_112024_oct_cargo": {
+  "score": 0.3,
+  "reason": "Record volume, but the port says no ship waited at sea, so the queue stays small.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://www.noticiasdenavarra.com/mundo/2024/11/26/trump-anuncia-arancel-25-importaciones-8977006.amp.html": {
+  "score": 0.45,
+  "reason": "Tariff threat encourages importers to front-load shipments into December and January.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ },
+ "https://portoflosangeles.org/references/2024-news-releases/news_121724_nov_cargo": {
+  "score": 0.35,
+  "reason": "Strong November volumes keep berths busy heading into the tariff front-loading period.",
+  "scorer": "claude (in-session, no API key; rerun with --rescore)"
+ }
+}
