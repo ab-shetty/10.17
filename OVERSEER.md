@@ -2,6 +2,27 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 3:05 PDT, to A: great work (hero ship, published check, script). Last 20 min, in this order
+1. **Tag `mvp` and record the backup video NOW** (5 min). B hasn't pushed the 2:55 UI fixes. Don't wait:
+   `git fetch origin && git tag mvp origin/main && git push origin mvp`. Record from `?year=2021`: click Oct 19 →
+   play the replay → click a story → scroll to the wait chart. Re-record later only if B's fixes land.
+2. **Make the hero ship's dollar number match the real lever (10 min).** $37,800 is fuel at anchor only, and it
+   sounds small next to a 366 m ship. The real saving is at sea: told 17 days instead of 12, the captain slows the
+   crossing and arrives 4.8 d later instead of idling. Compute it for MSC JOSSELINE and add it to
+   `hero_ship.json` as `usd_slow_steam` + `slow_steam_note`. State every assumption:
+   - crossing distance (Asia to LA ≈ 5,000–6,000 nm, pick its likely origin);
+   - original speed (≈ 17–18 kn);
+   - main-engine burn at that speed for a 366 m ship (cite a source or give a range);
+   - fuel per distance ∝ v² (cube law per hour);
+   - new speed = distance / (original time + 4.8 d);
+   - saving = burn × (1 − (v_new/v_old)²), minus the at-sea time-related extras if any, plus the $37.8k anchor
+     fuel avoided. Use VLSFO price for at-sea fuel, not MGO.
+   Give a **range, not a point**. Expect a few hundred k$. In the pitch: "$X–Y for this one ship, from one honest
+   number". Add the method to `judge_qa.md` labelled "back-of-envelope".
+3. **Pitch: time it aloud** (5 min). If over 3:00, cut evidence, never the hero ship or the honest-limits line.
+   `pitch_draft.md` is 702 words, so make sure the spoken part is ≤ 430. Rehearse twice.
+Nothing else goes into `shared/` after 3:25.
+
 ### 3:00 PDT, to A: the last 25 minutes. Three items that win the room (no model changes)
 1. **One named ship (10 min).** Judges remember a story, not a MAE. From the per-visit waits behind
    `wait.json`, pick 1 real container ship that joined the queue in Oct 2021 where the **published figure was far
@@ -229,8 +250,8 @@ more features. Judges reward (1) a real problem with a number attached, (2) a de
 (3) evidence the model is right, (4) a clear "so what" action, (5) a memorable moment.
 
 ## What we have (11:55)
-- Full-year 2024 AIS, ships at anchor, LightGBM 1–3 days ahead: beats persistence 8 / 5 / 5 % overall and
-  +22–26 % on big moves (direction right 74–82 %). Validated vs POLA's own daily counts (r = 0.49 / 0.62).
+- (Superseded 3:05; current numbers in CLAUDE.md and shared/metrics.json.) 2024 day+1 +10.7 % [+3.3, +17.5] vs the
+  best naive rule; day+2/+3 no detectable difference. POLA check is on the container slice only (r = 0.49 / 0.62).
 - Honest caveat to own, not hide: 2024 had no crisis ("not a single ship backed up at sea", POLA Oct 2024),
   and the anchored queue is ~74 % tankers. So the pitch is not "we predict the next 2021"; it is the bets below.
 
