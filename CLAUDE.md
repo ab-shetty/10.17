@@ -34,6 +34,10 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
 - **Validated vs what the port said**: our reported-7d series ≈ published figures (Aug 15: ours 6.5 vs 6.8 published;
   Sep 9: ours 7.1 (≈7.3 over 30 d) vs POLA 30-day 8.5; Oct 14: ours 13.9 vs NBC4 12). Ships joining Sep 9–15 really waited 10.5 d
   (`pipeline/notes/wayback_2021.md`).
+- **Issued while the ship is still at sea** (estimate made k days before it joins, `wait.json` daily shifted, Sep–Oct 2021):
+  bias ours / published: 3 d −0.1 / −2.8; 7 d **−0.8 / −3.1**; 14 d −1.8 / −3.7. Accuracy edge only clears noise at 14 d
+  (+19 % [+7, +32]); at 1 d ours loses (−14 %). Pitch line: "a week out at sea the published figure ran three days short;
+  ours was within a day" (bias, not accuracy).
 - **2024 control** (`shared/wait.json`): reported bias 0.00 d in steady weeks, −1.0 d when the queue grew, +1.2 d when it shrank:
   the published figure is fine in calm times and lags exactly when the queue moves.
 - **Cost of the gap** (net understatement, bias × 437 visits, Sep–Oct 2021 only): **893 ship-days ≈ 6,500 t fuel ≈ $5.1 M,

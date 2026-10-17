@@ -1,4 +1,4 @@
-# Pitch script (3 min, ~420 spoken words). Final numbers, 3:05 PDT
+# Pitch script (3 min, ~400 spoken words). Final numbers, 3:40 PDT
 
 Every number has its source in [brackets]. Spoken text is in plain paragraphs; stage directions are in *italics*.
 Demo = a **replay** of 2021 and 2024 AIS, not live. Say so.
@@ -10,55 +10,50 @@ Demo = a **replay** of 2021 and 2024 AIS, not live. Say so.
 **Hook (≈ 50 words).**
 On October 11th, 2021, the MSC Josseline, a 366-metre container ship, joined the queue off Los Angeles.
 The port's published wait that day was twelve and a half days. She waited seventeen. Told the real number,
-her captain could have crossed the Pacific five days slower instead of idling over Wilmington and San Pedro:
-roughly $300,000 to $600,000 of fuel, for one ship, from one honest number.
-[`shared/crisis/hero_ship.json` usd_slow_steam, back-of-envelope; judge_qa.md]
-
-**Problem (≈ 50 words).**
-In the 2021 backlog, more than a hundred ships waited off San Pedro Bay. Every day at anchor burns fuel and
-puts NOx and soot over the harbor neighborhoods. Captains could slow down at sea instead, but only if they
-know how long the wait really is.
+her captain could have crossed the Pacific five days slower instead of idling: roughly $300,000 to $600,000
+of fuel, for one ship.
+[`shared/crisis/hero_ship.json` usd_slow_steam + slow_steam_note, back-of-envelope]
 
 *[Screen: the "queue spilled into the ocean" chart]*
 
-**What we built (≈ 60 words).**
-From free NOAA ship-tracking data we rebuilt the whole queue, anchored and loitering offshore. On the peak day
-we count 102 waiting; the Marine Exchange counted 107. This is a replay of 2021, not a live feed.
+**Problem + what we built (≈ 50 words).**
+In the 2021 backlog over a hundred ships idled off San Pedro Bay, putting soot over the harbor neighborhoods.
+From free ship-tracking data we rebuilt that queue: on the peak day we count 102, the Marine Exchange 107.
+This is a replay, not live.
 [CLAUDE.md, 48 + 54 = 102.5 vs MX 56 + 51]
 
 *[Screen: weekly wait chart: real (white), published (grey dashed), ours (orange)]*
 
 **What we found (≈ 80 words).**
-The published wait is an average of ships that already berthed, so it looks backwards. All through the
-build-up it told captains two to three days less than they actually waited: in every one of nine weeks in
-September and October. Queue divided by berthing rate, from AIS alone, got it right on average.
-And it's not cherry-picked: on calm 2024 the published figure is spot on. It goes wrong exactly when the queue grows.
+The published wait averages ships that already berthed, so it looks backwards. Through the build-up it told
+captains two to three days less than they waited, every week of September and October. Ships ahead divided by berths freed per day, from AIS alone, got it right on average. And on calm 2024 the
+published figure is spot on: it goes wrong exactly when the queue grows.
 [`shared/crisis/wait.json` bias −2.5 d vs +0.1 d; `shared/wait.json` steady weeks 0.0 d]
 
-**What it cost (≈ 45 words).**
-That gap alone is 893 ship-days of idling nobody planned for in two months: about $5 million of fuel and
-200 tonnes of NOx. It sits inside roughly $55 million of fuel burned at anchor over the backlog.
-[`wait.json` gap_cost.net_understatement; `crisis/emissions.json` 71,216 t × $780/t]
+**What it's worth to a shipping company (≈ 110 words).**
+Since November 2021 your place in line is set when you leave your last port, so slowing down no longer costs
+your spot. What captains lack is the right number to slow down to. We tested ours a week out at sea: the
+published figure ran three days short; ours was within a day. That's $300,000 to $600,000 per large ship, and
+tens of millions across September and October 2021 alone, with the emissions moved out to sea.
+[issued-ahead check: `shared/crisis/wait.json` daily, estimate issued 7 d before joining, bias ours −0.8 d vs published −3.1 d (measured);
+fleet $ = ~266 large visits × ~2.6 d × $70–130k/day, back-of-envelope upper bound; rule: `pipeline/notes/crisis_timeline_2021.md`]
 
-**Honest limits (≈ 60 words).**
-Forecasting the count a day ahead in the crisis: nothing seen from shore beats "tomorrow equals today".
-The queue moved in steps set weeks earlier in Asia. In normal 2024 our model does beat the best naive rule
-a day ahead, by 11 percent, mostly by reading the weather forecast in stormy weather.
-[`crisis/metrics.json` h=1 +0.5 % [−6.4, +4.8]; `metrics.json` h=1 +10.7 % [+3.3, +17.5]]
+**Honest limits + what paid data unlocks (≈ 85 words).**
+With free data we see 60 miles out, so nobody, including us, could forecast the 2021 jumps from shore: a day
+ahead nothing beats "tomorrow equals today". In normal 2024 our model beats the best simple rule by 11 percent,
+mostly in storms. With satellite tracking we'd see every LA-bound ship from the day it leaves Asia, and could
+forecast the crisis itself.
+[`crisis/metrics.json` h=1 +0.5 % [−6.4, +4.8]; `metrics.json` h=1 +10.7 % [+3.3, +17.5]; satellite = not tested]
 
-**Who pays (≈ 35 words).**
-The product is a wait-time feed for any port, sold to carriers, charterers and cargo owners. Both inputs are free,
-ship positions from AIS and berthing rates from the IMF's PortWatch, so the next port costs nothing to add.
-
-**How we built it (≈ 15 words).**
-Two people built this in five hours by directing a team of Claude agents: data, model, web, review.
-
-**Close.**
-Every captain should get the real number.
+**Who pays + close (≈ 40 words).**
+Whoever buys the fuel: charterers and carriers. The next port costs nothing to add. Two of us built this in
+five hours, directing a team of Claude agents. Every captain should get the real number.
 
 ---
 
 ## Don't say
+- "We can predict the crisis with satellite data" (say "would": not tested).
+- "$45–90 M" out loud (say "tens of millions": it assumes every captain acts and every ship is that size).
 - "We predicted the crisis" / "saw it coming in September" (crisis day+1 skill: no detectable difference).
 - "Our wait estimate is more accurate" (per day it isn't: MAE 4.3 vs 3.8 d; per ship it beats the published figure for 52 %). Say "right on average".
 - "Avoidable $55 M" ($55 M is everything burned at anchor; only the $5 M gap is tied to the wrong wait figure).
