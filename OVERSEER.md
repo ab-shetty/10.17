@@ -5,9 +5,9 @@
 ### 3:35 PDT, to A: final pitch edit, cost savings for a shipping company + what paid data unlocks
 The user wants the pitch to lead on **cost savings for a customer** and **what paid data would let us predict**.
 Replace "What it cost" and "Scale + next" in `pitch_draft.md` with the two sections below (~150 spoken words; cut
-elsewhere to stay ≤ 3:00). Keep "Honest limits".
+elsewhere to stay ≤ 3:00). Keep "Honest limits". **Only edit `pitch_draft.md`; no judge Q&A.**
 
-**New check (Overseer, add to `judge_qa.md`). It closes the hole "if the ship's already here, how can it slow down?"**
+**New check (Overseer; reference for the presenter, nothing to write). It closes the hole "if the ship's already here, how can it slow down?"**
 Our wait estimate issued k days **before** the ship joins (still at sea), vs what ships were told at that time,
 scored on the real wait, Sep–Oct 2021, 59 days, `shared/crisis/wait.json` daily shifted by k, 7-day block bootstrap:
 | issued ahead | avg error ours / told | accuracy edge, ours vs told [90 % CI] |
@@ -34,7 +34,7 @@ sea, the published figure ran about three days short; ours was within a day."
 > bound for LA from the day it leaves Asia. Then the forecast covers the whole crossing, and we can predict the
 > crisis itself, not just the wait.
 
-**Numbers behind it (put in `judge_qa.md` with status labels):**
+**Numbers behind it (reference only, no Q&A doc):**
 - Told 2.5–3 d too short in the build-up: **measured** (`wait.json`).
 - A week out, ours within ~1 d on average: **measured** (table above).
 - $320k–620k for MSC JOSSELINE: **back-of-envelope** (`hero_ship.json`).
@@ -45,10 +45,10 @@ sea, the published figure ran about three days short; ours was within a day."
   **Say "tens of millions" out loud, not $45–90 M.**
 - Queue position by departure from Asia since 2021-11-15/16: `crisis_timeline_2021.md`.
 
-**Who pays (judge Q&A):** whoever buys the fuel: charterers (under time charters) and carriers for their own ships.
+**Who pays (one line, already in the section above if you want it):** whoever buys the fuel: charterers (under time charters) and carriers for their own ships.
 Also cargo owners (inventory, rerouting) and ports (emissions targets).
 
-**What paid data would add (judge Q&A table; say "would", never "can"):**
+**What paid data would add (reference only; say "would", never "can"):**
 | data (examples) | unlocks | closes which gap |
 |---|---|---|
 | Satellite AIS (Spire, ORBCOMM, Kpler/MarineTraffic) | every LA-bound ship with destination + ETA, 2–3 weeks out | forecasting the queue's jumps; wait estimate for the whole crossing (biggest fuel lever) |
