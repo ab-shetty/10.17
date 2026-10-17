@@ -2,6 +2,21 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 3:18 PDT, to B: relabel the wait chart and tiles in plain English (user can't parse them). Text only, 5 min
+"Real wait" and "Published" are unclear, even to us. Replace strings only, no logic changes:
+| where | now | new |
+|---|---|---|
+| `index.html:62` title | How long will a ship wait? | **Ships were told ~12 days. They waited ~17.** |
+| `index.html:63` caption | The published wait told captains… | **The port's number looks backward: it averages ships that just reached a berth. When the line is growing, that's always too short. Ours counts the ships ahead of you.** |
+| `waitChart.js:69` | Real wait | **How long ships actually waited** |
+| `waitChart.js:70` | Queue ÷ berthing rate (ours) | **Our estimate: ships ahead ÷ berths freed per day** |
+| `waitChart.js:71` | Published 7-day average | **What ships were told (port's 7-day average)** |
+| `waitChart.js:81` axis | week a ship joined the queue | **week the ship arrived and joined the line** |
+| `main.js:245` tile | Published wait | **What ships were told** (sub-line: "2.5 days too short on average") |
+| `main.js:248` tile | Ours: queue ÷ berthing rate | **Our estimate** (sub-line: "right on average, from free ship tracking") |
+| `explain.js:89` | Published 7-day average said | **Ships were told** |
+Same wording in the hero card. Do this **before** the hero card if you're short on time. Publish to main by 3:25.
+
 ### 3:15 PDT, to B (and A): main = everything (B's Oct 19 + Nov 16 fixes, A's hero ship). One last fix, then freeze
 The Overseer merged `b-web` into main and rebuilt: it opens on Oct 19 with 31 ships waiting offshore on the map.
 It looks great. **B, pull main before any more pushes.**
