@@ -40,9 +40,14 @@ def main():
       FROM read_parquet({files})""")
     c.execute(f"""
       CREATE TABLE berth AS
-      WITH dense AS (SELECT cy, cx FROM p WHERE status = 5 GROUP BY 1, 2 HAVING count(*) >= {BERTH_MIN_PINGS})
-      SELECT DISTINCT d.cy + dy AS cy, d.cx + dx AS cx
-      FROM dense d, range(-1, 2) t1(dy), range(-1, 2) t2(dx)""")
+      WITH cnt AS (SELECT cy, cx, count(*) FILTER (WHERE status = 5) AS s5,
+                          count(*) FILTER (WHERE status = 1) AS s1 FROM p GROUP BY 1, 2),
+      dense AS (SELECT cy, cx FROM cnt WHERE s5 >= {BERTH_MIN_PINGS} AND s5 > s1),
+      dil AS (SELECT DISTINCT d.cy + dy AS cy, d.cx + dx AS cx
+              FROM dense d, range(-1, 2) t1(dy), range(-1, 2) t2(dx))
+      -- dilation must not swallow anchorage cells (inside-breakwater anchorages sit next to terminals)
+      SELECT dil.* FROM dil LEFT JOIN cnt USING (cy, cx) WHERE coalesce(cnt.s1, 0) <= coalesce(cnt.s5, 0)""")
+    c.execute("COPY berth TO 'data/berth_cells.parquet' (FORMAT parquet)")  # reused by export_replay.py
     c.execute(f"""
       CREATE TABLE q AS
       SELECT p.*, (bc.cy IS NOT NULL) AS in_berth,
