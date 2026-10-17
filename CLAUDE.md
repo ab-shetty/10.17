@@ -54,10 +54,18 @@ data/       gitignored, per-machine raw parquet. Never commit it.
 ```
 Don't import across folders. A and B only talk through `shared/` files.
 
-## Two-person workflow (one `main` branch, two machines, two Claude Code sessions)
-Rules for both Claude sessions:
-- Work directly on `main`. Only edit files in your own folders. `shared/` files: one owner each (below).
-- Commit small and often. Always `git pull --rebase origin main` right before `git push origin main`.
+## Two-person workflow (two branches, `main` = shared source of truth)
+- Person A works on branch **`a-data`**, person B on **`b-web`**. Never commit directly on `main`.
+- `main` holds what the other person can rely on: `CLAUDE.md`, the `shared/` contracts, and working code.
+- Only edit files in your own folders. `shared/` files: one owner each (below). Disjoint folders = no merge conflicts.
+- **Sync** (do it at every schedule checkpoint, and any time you update a `shared/` file the other person needs):
+  ```
+  git fetch origin && git merge origin/main   # take the other person's published work
+  git push origin HEAD                        # back up your branch
+  git push origin HEAD:main                   # publish (fast-forward). Rejected? the other person just
+                                              # published: repeat from the top.
+  ```
+  Never force-push, rebase shared history, or `git reset` `main`.
 - `CLAUDE.md` is edited only by **A**. B proposes changes in chat or in `NOTES-B.md`.
 - Never commit `data/`, `.env`, or API keys. Use `ANTHROPIC_API_KEY` from env.
 - When you change a `shared/` schema, update the **Contracts** table here (A) or tell A (B) in the same push.
