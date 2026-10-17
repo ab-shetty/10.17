@@ -86,12 +86,12 @@ export function renderExplain(el, { day, h, preds, daily, news, target = 'n_anch
   } else if (w && w.little_wait_d != null) {
     const real = w.actual_wait_of_ships_joining_next_day;
     parts.push(`<div class="wait-block"><p class="lead">A container ship joining the queue on ${fmtDay(day)}:</p>
-      <p>Published 7-day average said <b class="num">${n(w.reported_wait_7d)} d</b>.
+      <p>Ships were told (port's 7-day average) <b class="num">${n(w.reported_wait_7d)} d</b>.
         Ours, ${n(w.ships_waiting_eod, 0)} ships waiting ÷ ${n(w.berths_per_day_7d)} berthed per day, said
         <b class="num model">${n(w.little_wait_d)} d</b>.
         ${real == null ? '' : `Ships that joined that day really waited <b class="num">${n(real)} d</b>.`}</p>
       ${real == null ? '<p class="fine">No measured wait for this day (outside Sep–Oct, or berth not seen in the data).</p>'
-        : `<p class="verdict ${Math.abs(w.little_wait_d - real) < Math.abs(w.reported_wait_7d - real) ? 'good' : 'bad'}">
+        : `<p class="verdict ${Math.abs(w.little_wait_d - real) < Math.abs(w.reported_wait_7d - real) ? 'good' : 'fine'}">
           ${Math.abs(w.little_wait_d - real) < Math.abs(w.reported_wait_7d - real) ? 'Ours was closer' : 'Published was closer'}:
           ours off by ${n(Math.abs(w.little_wait_d - real))} d, published by ${n(Math.abs(w.reported_wait_7d - real))} d.</p>`}
     </div>`);

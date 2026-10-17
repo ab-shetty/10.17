@@ -26,12 +26,14 @@ your spot. What captains lack is the right number to slow down to. We tested our
 published figure ran three days short; ours was within a day. That's up to $300,000 of fuel per large ship, and
 tens of millions across September and October 2021 alone, with the emissions moved out to sea.
 
-With free data we only see 60 miles out. So a day ahead, we couldn't forecast the 2021 surges any better than
-assuming tomorrow looks like today: those surges were set two weeks earlier in Asia. In normal times, in 2024,
-our forecast was 11 percent more accurate than that guess, mostly by reading the weather forecast before storms.
-Under the hood it's three machine-learning models, LightGBM, CatBoost and ridge regression, averaged together and
-retrained every month on past data only. We tested 677 variations; none did better. With satellite tracking we'd
-see every LA-bound ship from the day it leaves Asia, and could forecast the surges themselves. That would be worth
+We also built a second tool: a forecast of how many ships will be waiting tomorrow. Under the hood it's three
+machine-learning models, LightGBM, CatBoost and ridge regression, averaged and retrained monthly on past data only.
+In normal times, in 2024, it beat the best simple rule by 11 percent, mostly by reading the weather forecast before
+storms. In the 2021 crisis it couldn't beat "tomorrow looks like today", because those surges were set two weeks
+earlier in Asia, beyond the 60 miles we can see. We tested 677 variations; none did better.
+
+That's what satellite tracking would fix. We'd see every LA-bound ship from the day it leaves Asia, so we could
+forecast the surges and give each ship its wait before it sets out. Crossing slower from the start would be worth
 up to $650,000 per ship, and on the order of $100 million in two months, at one port.
 
 Whoever buys the fuel pays for this: charterers and carriers. The next port costs nothing to add. Two of us

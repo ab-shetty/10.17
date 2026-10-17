@@ -46,7 +46,7 @@
 
     <section class="panel chart-panel">
       <div class="panel-head">
-        <h2 id="chart-title">Forecast vs actual</h2>
+        <h2 id="chart-title">How many ships will be waiting tomorrow?</h2>
         <div class="seg" id="horizon">
           <button data-h="1" class="on">Day +1</button><button data-h="2">Day +2</button><button data-h="3">Day +3</button>
         </div>
@@ -59,8 +59,8 @@
     </section>
 
     <section class="panel wait-panel" id="wait-panel" hidden>
-      <div class="panel-head"><h2>How long will a ship wait?</h2></div>
-      <p class="caption">The published wait told captains 2–3 days less than they actually waited.</p>
+      <div class="panel-head"><h2>Ships were told ~12 days. They waited ~17.</h2></div>
+      <p class="caption">The port's number averages ships that just reached a berth, so while the line grows it is always too short. Ours counts the ships ahead of you ÷ berths opening per day.</p>
       <div class="chart-wrap"><canvas id="wait-chart"></canvas></div>
       <p class="hint" id="wait-note"></p>
     </section>

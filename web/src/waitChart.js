@@ -66,9 +66,9 @@ export function createWaitChart(canvas, wait) {
     data: {
       labels: W.map((w) => fmtWeek(w.week)),
       datasets: [
-        { label: 'Real wait', data: W.map((w) => w.actual), borderColor: C.actual, backgroundColor: C.actual, borderWidth: 2, pointRadius: 3 },
-        { label: 'Queue ÷ berthing rate (ours)', data: W.map((w) => w.little), borderColor: C.little, backgroundColor: C.little, borderWidth: 2.4, pointRadius: 3 },
-        { label: 'Published 7-day average', data: W.map((w) => w.reported), borderColor: C.reported, backgroundColor: C.reported,
+        { label: 'How long ships actually waited', data: W.map((w) => w.actual), borderColor: C.actual, backgroundColor: C.actual, borderWidth: 2, pointRadius: 3 },
+        { label: 'Our estimate: ships ahead ÷ berths per day', data: W.map((w) => w.little), borderColor: C.little, backgroundColor: C.little, borderWidth: 2.4, pointRadius: 3 },
+        { label: "What ships were told (port's 7-day average)", data: W.map((w) => w.reported), borderColor: C.reported, backgroundColor: C.reported,
           borderWidth: 1.6, borderDash: [5, 4], pointRadius: 3 },
       ],
     },
@@ -78,7 +78,7 @@ export function createWaitChart(canvas, wait) {
       animation: false,
       interaction: { mode: 'index', intersect: false },
       scales: {
-        x: { title: { display: true, text: 'week a ship joined the queue', color: C.tick }, ticks: { color: C.tick }, grid: { color: C.grid } },
+        x: { title: { display: true, text: 'week the ship arrived and joined the line', color: C.tick }, ticks: { color: C.tick }, grid: { color: C.grid } },
         y: { beginAtZero: true, title: { display: true, text: 'wait (days)', color: C.tick }, ticks: { color: C.tick }, grid: { color: C.grid } },
       },
       plugins: {

@@ -71,7 +71,7 @@ async function main() {
   if (waitControl) renderWaitControl(waitControl);
   if (!P.length) { // no queue forecast for this dataset (yet): it's a plain history chart
     $('horizon').hidden = true;
-    $('chart-title').textContent = year === '2021' ? 'Ships waiting' : 'Ships at anchor';
+    $('chart-title').textContent = year === '2021' ? 'Forecast: how many ships will be waiting tomorrow?' : 'Forecast: how many ships will be at anchor tomorrow?';
   }
   // Wait forecast (2021): the result is bias, not day-to-day accuracy. See OVERSEER.md 2:05.
   const waitByDate = new Map((wait?.daily ?? []).map((r) => [r.date, r]));
@@ -242,10 +242,10 @@ function renderWaitTiles(w, queueMetrics) {
   const weeksShort = w.weekly?.length ? [w.weekly.filter((x) => x.reported_d < x.real_d).length, w.weekly.length] : null;
   const g = w.gap_cost?.net_understatement;
   const tiles = [
-    `<div class="tile lose"><span class="lbl">Published wait</span><b>${d(s.bias_reported_d)}</b>
+    `<div class="tile lose"><span class="lbl">What ships were told</span><b>${d(s.bias_reported_d)}</b>
       <span class="lbl">vs the real wait, on average</span>
       <small>${weeksShort ? `too low in ${weeksShort[0]} of ${weeksShort[1]} weeks` : `too low on ${pct(u.reported)} of days`} · lags a growing queue</small></div>`,
-    `<div class="tile win"><span class="lbl">Ours: queue ÷ berthing rate</span><b>${d(s.bias_little_d)}</b>
+    `<div class="tile win"><span class="lbl">Our estimate (ships ahead ÷ berths per day)</span><b>${d(s.bias_little_d)}</b>
       <span class="lbl">vs the real wait, on average</span>
       <small>too low on ${pct(u.little)} of days · from AIS alone</small></div>`,
     `<div class="tile tie"><span class="lbl">Day to day (MAE)</span><b>${s.mae_little_d.toFixed(1)} vs ${s.mae_reported_d.toFixed(1)} d</b>
