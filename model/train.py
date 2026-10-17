@@ -44,7 +44,7 @@ LABELS = {
     "visibility_min_m": "min visibility (model, m)", "wind_max_3d": "max wind over 3 days (kn)",
     "is_holiday": "public holiday", "klgb_vis_min_mi": "min visibility at Long Beach airport (mi)",
     "klgb_fog_hours": "hours of fog at Long Beach airport", "wave_hs_max_m": "max wave height at harbor entrance (m)",
-    "wave_period_max_s": "longest swell period (s)", "target_dow": "day of week", "news_score": "news disruption score",
+    "wave_period_max_s": "longest swell period (s)", "target_dow": "day of week",
     "offshore_waiting": "ships waiting offshore (<60 nm, <3 kn)", "inbound_60nm": "ships inbound within 60 nm",
     "fc_gust_target": "forecast max gust on the target day (kn)", "fc_gust_tomorrow": "forecast max gust tomorrow (kn)",
 }
@@ -113,8 +113,8 @@ def features(d):
     for c in ("klgb_vis_min_mi", "klgb_fog_hours", "wave_hs_max_m", "wave_period_max_s", "offshore_waiting", "inbound_60nm"):
         if c in d:
             f[c] = d[c]
-    if "news_score" in d and d.news_score.notna().any():
-        f["news_score"] = d.news_score.fillna(0)
+    # news_score (shared/news.json) is deliberately not a feature: tested on 2024 Oct-Dec, it moved skill by +-1 %
+    # (inside the CI) and slightly hurt h=1 on the single split. The web panel shows news as context only.
     return f
 
 

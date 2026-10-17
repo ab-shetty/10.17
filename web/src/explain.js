@@ -86,7 +86,7 @@ export function renderExplain(el, { day, h, preds, daily, news }) {
   const recent = news.filter((x) => { const dt = (t - Date.parse(x.date)) / 864e5; return dt >= 0 && dt <= 30; })
     .sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
   if (recent.length) {
-    parts.push('<h3>News in the 30 days before</h3><ul class="news">' + recent.map((x) => `
+    parts.push('<h3>News in the 30 days before</h3><p class="fine">Context only: the forecast does not use news.</p><ul class="news">' + recent.map((x) => `
       <li><span class="score" style="--s:${x.score}">${n(x.score, 2)}</span>
         <div><a href="${escapeHtml(x.url)}" target="_blank" rel="noopener">${escapeHtml(x.title)}</a>
         <small>${fmtDay(x.date, false)} · ${escapeHtml(x.reason)}</small></div></li>`).join('') + '</ul>');
