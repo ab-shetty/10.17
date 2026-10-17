@@ -1,0 +1,77 @@
+:root {
+  --bg: #f6f7f9; --panel: #fff; --ink: #1d2433; --ink-2: #5b6578; --grid: #e6e9ef; --line: #dde1e8;
+  --anch: #e0672b; --moor: #2f6fdb; --way: #8a94a6;
+  --model: #2f6fdb; --base: #9aa3b2; --up: #c2410c; --down: #15803d;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; color: var(--ink); background: var(--bg);
+}
+* { box-sizing: border-box; }
+body { margin: 0; height: 100vh; display: flex; flex-direction: column; }
+h1 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+h2 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); }
+.muted { color: var(--ink-2); font-size: 13px; }
+
+header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 12px 18px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.sub { color: var(--ink-2); font-size: 14px; }
+.badge { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 99px;
+  background: #fff4e5; color: #9a4b00; border: 1px solid #f5c98a; }
+
+.tiles { display: flex; gap: 10px; flex-wrap: wrap; }
+.tile { padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; min-width: 170px; max-width: 230px; }
+.tile-h { font-size: 12px; color: var(--ink-2); }
+.tile-v { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tile-v small { font-size: 11px; font-weight: 500; color: var(--ink-2); }
+.tile-s { font-size: 11px; color: var(--ink-2); line-height: 1.35; }
+.tile.win b { color: var(--down); }
+.tile.lose b { color: var(--up); }
+
+main { flex: 1; min-height: 0; display: grid; gap: 12px; padding: 12px 18px;
+  grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: minmax(0, 1.4fr) minmax(220px, 1fr); }
+.map-wrap { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); min-height: 300px; }
+#map { position: absolute; inset: 0; }
+.map-hud { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,.92); padding: 8px 12px;
+  border-radius: 8px; font-size: 13px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+#clock { font-weight: 700; font-variant-numeric: tabular-nums; }
+#counts b { color: var(--anch); font-size: 16px; }
+.legend { display: flex; gap: 10px; margin-top: 4px; color: var(--ink-2); font-size: 12px; }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; }
+.player { position: absolute; left: 10px; right: 10px; bottom: 26px; display: flex; gap: 8px; align-items: center;
+  background: rgba(255,255,255,.92); padding: 6px 10px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.player input { flex: 1; }
+.player button { width: 34px; height: 28px; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; }
+.speed { font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+
+aside { grid-row: span 2; overflow: auto; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: 14px; }
+aside h2:not(:first-child) { margin-top: 18px; }
+.ep { display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 10px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 8px; background: #fff; font: inherit; color: inherit; }
+.ep:hover, .ep.on { border-color: var(--anch); background: #fff8f3; }
+.ep span { display: block; font-size: 12px; color: var(--ink-2); margin: 2px 0; }
+.ep p { margin: 4px 0 0; font-size: 13px; }
+.explain p { margin: 6px 0; font-size: 14px; line-height: 1.4; }
+.nums { display: flex; gap: 8px; margin: 8px 0; }
+.nums div { flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+.nums small { display: block; font-size: 11px; color: var(--ink-2); }
+.nums b { font-size: 20px; font-variant-numeric: tabular-nums; }
+.drivers { padding-left: 0; list-style: none; margin: 6px 0; font-size: 14px; }
+.drivers li { padding: 4px 0; border-bottom: 1px dashed var(--grid); }
+.drivers span { display: inline-block; min-width: 92px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.up { color: var(--up); } .down { color: var(--down); }
+
+.chart-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px;
+  display: flex; flex-direction: column; min-height: 0; }
+.chart-head { display: flex; justify-content: space-between; align-items: center; }
+.chart-box { position: relative; flex: 1; min-height: 0; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { border: 0; background: #fff; padding: 4px 10px; cursor: pointer; font: inherit; font-size: 13px; }
+.seg button.on { background: var(--ink); color: #fff; }
+
+footer { padding: 4px 18px; font-size: 12px; color: #9a4b00; background: #fff4e5; }
+
+@media (max-width: 900px) {
+  body { height: auto; }
+  main { grid-template-columns: 1fr; grid-template-rows: 420px auto 300px; }
+  aside { grid-row: auto; }
+}
