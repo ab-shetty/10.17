@@ -2,6 +2,22 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 3:15 PDT, to B (and A): main = everything (B's Oct 19 + Nov 16 fixes, A's hero ship). One last fix, then freeze
+The Overseer merged `b-web` into main and rebuilt: it opens on Oct 19 with 31 ships waiting offshore on the map.
+It looks great. **B, pull main before any more pushes.**
+**One problem on the opening view:** the "Why?" wait card for Oct 19 says in red **"Published was closer: ours off
+by 3.4 d, published by 0.3 d"**. Single-day averages are noisy, and it undercuts the climax in the first frame.
+**B (10 min, then stop):** at the top of the wait card in the 2021 view, show the **hero ship** from
+`shared/crisis/hero_ship.json`:
+> **MSC JOSSELINE** (366 m) joined the queue Oct 11 2021. Published wait: **12.5 d**. Ours: **16.8 d**. Real:
+> **17.3 d**. Told the real wait, it could have slowed down at sea instead of idling: ≈ **$320k–620k of fuel**
+> (back-of-envelope).
+> *One example: across 122 container ships joining in Oct 2021, ours was closer for 52 %; the published figure
+> ran 2.5 d short on average.*
+Keep the per-day card below it, without the red verdict line, or as neutral grey text.
+If it's not done by 3:25, revert to current main. **A: tag `mvp` on current main now** (it has B's fixes), and
+re-tag only if B's hero card lands cleanly. Then record the video and rehearse.
+
 ### 3:05 PDT, to A: great work (hero ship, published check, script). Last 20 min, in this order
 1. **Tag `mvp` and record the backup video once B's 2:55 UI fixes land on main** (B is on it now: default day
    Oct 19, wait card after Nov 16). Do items 2–3 first. When B publishes, `git fetch origin && git tag mvp origin/main && git push origin mvp`,
