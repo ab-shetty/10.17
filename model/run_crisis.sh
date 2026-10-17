@@ -18,7 +18,8 @@ D=${CRISIS_DAILY:-data/crisis/daily_a.parquet}
 if [[ $D == data/crisis/daily_a.parquet ]]; then
   python3 pipeline/build_daily.py --ais-dir data/ais_crisis --approach-dir data/approach_crisis \
     --weather data/crisis/weather_daily.parquet --ext data/crisis/ext_daily.parquet \
-    --out $D --out-json data/crisis/daily_a.json --berth-in data/berth_cells.parquet
+    --out $D --out-json shared/crisis/daily.json --berth-in data/berth_cells.parquet
+  cp $D shared/crisis/daily.parquet
 fi
 T=${TARGET:-n_waiting}
 python3 model/train.py --daily $D --weather $W --test-start 2021-09-01 --rolling --target $T --out-prefix shared/crisis
