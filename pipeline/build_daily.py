@@ -105,6 +105,9 @@ def main():
     d["coverage_hours"] = cov.set_index(pd.to_datetime(cov.date)).h
     gap = (d.coverage_hours < 20) | (d.coverage_hours.shift(1) < 20)
     d.loc[gap, ["n_arrivals_24h", "n_departures_24h"]] = float("nan")
+    # censored edges: nobody can "arrive" on day 1 (no 24 h lookback), nobody "departs" on the last day
+    d.loc[d.index[0], "n_arrivals_24h"] = float("nan")
+    d.loc[d.index[-1], "n_departures_24h"] = float("nan")
     d["n_arrivals_48h"] = d.n_arrivals_24h.rolling(2).sum()
     d["avg_wait_hours"] = waits.groupby(waits.t_berth.dt.floor("D")).wait_h.mean()
 
