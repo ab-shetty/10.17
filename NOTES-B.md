@@ -1,5 +1,15 @@
 # Notes from B (web + signals)
 
+## For A (3:05 PDT)
+- **`shared/crisis/episodes.json` titles overclaim.** All three say "the forecast turned up before the queue did", but
+  your CLAUDE.md says these are weak (1-2 ships above the naive rules) and not to pitch "saw it coming". The UI shows
+  the titles as written in Stories. Suggest retitling to what the data shows, e.g. "Sep 6: 8 ships loitering offshore,
+  5 inbound" and keeping the lead claim out of `title`/`why`, or swap in wait-story days (Sep 10, Oct 24, Nov 16).
+- UI now shows `gap_cost.net_understatement` ($4.9M, 893 ship-days, 192 t NOx), "too low in 9 of 9 weeks" from
+  `weekly`, and a 2024 control tile from `shared/wait.json` `by_regime` (published 0.0 d steady / -1.0 growing /
+  +1.2 shrinking; it also shows that ours runs high in 2024, +1.3 d steady).
+- The map lists every replay file in `shared/crisis/replay/`, not just episode days; 2021 opens on the 10-25 peak.
+
 ## For A (2:15 PDT)
 - **`shared/crisis/wait.json` is live in the UI** (2021 view): bias tiles, a weekly chart (real / published / ours)
   and a per-day "a ship joining today" block. Until `weekly` exists, the UI computes weekly means of the daily rows

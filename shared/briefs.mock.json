@@ -817,7 +817,12 @@
     "published_7_day_average_of_recent_berthings": 7.1
    },
    "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
-   "fuel_price_usd_per_tonne": 780
+   "fuel_price_usd_per_tonne": 780,
+   "yesterday_all_ships": {
+    "at_anchor": 43.9,
+    "loitering_offshore_within_60nm": 9.7,
+    "inbound_within_60nm": 4.1
+   }
   },
   "scorer": "template"
  },
@@ -838,7 +843,12 @@
     "published_7_day_average_of_recent_berthings": 10.3
    },
    "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
-   "fuel_price_usd_per_tonne": 780
+   "fuel_price_usd_per_tonne": 780,
+   "yesterday_all_ships": {
+    "at_anchor": 55.8,
+    "loitering_offshore_within_60nm": 31.0,
+    "inbound_within_60nm": 3.2
+   }
   },
   "scorer": "template"
  },
@@ -859,7 +869,12 @@
     "published_7_day_average_of_recent_berthings": 11.6
    },
    "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
-   "fuel_price_usd_per_tonne": 780
+   "fuel_price_usd_per_tonne": 780,
+   "yesterday_all_ships": {
+    "at_anchor": 53.2,
+    "loitering_offshore_within_60nm": 28.6,
+    "inbound_within_60nm": 2.4
+   }
   },
   "scorer": "template"
  },
@@ -880,7 +895,12 @@
     "published_7_day_average_of_recent_berthings": 12.5
    },
    "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
-   "fuel_price_usd_per_tonne": 780
+   "fuel_price_usd_per_tonne": 780,
+   "yesterday_all_ships": {
+    "at_anchor": 49.4,
+    "loitering_offshore_within_60nm": 51.1,
+    "inbound_within_60nm": 2.7
+   }
   },
   "scorer": "template"
  },
@@ -902,7 +922,12 @@
    },
    "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
    "fuel_price_usd_per_tonne": 780,
-   "rule_change": "Since Nov 16 2021, container ships are told to wait far offshore (about 150 nm) instead of at the anchorage."
+   "rule_change": "Since Nov 16 2021, container ships are told to wait far offshore (about 150 nm) instead of at the anchorage.",
+   "yesterday_all_ships": {
+    "at_anchor": 43.6,
+    "loitering_offshore_within_60nm": 57.8,
+    "inbound_within_60nm": 4.8
+   }
   },
   "scorer": "template"
  },
@@ -924,7 +949,12 @@
    },
    "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
    "fuel_price_usd_per_tonne": 780,
-   "rule_change": "Since Nov 16 2021, container ships are told to wait far offshore (about 150 nm) instead of at the anchorage."
+   "rule_change": "Since Nov 16 2021, container ships are told to wait far offshore (about 150 nm) instead of at the anchorage.",
+   "yesterday_all_ships": {
+    "at_anchor": 28.0,
+    "loitering_offshore_within_60nm": 18.8,
+    "inbound_within_60nm": 2.5
+   }
   },
   "scorer": "template"
  }
