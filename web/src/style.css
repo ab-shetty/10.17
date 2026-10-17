@@ -54,6 +54,8 @@ select, .btn, .seg button { background: #0d1a27; color: var(--text); border: 1px
   padding: 5px 10px; font: inherit; cursor: pointer; }
 .btn { width: 38px; }
 .seg { display: inline-flex; }
+.seg[hidden] { display: none; }
+#year button { font-size: 13px; padding: 6px 12px; }
 .seg button { border-radius: 0; margin-left: -1px; font-size: 12px; }
 .seg button:first-child { border-radius: 6px 0 0 6px; }
 .seg button:last-child { border-radius: 0 6px 6px 0; }

@@ -32,11 +32,11 @@ const STYLE = {
   ],
 };
 
-export function createMap(el) {
+export function createMap(el, bounds = VIEWS.bay) {
   const map = new maplibregl.Map({
     container: el,
     style: STYLE,
-    bounds: VIEWS.bay,
+    bounds,
     fitBoundsOptions: { padding: 12 },
     attributionControl: { compact: true },
   });

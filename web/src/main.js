@@ -1,4 +1,4 @@
-import { load, findReplays, daysBetween, addDays } from './data.js';
+import { load, findReplays, daysBetween, addDays, exists } from './data.js';
 import { createMap, buildFrames, escapeHtml, VIEWS } from './map.js';
 import { createChart } from './forecastChart.js';
 import { renderExplain, fmtDay, baselineLabel } from './explain.js';
@@ -6,26 +6,63 @@ import { renderExplain, fmtDay, baselineLabel } from './explain.js';
 const $ = (id) => document.getElementById(id);
 const FRAME_MS = 1000 / 6; // 10-minute frames, 6 per second = 1 hour per second
 
+// Two datasets with the same contract shapes: 2024 in shared/, the 2021–22 backlog in shared/crisis/.
+const YEARS = {
+  2021: { dir: 'crisis/', title: 'Ships waiting off San Pedro Bay', note: '2021 replay, not live.', view: 'approach', all: 'Full period',
+    what: 'The 2021–22 backlog: ships waiting at anchor plus loitering within 60 nm.',
+    foot: 'AIS: NOAA MarineCadastre 2021–22. Waiting = anchored in the bay + loitering (< 3 kn) within 60 nm.' },
+  2024: { dir: '', note: '2024 replay, not live.', view: 'bay', all: '2024' },
+};
+const TARGET_LABEL = { n_anchored: 'ships at anchor', n_waiting: 'ships waiting (anchored + loitering < 60 nm)' };
+const AXIS_LABEL = { n_anchored: 'ships at anchor (daily mean)', n_waiting: 'ships waiting, anchor + offshore' };
+
+// ?year=2021|2024 picks the dataset; default is the crisis once A has published shared/crisis/daily.json.
+async function pickYear() {
+  const hasCrisis = await exists('crisis/daily.json');
+  const asked = new URLSearchParams(location.search).get('year');
+  const year = asked in YEARS && (asked !== '2021' || hasCrisis) ? asked : hasCrisis ? '2021' : '2024';
+  const seg = $('year');
+  seg.hidden = !hasCrisis;
+  seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.y === year));
+  seg.onclick = (e) => {
+    const y = e.target.closest('button')?.dataset.y;
+    if (y && y !== year) location.search = `?year=${y}`; // reload: each dataset starts from a clean state
+  };
+  return year;
+}
+
 async function main() {
-  const [daily, preds, metrics, news, episodes] = await Promise.all(
-    ['daily', 'preds', 'metrics', 'news', 'episodes'].map(load));
-  if (!daily || !preds) {
-    document.body.insertAdjacentHTML('afterbegin', '<p class="err">Missing shared/daily.json or shared/preds.json.</p>');
+  const year = await pickYear();
+  const Y = YEARS[year];
+  $('replay-note').textContent = Y.note;
+  if (Y.what) $('sub-what').textContent = Y.what;
+  if (Y.title) $('title').textContent = Y.title;
+  if (Y.foot) $('foot').textContent = Y.foot;
+  $('range-all').textContent = Y.all;
+
+  const [daily, preds, metrics, news, episodes] = await Promise.all([
+    load(`${Y.dir}daily`), load(`${Y.dir}preds`), load(`${Y.dir}metrics`), load('news'), load(`${Y.dir}episodes`)]);
+  if (!daily) {
+    document.body.insertAdjacentHTML('afterbegin', `<p class="err">Missing shared/${Y.dir}daily.json.</p>`);
     return;
   }
-  const D = daily.data, P = preds.data, N = news?.data ?? [], E = episodes?.data ?? [];
+  // preds may lag daily (crisis run lands in stages): then the chart shows actuals only.
+  const D = daily.data, P = preds?.data ?? [], N = news?.data ?? [], E = episodes?.data ?? [];
+  const target = metrics?.data?.['1']?.target ?? (year === '2021' ? 'n_waiting' : 'n_anchored');
+  const targetLabel = TARGET_LABEL[target] ?? target.replaceAll('_', ' ');
   const first = D[0].date, last = D.at(-1).date;
   const clamp = (d) => (d < first ? first : d > last ? last : d);
 
-  renderTiles(metrics?.data, metrics?.mock || preds.mock);
+  renderTiles(metrics?.data, metrics?.mock || preds?.mock);
   $('episodes-mock').hidden = !episodes?.mock;
 
   const state = { h: 1, day: null, replay: null, frame: 0, timer: null, episode: null };
-  const { map, ready } = createMap($('map'));
-  const chart = createChart($('chart'), { daily: D, preds: P, news: N, onPick: (d) => selectDay(d) });
+  const { map, ready } = createMap($('map'), VIEWS[Y.view]);
+  $('view').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === Y.view));
+  const chart = createChart($('chart'), { daily: D, preds: P, news: N, target, yLabel: AXIS_LABEL[target] ?? targetLabel, onPick: (d) => selectDay(d) });
 
   // Replay days: the episode's replay_days (contract), else every day inside it, kept if a file exists.
-  const epReplays = await Promise.all(E.map((ep) => findReplays(ep.replay_days ?? daysBetween(ep.start, ep.end))));
+  const epReplays = await Promise.all(E.map((ep) => findReplays(ep.replay_days ?? daysBetween(ep.start, ep.end), Y.dir)));
   const replayDays = [...new Map(epReplays.flat().map((r) => [r.day, r])).values()].sort((a, b) => a.day.localeCompare(b.day));
   const sel = $('replay-select');
   sel.innerHTML = replayDays.length
@@ -35,7 +72,7 @@ async function main() {
   $('replay-day').onclick = () => state.replay && selectDay(state.replay.day);
 
   function explain() {
-    renderExplain($('explain'), { day: state.day, h: state.h, preds: P, daily: D, news: N });
+    renderExplain($('explain'), { day: state.day, h: state.h, preds: P, daily: D, news: N, target, noun: targetLabel });
     $('explain-day').textContent = fmtDay(state.day);
   }
 
@@ -52,7 +89,7 @@ async function main() {
   async function loadReplay(day) {
     stop();
     state.loading = day;
-    const r = await load(`replay/${day}`);
+    const r = await load(`${Y.dir}replay/${day}`);
     await ready;
     if (state.loading !== day || !r || !r.data.length) return; // a newer pick won
     state.replay = { day, frames: buildFrames(r.data), mock: r.mock };
@@ -98,6 +135,7 @@ async function main() {
   segmented('horizon', (b) => { state.h = +b.dataset.h; chart.setHorizon(state.h); explain(); });
   segmented('view', (b) => map.fitBounds(VIEWS[b.dataset.v], { padding: 12, duration: 600 }));
   const ranges = { year: [first, last], test: [P[0]?.date ?? first, P.at(-1)?.date ?? last] };
+  $('range-test').textContent = P.length ? `${fmtDay(P[0].date, false)} – ${fmtDay(P.at(-1).date, false)} (test)` : 'Test';
   segmented('range', (b) => { chart.setRange(...ranges[b.dataset.r]); });
 
   // Story mode: pick an episode -> chart zooms to it, map loads its first replay day.
@@ -126,7 +164,7 @@ async function main() {
     return gain > a.gain ? { gain, day: p.date } : a;
   }, { gain: -Infinity, day: h1[0]?.date ?? last });
   selectDay(best.day);
-  if (!replayDays.length) { $('map-empty').hidden = false; $('map-empty').textContent = 'No replay files in shared/replay yet.'; }
+  if (!replayDays.length) { $('map-empty').hidden = false; $('map-empty').textContent = `No replay files in shared/${Y.dir}replay yet.`; }
   else if (!replayDays.some((r) => r.day === best.day)) loadReplay(replayDays[0].day);
 }
 

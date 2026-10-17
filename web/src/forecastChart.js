@@ -43,10 +43,10 @@ const overlay = {
   },
 };
 
-export function createChart(canvas, { daily, preds, news, onPick }) {
+export function createChart(canvas, { daily, preds, news, onPick, target = 'n_anchored', yLabel = 'ships at anchor (daily mean)' }) {
   const labels = daily.map((d) => d.date);
   const index = new Map(labels.map((d, i) => [d, i]));
-  const actual = daily.map((d) => d.n_anchored);
+  const actual = daily.map((d) => d[target] ?? d.n_anchored);
   const testIdx = preds.length ? [index.get(preds[0].date), index.get(preds.at(-1).date)] : null;
   const newsMarks = news.filter((n) => index.has(n.date)).map((n) => ({ i: index.get(n.date), score: n.score }));
 
@@ -62,7 +62,7 @@ export function createChart(canvas, { daily, preds, news, onPick }) {
     data: {
       labels,
       datasets: [
-        { label: 'Actual at anchor', data: actual, borderColor: C.actual, borderWidth: 1.6, pointRadius: 0, tension: 0.2 },
+        { label: 'Actual', data: actual, borderColor: C.actual, borderWidth: 1.6, pointRadius: 0, tension: 0.2 },
         { label: 'Model', data: series(1, 'pred'), borderColor: C.model, borderWidth: 2.2, pointRadius: 0, tension: 0.2, spanGaps: false },
         { label: baseName(1), data: series(1, 'baseline'), borderColor: C.base, borderWidth: 1.4, borderDash: [5, 4], pointRadius: 0, tension: 0 },
       ],
@@ -75,7 +75,7 @@ export function createChart(canvas, { daily, preds, news, onPick }) {
       scales: {
         x: { ticks: { color: C.tick, maxRotation: 0, autoSkipPadding: 24,
                callback(v) { return fmtTick(labels[v]); } }, grid: { color: C.grid } },
-        y: { beginAtZero: true, title: { display: true, text: 'ships at anchor (daily mean)', color: C.tick },
+        y: { beginAtZero: true, title: { display: true, text: yLabel, color: C.tick },
              ticks: { color: C.tick }, grid: { color: C.grid } },
       },
       plugins: {

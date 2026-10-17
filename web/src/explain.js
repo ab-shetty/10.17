@@ -62,7 +62,7 @@ export function fmtDay(d, weekday = true) {
   return `${wd}${MON[t.getUTCMonth()]} ${t.getUTCDate()}`;
 }
 
-export function renderExplain(el, { day, h, preds, daily, news }) {
+export function renderExplain(el, { day, h, preds, daily, news, target = 'n_anchored', noun = 'ships at anchor' }) {
   const p = preds.find((r) => r.date === day && r.h === h);
   const d = daily.find((r) => r.date === day);
   const parts = [];
@@ -71,7 +71,7 @@ export function renderExplain(el, { day, h, preds, daily, news }) {
     const errM = Math.abs(p.pred - p.actual), errB = Math.abs(p.baseline - p.actual);
     const better = errM < errB;
     parts.push(`<p class="lead">Issued ${fmtDay(p.issued)}, ${h} day${h > 1 ? 's' : ''} ahead, the model expected
-      <b class="num model">${n(p.pred)}</b> ships at anchor on ${fmtDay(day)}.
+      <b class="num model">${n(p.pred)}</b> ${escapeHtml(noun)} on ${fmtDay(day)}.
       The best simple rule (${escapeHtml(baselineLabel(p.baseline_name))}) said <b class="num">${n(p.baseline)}</b>.
       Actual: <b class="num">${n(p.actual)}</b>.</p>`);
     parts.push(`<p class="verdict ${better ? 'good' : 'bad'}">${better ? 'Model was closer' : 'Baseline was closer'}:
@@ -83,20 +83,24 @@ export function renderExplain(el, { day, h, preds, daily, news }) {
         ${escapeHtml(phrase(f))}</li>`).join('') + '</ul>');
     parts.push('<p class="fine">Numbers are SHAP contributions, in ships, to how far the model moved away from the simple rule.</p>');
   } else if (d) {
-    parts.push(`<p class="lead"><b class="num">${n(d.n_anchored)}</b> ships at anchor on ${fmtDay(day)} (daily mean).</p>
+    parts.push(`<p class="lead"><b class="num">${n(d[target] ?? d.n_anchored)}</b> ${escapeHtml(noun)} on ${fmtDay(day)} (daily mean).</p>
       <p class="fine">Forecasts exist only for the test period, ${preds.length ? `${fmtDay(preds[0].date, false)} – ${fmtDay(preds.at(-1).date, false)}` : 'none yet'}.
-      The model trained on Jan–Sep.</p>`);
+      ${target === 'n_anchored' ? 'The model trained on Jan–Sep.' : ''}</p>`);
   }
 
   if (d) {
     const cell = (label, v) => `<div><span>${label}</span><b>${v}</b></div>`;
+    const opt = (label, v, fmt) => (v == null ? '' : cell(label, fmt(v))); // crisis tables lack weather
     parts.push('<div class="facts">' +
+      (target !== 'n_anchored' ? cell('at anchor', n(d.n_anchored)) : '') +
+      opt('loitering offshore', d.offshore_waiting, (v) => n(v)) +
+      opt('inbound < 60 nm', d.inbound_60nm, (v) => n(v)) +
       cell('at berth', n(d.n_moored)) +
       cell('arrivals 24 h', d.arrivals_24h == null ? '–' : n(d.arrivals_24h, 0)) +
       cell('departures 24 h', d.departures_24h == null ? '–' : n(d.departures_24h, 0)) +
       cell('avg wait', d.avg_wait_h == null ? '–' : `${n(d.avg_wait_h, 0)} h`) +
-      cell('max wind', `${n(d.wind_max_kts)} kts`) +
-      cell('min visibility', d.vis_min_m == null ? '–' : `${n(d.vis_min_m / 1000)} km`) + '</div>');
+      opt('max wind', d.wind_max_kts, (v) => `${n(v)} kts`) +
+      opt('min visibility', d.vis_min_m, (v) => `${n(v / 1000)} km`) + '</div>');
   }
 
   const t = Date.parse(day);
