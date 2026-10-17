@@ -23,6 +23,11 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
   Storm days (forecast gust ≥ 25 kn, known on the issue day): h=1 +32 %. Vs persistence alone: +17 / +17 / +15 %.
   Single split (train Jan–Sep once, CV-chosen model): +8.0 % [+0.9, +14.5] / −3.7 % / −1.2 %. Same story.
   (Old "big move" metric dropped: it selected days by the outcome.)
+- **Emissions at anchor** (`pipeline/emissions.py`, POLA-inventory method): 2024 all ships anchored in the bay =
+  725 t NOx, 18.5 t PM2.5, 84.7 kt CO2 (5,594 ship-days; conservative per-ship rate, ~½ of POLA's implied rate).
+  **Closing fact from POLA's own CY2021 inventory (Table 3.16): ships hotelling at anchor emitted 2,848 short tons NOx
+  in 2021 = 48 % of all POLA ship NOx, 24× the 2023 figure (118 tons). POLA calls only; Long Beach is extra.**
+  POLA's 2021 report says the Nov-2021 queuing process was adopted "to increase safety and improve air quality".
 - Weather forecasts: Open-Meteo previous-runs (`fc1..3_*`) exist only from 2024-01-19. The crisis model can't see storms coming.
 - Best new signal: **ships inbound within 60 nm** (corr 0.18 with tomorrow's queue change, more than today's arrivals).
 - **The 2024 anchored queue is ~74 % tankers** (11.3 of 15.3 on average). Say "ships waiting at anchor", not "container queue".

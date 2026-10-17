@@ -9,7 +9,8 @@ Method = the ports' own inventory method (Port of Los Angeles Inventory of Air E
 Ship classes from AIS (type code + length): tankers / cargo < 250 m (bulk, general, car carriers) /
 cargo >= 250 m (large container ships). Loads are averages of the inventory's per-class defaults (below).
 Aux engines use the Tier II medium-speed factors (most of the fleet); a Tier I fleet would be ~16 % higher NOx.
-Cross-check: the inventory's 2023 at-anchorage hotelling total for POLA alone is 118 t NOx, 12,981 t CO2e.
+Cross-checks (POLA alone, short tons -> metric below): 2023 at-anchorage hotelling 118 tons NOx, 12,981 t CO2e;
+2021 (the backlog) 2,848 tons NOx = 48 % of all POLA ship NOx that year.
 """
 import argparse
 import json
@@ -35,7 +36,15 @@ FUEL_G_PER_KWH = {k: v["co2"] / 3.206 for k, v in EF.items()}  # MGO: 3.206 t CO
 # ships that then call POLA, and its tanker classes stop at Panamax: crude tankers anchored for Long Beach's crude
 # terminals / refineries, and ships waiting on orders or bunkers, are outside it. We count every anchored cargo ship
 # and tanker in the bay (what the harbor neighborhoods breathe), at a deliberately conservative per-ship rate.
-POLA_2023 = dict(anchorage_ship_hours=11312, nox_t=118.0, co2e_t=12981, nox_kg_per_ship_day=round(118.0e3 / (11312 / 24), 1))
+# POLA inventories report criteria pollutants in SHORT tons (tpy) and GHG in metric tonnes; converted to metric here.
+ST = 0.907185
+POLA_2023 = dict(anchorage_ship_hours=11312, nox_t=round(118.0 * ST, 1), co2e_t=12981,
+                 nox_kg_per_ship_day=round(118.0 * ST * 1e3 / (11312 / 24), 1),
+                 source="POLA Inventory of Air Emissions CY2023, Tables 3.7 and 3.16 (hotelling at-anchorage)")
+# 2021 (Table 3.16 of the CY2021 report): at-anchorage hotelling = 2,848 short tons NOx, 60.8 PM2.5, 261,649 t CO2e;
+# 48 % of all POLA ocean-going-vessel NOx that year (5,956 short tons). POLA calls only; Long Beach not included.
+POLA_2021 = dict(nox_t=round(2848 * ST), pm25_t=round(60.8 * ST, 1), co2e_t=261649, share_of_pola_ogv_nox=0.48,
+                 source="POLA Inventory of Air Emissions CY2021, Table 3.16 (hotelling at-anchorage)")
 
 
 def main(daily, out):
@@ -61,7 +70,7 @@ def main(daily, out):
                           "0.1% S MGO emission factors (Tables 3.12, 3.13); ship-hours at anchor from AIS",
                    scope="every cargo ship and tanker anchored in San Pedro Bay (both ports, plus refinery/crude "
                          "tankers and ships waiting on orders), not only POLA calls",
-                   cross_check=dict(pola_2023_inventory=POLA_2023,
+                   cross_check=dict(pola_2023_inventory=POLA_2023, pola_2021_inventory=POLA_2021,
                                     note="our rate per ship-day is about half POLA's implied rate (conservative); "
                                          "our ship-days are higher because POLA counts only its own calls"))
     Path(out).parent.mkdir(parents=True, exist_ok=True)
