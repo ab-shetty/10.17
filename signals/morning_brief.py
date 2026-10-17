@@ -216,15 +216,20 @@ def main():
                 time.sleep(PAUSE_S)  # stay under the per-minute rate limit
             try:
                 b = claude_brief(client, f)
-            except anthropic.RateLimitError:
+            except anthropic.RateLimitError as e:
                 # Still limited after the retries: keep what's done; a re-run resumes from the cache.
-                print(f"rate limited at {key}; re-run in a minute to continue (finished briefs are cached)")
+                print(f"Rate limited on the {year} brief for {d} after retries ({len(rows)} of {len(days)} done).\n"
+                      f"API says: {getattr(e, 'message', e)}\n"
+                      "Finished briefs are cached; re-run to continue. If none finish, check the account's limits.")
                 break
             cache[key] = {"hash": h, "brief": b}
             CACHE.write_text(json.dumps(cache, indent=1))  # save after every brief, so a failure loses nothing
             print(f"{key}  {b['headline']}")
         rows.append(dict(year=year, date=d, headline=b["headline"], brief=b["brief"], watch=b["watch"],
                          facts=f, scorer=b["scorer"]))
+    if not rows:  # never publish an empty briefs.json: the UI would prefer it over the mock and show nothing
+        print("No briefs generated; shared/briefs.json left unchanged.")
+        return
     out = SHARED / ("briefs.mock.json" if mock else "briefs.json")
     out.write_text(json.dumps(rows, indent=1))
     if not mock:
