@@ -111,3 +111,9 @@ select, .btn, .seg button { background: #0d1a27; color: var(--text); border: 1px
 }
 .tiles-sep { width: 1px; align-self: stretch; background: var(--line); margin: 0 4px; }
 .caption { margin: -2px 0 8px; font-size: 14px; color: var(--text); }
+.brief { background: linear-gradient(180deg, rgba(56,189,248,0.08), rgba(56,189,248,0.02)); border: 1px solid rgba(56,189,248,0.35);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+.brief-head { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--sky); margin-bottom: 4px; }
+.brief-title { display: block; font-size: 15px; margin-bottom: 4px; }
+.brief p { margin: 4px 0; line-height: 1.45; }
+.brief-watch span { color: var(--sky); font-weight: 600; }

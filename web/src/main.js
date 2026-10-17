@@ -47,9 +47,11 @@ async function main() {
   if (Y.foot) $('foot').textContent = Y.foot;
   $('range-all').textContent = Y.all;
 
-  const [dailyFile, preds, metrics, news, episodes, waitFile] = await Promise.all([
+  const [dailyFile, preds, metrics, news, episodes, waitFile, briefsFile] = await Promise.all([
     load(`${Y.dir}daily`), load(`${Y.dir}preds`), load(`${Y.dir}metrics`), load('news'), load(`${Y.dir}episodes`),
-    year === '2021' ? load('crisis/wait') : null]);
+    year === '2021' ? load('crisis/wait') : null, load('briefs')]);
+  // Claude morning briefs (signals/morning_brief.py), pre-generated for the story days of this dataset.
+  const briefs = new Map((briefsFile?.data ?? []).filter((b) => b.year === year).map((b) => [b.date, { ...b, mock: briefsFile.mock }]));
   const wait = waitFile?.data;
   // Until crisis/daily.json lands, the 2021 queue line comes from wait.json (container-size ships, end of day).
   const daily = dailyFile ?? (wait && { data: wait.daily.map((r) => ({ date: r.date, big_cargo_waiting: r.ships_waiting_eod })) });
@@ -100,7 +102,8 @@ async function main() {
   function explain() {
     // wait.json row t = known at end of t, actual = ships joining t+1: a ship joining on `day` uses row day-1.
     const waitRow = waitByDate.get(addDays(state.day, -1));
-    renderExplain($('explain'), { day: state.day, h: state.h, preds: P, daily: D, news: N, target, noun: targetLabel, waitRow });
+    renderExplain($('explain'), { day: state.day, h: state.h, preds: P, daily: D, news: N, target, noun: targetLabel, waitRow,
+      brief: briefs.get(state.day) });
     $('explain-day').textContent = fmtDay(state.day);
   }
 

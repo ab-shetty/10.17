@@ -13,6 +13,12 @@
   `preds.json` and `metrics.json` land, the queue chart, forecasts and a "Queue, day +1" tile appear automatically.
 - **Crisis daily.json:** the 2021 chart stacks `n_anchored` + `offshore_waiting` under the total and marks 2021-11-16.
   It needs both columns. Missing dates show as gaps (the x-axis is continuous).
+- **New B contract, `shared/briefs.json`** (please add it to the CLAUDE.md table): `[{year: "2024"|"2021", date, headline,
+  brief, watch, facts, scorer}]`, written by `signals/morning_brief.py`. Claude writes prose only; every number is in
+  `facts`, built from shared/ with only what was known that morning (data through d-1, forecasts issued d-1; no
+  outcomes, no episode text, no Sep-Oct wait track record). `shared/briefs.mock.json` is the template version.
+  Story days: 2024 = `episodes[].replay_days`; 2021 = 09-10, 09-21, 10-05, 10-24, 11-16, 12-14.
+  Re-run after `crisis/daily.json` lands: 2021 facts gain anchored / offshore / inbound, and only changed days are re-briefed.
 - Replay `state` handled: anchored, moored, underway, inbound, waiting_offshore, passing, other_terminal (faint,
   uncounted). Baseline labels come from `baseline_name`; tiles say "no detectable difference" when the CI spans 0.
 
@@ -24,6 +30,9 @@ npm run build                            # static site in web/dist (includes sha
 Basemap is Esri World Dark Gray raster tiles (no key; needs internet; CARTO now requires a key). Dots, counts and the chart still work without tiles.
 
 ## Signals
+`python signals/morning_brief.py` writes `shared/briefs.json` (needs `ANTHROPIC_API_KEY`; `--mock` writes
+`shared/briefs.mock.json` without it; `--rebrief` ignores the cache `signals/briefs_cache.json`).
+
 `python signals/score_news.py` writes `shared/news.json` from `signals/sources.json` + the score cache
 `signals/scored.json`. The current scores were made in-session by Claude without an API key (labelled in
 `scorer`). With `ANTHROPIC_API_KEY` set, `--rescore` re-scores every item through the API.

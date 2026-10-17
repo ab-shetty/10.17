@@ -62,10 +62,20 @@ export function fmtDay(d, weekday = true) {
   return `${wd}${MON[t.getUTCMonth()]} ${t.getUTCDate()}`;
 }
 
-export function renderExplain(el, { day, h, preds, daily, news, target = 'n_anchored', noun = 'ships at anchor', waitRow }) {
+export function renderExplain(el, { day, h, preds, daily, news, target = 'n_anchored', noun = 'ships at anchor', waitRow, brief }) {
   const p = preds.find((r) => r.date === day && r.h === h);
   const d = daily.find((r) => r.date === day);
   const parts = [];
+
+  if (brief) {
+    parts.push(`<div class="brief"><div class="brief-head">Morning brief${brief.mock ? ' <span class="badge mock">MOCK</span>' : ''}</div>
+      <b class="brief-title">${escapeHtml(brief.headline)}</b>
+      <p>${escapeHtml(brief.brief)}</p>
+      <p class="brief-watch"><span>Watch:</span> ${escapeHtml(brief.watch)}</p>
+      <p class="fine">${brief.mock || brief.scorer === 'template'
+        ? 'Template text, not Claude: run signals/morning_brief.py to generate the real briefs.'
+        : `Written by Claude (${escapeHtml(brief.scorer)}) ahead of time, from only the numbers known that morning.`}</p></div>`);
+  }
 
   // Wait for a container-size ship joining the queue on `day` (wait.json row for the evening before).
   const w = waitRow;
