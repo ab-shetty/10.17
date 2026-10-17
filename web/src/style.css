@@ -93,3 +93,8 @@ select, .btn, .seg button { background: #0d1a27; color: var(--text); border: 1px
 .foot { color: var(--muted); font-size: 11px; padding: 4px 18px 18px; }
 .maplibregl-popup-content { background: #0d1a27; color: var(--text); font-size: 12px; padding: 6px 9px; }
 .maplibregl-popup-tip { display: none; }
+@media (max-width: 600px) {
+  .controls { flex-wrap: wrap; }
+  .controls input[type=range] { flex-basis: calc(100% - 140px); }
+  .controls select { flex-basis: 100%; }
+}
