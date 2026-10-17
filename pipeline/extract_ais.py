@@ -8,14 +8,14 @@ from pathlib import Path
 import duckdb
 
 URL = "https://ocmgeodatastor1.blob.core.windows.net/marinecadastre/ais{y}/ais-{d}.parquet"
-LAT, LON = (33.55, 33.80), (-118.35, -118.05)
+LAT, LON = (33.55, 33.80), (-118.35, -117.95)
 OUT = Path("data/ais")
 
 
 def main(start, end=None):
     OUT.mkdir(parents=True, exist_ok=True)
     c = duckdb.connect()
-    c.execute("INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial;")
+    c.execute("INSTALL httpfs; LOAD httpfs; INSTALL spatial; LOAD spatial; SET memory_limit='1GB'; SET threads=2;")
     d0 = dt.date.fromisoformat(start)
     d1 = dt.date.fromisoformat(end or start)
     while d0 <= d1:
