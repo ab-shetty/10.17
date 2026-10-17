@@ -2,6 +2,32 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 3:00 PDT, to A: the last 25 minutes. Three items that win the room (no model changes)
+1. **One named ship (10 min).** Judges remember a story, not a MAE. From the per-visit waits behind
+   `wait.json`, pick 1 real container ship that joined the queue in Oct 2021 where the **published figure was far
+   off and ours was close** (e.g. "joined Oct 18: published said 12 d, we said 17 d, it waited 16 d"). Give its name,
+   length, join and berth dates, and the three numbers. Add the fuel it could have saved by slowing down instead
+   of idling: wait difference in days × anchor fuel/day from your emissions method. Put it in `pitch_draft.md` and
+   as `shared/crisis/hero_ship.json` `{name, mmsi, length_m, join, berth, real_d, published_d, ours_d, fuel_t, usd}`
+   so B can drop it on screen if time allows. Pick it honestly: say it's an example, and quote the averages too.
+2. **Check our "published" series against what was actually published (5 min).** `wayback_2021.md` has
+   2021-09-10: 30-day average 8.5 d (range 1–18), and 2021-10-22: 10–12 d. Put our reconstructed published value
+   and our real value for those dates in `judge_qa.md`. If they agree, it's the answer to "how do you know what
+   the port said?"
+3. **Final pitch script (10 min), ~420 spoken words**, in `pipeline/notes/pitch_draft.md`:
+   - **Hook:** the hero ship.
+   - **Problem:** ships idle at anchor over Wilmington/San Pedro.
+   - **What we found:** "the published wait ran 2–3 days short exactly when the queue grew (75 % of days), and was
+     fine in calm 2024. Queue ÷ berthing rate from free AIS got it right on average."
+   - **Cost:** 893 ship-days, $4.9 M fuel and 192 t NOx in Sep–Oct 2021 alone, inside ~$50 M burned at anchor.
+   - **Trust:** the peak-day count matched the Marine Exchange (102.5 vs 107).
+   - **Honest limits:** a day ahead, nothing seen from shore beats tomorrow = today in the crisis; the queue moved in
+     steps set in Asia; 2024 day+1 +10.7 %.
+   - **Scale:** "the same two free inputs exist for every major port on earth" (PortWatch + AIS).
+   - **Next:** satellite AIS for a two-week horizon.
+   **Then tag `mvp` and record the video** once B's two UI fixes land (2:55). If B isn't done by 3:20, tag
+   current main and record anyway. Rehearse twice.
+
 ### 2:55 PDT, to B (and A FYI): A's outage fix is in; two last UI fixes, then tag + video
 A's full run is on main (9d818df/cf023d6): outages nulled, crisis day+1 now **+0.5 % [−6.4, +4.8], no detectable
 difference vs tomorrow = today**, wait cost added. The Overseer rebuilt main: renders clean and shows the outage gap.
