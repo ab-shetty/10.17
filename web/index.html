@@ -3,52 +3,63 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PortJam: San Pedro Bay queue forecast</title>
-  <link rel="stylesheet" href="/src/style.css" />
+  <title>San Pedro Bay Queue</title>
+  <link rel="stylesheet" href="./src/style.css" />
 </head>
 <body>
-  <header>
+  <header class="top">
     <div class="brand">
-      <h1>PortJam</h1>
-      <span class="sub">Ships at anchor in San Pedro Bay, forecast 1–3 days ahead</span>
-      <span class="badge" title="Historical AIS data from NOAA MarineCadastre. Not a live feed.">2024 replay, not live</span>
+      <h1>Ships waiting at anchor, San Pedro Bay</h1>
+      <p class="sub">Ports of Los Angeles + Long Beach. <strong>2024 replay, not live.</strong>
+        1–3 day forecast vs “tomorrow = today”.</p>
     </div>
     <div id="tiles" class="tiles"></div>
   </header>
-  <main>
-    <section class="map-wrap">
-      <div id="map"></div>
-      <div class="map-hud">
-        <div id="clock">loading…</div>
-        <div id="counts"></div>
+
+  <main class="grid">
+    <section class="panel map-panel">
+      <div class="panel-head">
+        <h2>Replay <span id="replay-day" class="muted"></span> <span id="replay-mock" class="badge mock" hidden>MOCK</span></h2>
         <div class="legend">
-          <span><i style="background:var(--anch)"></i>at anchor</span>
-          <span><i style="background:var(--moor)"></i>moored</span>
-          <span><i style="background:var(--way)"></i>under way</span>
+          <span><i class="dot anchored"></i>at anchor <b id="cnt-anchored">–</b></span>
+          <span><i class="dot moored"></i>at berth <b id="cnt-moored">–</b></span>
+          <span><i class="dot underway"></i>under way <b id="cnt-underway">–</b></span>
         </div>
       </div>
-      <div class="player">
-        <button id="play" title="Play / pause (space)">▶</button>
-        <select id="day"></select>
-        <input id="scrub" type="range" min="0" max="1439" value="0" />
-        <span class="speed">1 h / s</span>
+      <div id="map" class="map"><div id="map-empty" class="map-empty" hidden></div></div>
+      <div class="controls">
+        <button id="play" class="btn" aria-label="Play">▶</button>
+        <input id="scrub" type="range" min="0" max="143" value="0" />
+        <span id="clock" class="clock">--:-- UTC</span>
+        <select id="replay-select" aria-label="Replay day"></select>
       </div>
     </section>
-    <aside>
-      <h2>Story mode</h2>
-      <div id="episodes"></div>
-      <h2>Why this forecast?</h2>
-      <div id="explain" class="explain">Click a day on the chart.</div>
-    </aside>
-    <section class="chart-wrap">
-      <div class="chart-head">
-        <h2>Forecast vs actual: ships at anchor</h2>
-        <div id="horizons" class="seg"></div>
+
+    <section class="panel chart-panel">
+      <div class="panel-head">
+        <h2>Forecast vs actual</h2>
+        <div class="seg" id="horizon">
+          <button data-h="1" class="on">Day +1</button><button data-h="2">Day +2</button><button data-h="3">Day +3</button>
+        </div>
+        <div class="seg" id="range">
+          <button data-r="year">2024</button><button data-r="test" class="on">Oct–Dec (test)</button>
+        </div>
       </div>
-      <div class="chart-box"><canvas id="chart"></canvas></div>
+      <div class="chart-wrap"><canvas id="chart"></canvas></div>
+      <p class="hint">Click a day to explain it. Orange ticks along the bottom are scored news.</p>
+    </section>
+
+    <section class="panel explain-panel">
+      <div class="panel-head"><h2>Why? <span id="explain-day" class="muted"></span></h2></div>
+      <div id="explain"></div>
+    </section>
+
+    <section class="panel story-panel">
+      <div class="panel-head"><h2>Stories <span id="episodes-mock" class="badge mock" hidden>MOCK</span></h2></div>
+      <div id="episodes" class="episodes"></div>
     </section>
   </main>
-  <footer id="mocknote" hidden></footer>
-  <script type="module" src="/src/main.js"></script>
+  <footer class="foot">AIS: NOAA MarineCadastre 2024. Weather: Open-Meteo, IEM ASOS, NDBC 46222. ~74% of the 2024 anchored queue are tankers.</footer>
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>

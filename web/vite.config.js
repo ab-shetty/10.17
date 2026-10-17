@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite';
 
-// Serve the committed shared/ contracts as static files at the site root (/daily.json, /replay/...).
-// appType 'mpa' disables the SPA fallback so a missing contract file is a real 404.
+// shared/ is the contract folder between A and B: serve it as the static root so the app reads
+// /daily.json, /preds.json, /replay/<day>.json directly. appType 'mpa' makes missing files 404
+// instead of falling back to index.html, which the real-then-mock loader relies on.
 export default defineConfig({
+  base: './',
   publicDir: '../shared',
   appType: 'mpa',
-  server: { port: 5173 },
+  server: { host: true },
 });

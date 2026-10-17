@@ -1,20 +1,20 @@
 {
  "1": {
-  "mae_model": 1.649,
-  "mae_baseline": 1.753,
-  "n_test": 34,
-  "skill_pct": 6.0
+  "mae_model": 1.936,
+  "mae_baseline": 2.104,
+  "n_test": 92,
+  "skill_pct": 8.0
  },
  "2": {
-  "mae_model": 2.094,
-  "mae_baseline": 2.203,
-  "n_test": 33,
-  "skill_pct": 5.0
+  "mae_model": 2.566,
+  "mae_baseline": 2.704,
+  "n_test": 92,
+  "skill_pct": 5.1
  },
  "3": {
-  "mae_model": 2.085,
-  "mae_baseline": 1.854,
-  "n_test": 33,
-  "skill_pct": -12.5
+  "mae_model": 2.579,
+  "mae_baseline": 2.718,
+  "n_test": 92,
+  "skill_pct": 5.1
  }
 }

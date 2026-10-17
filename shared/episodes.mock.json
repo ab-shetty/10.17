@@ -1,14 +1,20 @@
 [
  {
-  "start": "2024-04-20",
-  "end": "2024-04-24",
-  "title": "MOCK: April queue spike",
-  "why": "MOCK: 20 arrivals in one day outpaced berth turnover; queue peaked at ~20 ships."
+  "start": "2024-02-26",
+  "end": "2024-03-04",
+  "title": "Early-March pile-up (MOCK)",
+  "why": "Mock text. Queue climbed to ~25 ships at anchor, the 2024 peak, while berths stayed full."
  },
  {
-  "start": "2024-07-25",
-  "end": "2024-08-04",
-  "title": "MOCK: Late-July peak season",
-  "why": "MOCK: Early peak-season imports ahead of tariff deadlines kept ~19 ships at anchor for a week."
+  "start": "2024-04-19",
+  "end": "2024-04-25",
+  "title": "Late-April spike (MOCK)",
+  "why": "Mock text. A burst of arrivals over three days outran departures."
+ },
+ {
+  "start": "2024-07-24",
+  "end": "2024-08-05",
+  "title": "Early peak season (MOCK)",
+  "why": "Mock text. POLA's best July in 116 years; the queue held above 20 for a week."
  }
 ]
