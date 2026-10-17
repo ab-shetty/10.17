@@ -22,9 +22,8 @@ know how long the wait really is.
 *[Screen: the "queue spilled into the ocean" chart]*
 
 **What we built (≈ 60 words).**
-From free NOAA ship-tracking data we rebuilt the whole queue: ships at anchor plus ships loitering offshore.
-On the peak day we count 102 waiting; the Marine Exchange counted 107. The anchorage sat flat at about fifty
-while the overflow drifted out to sea. This is a replay of 2021, not a live feed.
+From free NOAA ship-tracking data we rebuilt the whole queue, anchored and loitering offshore. On the peak day
+we count 102 waiting; the Marine Exchange counted 107. This is a replay of 2021, not a live feed.
 [CLAUDE.md, 48 + 54 = 102.5 vs MX 56 + 51]
 
 *[Screen: weekly wait chart: real (white), published (grey dashed), ours (orange)]*
@@ -45,12 +44,17 @@ That gap alone is 893 ship-days of idling nobody planned for in two months: abou
 Forecasting the count a day ahead in the crisis: nothing seen from shore beats "tomorrow equals today".
 The queue moved in steps set weeks earlier in Asia. In normal 2024 our model does beat the best naive rule
 a day ahead, by 11 percent, mostly by reading the weather forecast in stormy weather.
-And after November 16th ships were told to wait 150 miles out, beyond shore receivers.
 [`crisis/metrics.json` h=1 +0.5 % [−6.4, +4.8]; `metrics.json` h=1 +10.7 % [+3.3, +17.5]]
 
-**Scale + next (≈ 45 words).**
-Both inputs are free and exist for every major port on earth: ship positions from AIS, berthing rates from
-the IMF's PortWatch. Next: satellite AIS to see ships two weeks out, and give every captain the real wait.
+**Who pays (≈ 35 words).**
+The product is a wait-time feed for any port, sold to carriers, charterers and cargo owners. Both inputs are free,
+ship positions from AIS and berthing rates from the IMF's PortWatch, so the next port costs nothing to add.
+
+**How we built it (≈ 15 words).**
+Two people built this in five hours by directing a team of Claude agents: data, model, web, review.
+
+**Close.**
+Every captain should get the real number.
 
 ---
 
