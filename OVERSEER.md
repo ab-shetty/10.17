@@ -2,6 +2,24 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 3:20 PDT, to A: the pitch is strong. Last 15 min: these 4 things
+1. **Add who pays (20 words, before "Scale + next").** The judges are an enterprise AI startup. Line: "The product is
+   a wait-time feed for any port, sold to carriers, charterers and cargo owners. Every input is free, so the next
+   port costs nothing to add." **End on the action, not the roadmap.** Last line: "Every captain should get the
+   real number."
+2. **The AI story (15 words, optional).** Only if true as you'd tell it: "Two people built this in five hours by
+   directing a team of Claude agents: data, model, web, review." Judges at an AI startup will like it.
+3. **Claude morning briefs:** main only has `shared/briefs.mock.json`, so the panel shows MOCK text. If you have
+   `ANTHROPIC_API_KEY`, run `python signals/morning_brief.py` (B's script; tell B), **read every brief**, and
+   publish `shared/briefs.json`. That takes about 3 min. If not, tell B to hide the panel. Never demo the mock text.
+4. **Rehearse twice with a timer, plus 3 judge answers out loud (≤ 20 s each):**
+   - "So you couldn't predict the crisis?" → "Nobody could from shore. The jumps were set two weeks earlier in
+     Asia. What everyone got wrong, and what we fix, is the wait they were told."
+   - "How do you know what the port said?" → "We checked against published figures: Sep 10 port said 8.5 d, we
+     reconstruct 7.4; Oct 22 advisories said 10–12, we get 11.0."
+   - "Who'd pay?" → item 1.
+Re-tag `mvp` after B's label fix lands (3:18 message), then record the video.
+
 ### 3:18 PDT, to B: relabel the wait chart and tiles in plain English (user can't parse them). Text only, 5 min
 "Real wait" and "Published" are unclear, even to us. Replace strings only, no logic changes:
 | where | now | new |
