@@ -59,6 +59,11 @@ CARB_OCT2021 = dict(excess_nox_tpd=20, excess_pm_tpd=0.5, container_ships_at_anc
 def main(daily, out):
     d = pd.read_parquet(daily)
     d["date"] = pd.to_datetime(d.date)
+    if not {"n_anchored_tanker", "n_anchored_cargo", "n_anchored_bigcargo"} <= set(d.columns):
+        # fallback for daily tables without the type split: 2024 mix (74 % tanker, 22 % small cargo, 4 % big cargo)
+        print("WARNING: no per-type anchored counts; using the 2024 fleet mix for all anchored ships")
+        d = d.assign(n_anchored_tanker=d.n_anchored * 0.74, n_anchored_cargo=d.n_anchored * 0.26,
+                     n_anchored_bigcargo=d.n_anchored * 0.04)
     hours = pd.DataFrame({  # mean hourly count x 24 = ship-hours at anchor that day
         "tanker": d.n_anchored_tanker * 24,
         "cargo_small": (d.n_anchored_cargo - d.n_anchored_bigcargo).clip(lower=0) * 24,
