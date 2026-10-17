@@ -38,7 +38,10 @@ def main(daily, preds_path, n=3, min_gap_days=5, window=WINDOW, out_dir=None):
     out.mkdir(parents=True, exist_ok=True)
     rec = json.loads(chart.reset_index().assign(date=lambda x: x.date.dt.strftime("%Y-%m-%d")).round(2)
                      .to_json(orient="records"))
-    (out / "chart.json").write_text(json.dumps(dict(target=target, window=list(window),
+    events = [dict(date="2021-11-16", label="ships told to wait 150 nm out",
+                   note="new queuing rule: ships wait beyond shore-AIS range until ~72 h before their berth slot, "
+                        "so counts after this date understate the real queue")]
+    (out / "chart.json").write_text(json.dumps(dict(target=target, window=list(window), events=events,
         note="forecast_Nd = forecast for that date issued N days earlier; baselines are what each naive rule "
              "would have said for that date", series=rec)))
 

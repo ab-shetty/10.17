@@ -9,6 +9,7 @@ import json
 from glob import glob
 from pathlib import Path
 import duckdb
+import numpy as np
 import pandas as pd
 import pyarrow.parquet as pq
 from pandas.tseries.holiday import USFederalHolidayCalendar
@@ -32,7 +33,8 @@ def valid(f):
 
 
 def main(ais_dir="data/ais", approach_dir="data/approach", weather="data/weather_daily.parquet",
-         ext="data/ext_daily.parquet", out_path="data/daily.parquet", out_json="shared/daily.json", berth_in=None):
+         ext="data/ext_daily.parquet", out_path="data/daily.parquet", out_json="shared/daily.json", berth_in=None,
+         null_outages=False):
     files = [f for f in sorted(glob(f"{ais_dir}/*.parquet")) if valid(f)]
     print(f"{len(files)} valid day files")
     c = duckdb.connect()
@@ -108,14 +110,23 @@ def main(ais_dir="data/ais", approach_dir="data/approach", weather="data/weather
 
     d = snap.set_index("date").sort_index()
     d.index = pd.to_datetime(d.index)
+    if null_outages:  # a day with no bay data at all (2021-08-01: zero pings region-wide in NOAA's file) stays as a row
+        d = d.asfreq("D")
     d["n_arrivals_24h"] = arr.groupby(arr.t_in.dt.floor("D")).size()
     d["n_departures_24h"] = dep.groupby(dep.t_out.dt.floor("D")).size()
     d[["n_arrivals_24h", "n_departures_24h"]] = d[["n_arrivals_24h", "n_departures_24h"]].fillna(0)
     # AIS receiver outages (e.g. 2024-12-25/26: 11-13 h of data) make every ship look like a new arrival.
     cov = c.sql("SELECT ts::DATE AS date, count(DISTINCT date_trunc('hour', ts)) AS h FROM q GROUP BY 1").df()
     d["coverage_hours"] = cov.set_index(pd.to_datetime(cov.date)).h
-    gap = (d.coverage_hours < 20) | (d.coverage_hours.shift(1) < 20)
+    gap = (d.coverage_hours.fillna(0) < 20) | (d.coverage_hours.shift(1).fillna(0) < 20)
     d.loc[gap, ["n_arrivals_24h", "n_departures_24h"]] = float("nan")
+    if null_outages:
+        # local receiver outages (e.g. 2022-01-08/09: NOAA's national file is full size but the bay has 0-5 hours):
+        # the hourly mean over the few hours left undercounts, so the queue counts are unknown that day. Ships at
+        # berth are a steady ~38, so a moored count < 60 % of its weekly median flags a partly-down receiver too.
+        moored_ok = d.n_moored >= 0.6 * d.n_moored.rolling(7, center=True, min_periods=3).median()
+        d["outage"] = (d.coverage_hours < 6) | ~moored_ok
+        d.loc[d.outage, [c for c in d.columns if c.startswith(("n_anchored", "n_moored"))]] = float("nan")
     # censored edges: nobody can "arrive" on day 1 (no 24 h lookback), nobody "departs" on the last day
     d.loc[d.index[0], "n_arrivals_24h"] = float("nan")
     d.loc[d.index[-1], "n_departures_24h"] = float("nan")
@@ -186,6 +197,11 @@ def main(ais_dir="data/ais", approach_dir="data/approach", weather="data/weather
     if "offshore_waiting" in d:
         d["n_waiting"] = d.n_anchored + d.offshore_waiting  # anchored in the bay + loitering < 60 nm offshore
         d["n_waiting_eod"] = d.n_anchored_eod + d.offshore_waiting_eod
+    if "outage" in d:
+        d.loc[d.outage, [c for c in d.columns if c.startswith(("offshore_waiting", "inbound_", "n_waiting"))]] = float("nan")
+    if d.date.min() < pd.Timestamp("2021-11-16") <= d.date.max():
+        # 2021-11-16: ships told to wait 150+ nm out (beyond shore AIS) until ~72 h before their berth slot
+        d["regime"] = np.where(d.date >= pd.Timestamp("2021-11-16"), "after_150nm_rule", "before_150nm_rule")
     d.to_parquet(out_path, index=False)
     print(d.describe().T.round(2).to_string())
 
@@ -193,7 +209,7 @@ def main(ais_dir="data/ais", approach_dir="data/approach", weather="data/weather
                             "avg_wait_hours": "avg_wait_h", "visibility_min_m": "vis_min_m"})
     out["date"] = out.date.dt.strftime("%Y-%m-%d")
     cols = ["date", "n_anchored", "n_moored", "arrivals_24h", "departures_24h", "avg_wait_h", "wind_max_kts", "vis_min_m"]
-    cols += [c for c in ("offshore_waiting", "inbound_60nm", "inbound_eta24", "n_waiting") if c in out]
+    cols += [c for c in ("offshore_waiting", "inbound_60nm", "inbound_eta24", "n_waiting", "outage", "regime") if c in out]
     rec = json.loads(out[cols].round(2).to_json(orient="records"))
     Path(out_json).parent.mkdir(parents=True, exist_ok=True)
     Path(out_json).write_text(json.dumps(rec))
@@ -210,5 +226,7 @@ if __name__ == "__main__":
     a.add_argument("--out", default="data/daily.parquet")
     a.add_argument("--out-json", default="shared/daily.json")
     a.add_argument("--berth-in", help="reuse this berth mask instead of computing (and overwriting) one")
+    a.add_argument("--null-outages", action="store_true",
+                   help="set queue counts to null on local receiver-outage days (adds an `outage` column)")
     x = a.parse_args()
-    main(x.ais_dir, x.approach_dir, x.weather, x.ext, x.out, x.out_json, x.berth_in)
+    main(x.ais_dir, x.approach_dir, x.weather, x.ext, x.out, x.out_json, x.berth_in, x.null_outages)

@@ -127,6 +127,13 @@ def main(ais_dir, approach_dir, start, end, out, refresh=False, emissions=None):
                     mae_reported_d=round(float((x.reported - x.wait_d).abs().mean()), 2),
                     bias_little_d=round(float((x.little - x.wait_d).mean()), 2),
                     bias_reported_d=round(float((x.reported - x.wait_d).mean()), 2))
+    # what an operator would publish: the mean wait of ships joining each day (container-size ships)
+    jb = j[j.big_cargo].groupby("join_day").agg(wait_d=("wait_d", "mean"), little=("little", "first"),
+                                                 reported=("reported", "first"))
+    res = dict(window=[start, end], data_end=str(data_end), all=score(j), big_cargo=score(j[j.big_cargo]),
+               big_cargo_daily_mean=score(jb), other=score(j[~j.big_cargo]),
+               censoring_note=f"visits whose berth was not seen by {data_end:%Y-%m-%d} are dropped; waits > "
+                              f"{MAX_WAIT_D} d dropped; joins near the window end are biased toward short waits")
     # calm vs build-up: does the reported (lagging) figure only go wrong while the queue grows?
     j["regime"] = np.where(j.q_trend >= 5, "growing", np.where(j.q_trend <= -5, "shrinking", "steady"))
     res["by_regime"] = {g: score(x) for g, x in j.groupby("regime")}
@@ -143,18 +150,19 @@ def main(ais_dir, approach_dir, start, end, out, refresh=False, emissions=None):
                                       ship_days_shorter_than_told=round(float(over)),
                                       fuel_t=round(float(under * fuel_d)), fuel_usd_m=round(float(under * fuel_d * FUEL_USD_T / 1e6), 1),
                                       nox_t=round(float(under * nox_d / 1000), 1))
+        # the defensible number: the NET (systematic) understatement, bias x visits. The per-ship sums above are mostly
+        # scatter of individual waits around any average (they are as large in calm 2024), so don't headline them.
+        net = float(-(j.reported - j.wait_d).sum())
+        res["gap_cost"]["net_understatement"] = dict(
+            ship_days=round(net), fuel_t=round(net * fuel_d), fuel_usd_m=round(net * fuel_d * FUEL_USD_T / 1e6, 1),
+            nox_t=round(net * nox_d / 1000, 1), co2_t=round(net * es["co2_t"] / es["ship_days_at_anchor"]),
+            note="sum over joining ships of (actual wait - reported wait the day before); positive = the published "
+                 "figure was too short on net. Headline this one, not the per-ship sums.")
         res["gap_cost"]["note"] = (f"{len(j)} visits joining in the window. 'longer than told' = sum over ships of max(0, actual wait - "
                                    f"the figure available the day before it joined): idle time nobody planned for, which slow steaming "
                                    f"could have moved to sea. Priced at {fuel_d:.1f} t fuel and {nox_d:.0f} kg NOx per ship-day at "
                                    f"anchor ({emissions}) and ${FUEL_USD_T}/t MGO; ships loitering offshore are priced the same (an "
                                    f"approximation).")
-    # what an operator would publish: the mean wait of ships joining each day (container-size ships)
-    jb = j[j.big_cargo].groupby("join_day").agg(wait_d=("wait_d", "mean"), little=("little", "first"),
-                                                 reported=("reported", "first"))
-    res = dict(window=[start, end], data_end=str(data_end), all=score(j), big_cargo=score(j[j.big_cargo]),
-               big_cargo_daily_mean=score(jb), other=score(j[~j.big_cargo]),
-               censoring_note=f"visits whose berth was not seen by {data_end:%Y-%m-%d} are dropped; waits > "
-                              f"{MAX_WAIT_D} d dropped; joins near the window end are biased toward short waits")
     for k in ("all", "big_cargo", "big_cargo_daily_mean", "other"):
         r = res[k]
         r["skill_pct"] = round(100 * (1 - r["mae_little_d"] / r["mae_reported_d"]), 1) if r["mae_reported_d"] else None
@@ -164,6 +172,12 @@ def main(ais_dir, approach_dir, start, end, out, refresh=False, emissions=None):
     jd = j[j.big_cargo].groupby("join_day").wait_d.mean()
     daily["actual_wait_of_ships_joining_next_day"] = jd.reindex(days + pd.Timedelta(days=1)).values
     res["daily"] = json.loads(daily.round(2).to_json(orient="records"))
+    # weekly means for the chart (container-size ships, by the Monday of the week they joined the queue)
+    wk = j[j.big_cargo].assign(week=lambda x: (x.join_day - pd.to_timedelta(x.join_day.dt.dayofweek, unit="D")))
+    wk = wk.groupby("week").agg(real_d=("wait_d", "mean"), reported_d=("reported", "mean"),
+                                little_d=("little", "mean"), n=("wait_d", "size")).reset_index()
+    wk["week"] = wk.week.dt.strftime("%Y-%m-%d")
+    res["weekly"] = json.loads(wk.round(2).to_json(orient="records"))
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     Path(out).write_text(json.dumps(res))
     print(json.dumps({k: res[k] for k in ("window", "data_end", "all", "big_cargo", "big_cargo_daily_mean", "other", "by_regime", "gap_cost") if k in res}, indent=1))

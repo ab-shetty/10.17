@@ -93,3 +93,22 @@ Framing to say first, every time: **this is a 2024 replay, not a live system** [
 3. **Put an uncertainty band and the right units on the emissions headline, and relabel it "emitted at anchor", not "avoidable".** Re-run `pipeline/emissions.py` with a low/high load case (for example the min and max of the POLA per-class loads it already lists, and the +16 % Tier I case) and show 725 t as a range in metric tonnes, with CARB's short-ton figures converted. Add one clearly labelled *scenario* (for example "if X % of anchored hours were avoided") only as an illustration, since no avoided-emissions result exists.
 
 Not worth the remaining time: the 2025 holdout (RAM-heavy, definitions differ, calibration unfinished) and any new health statistic beyond the verified CalEnviroScreen line.
+
+**Q: Your berthing rate (3.6 container ships/day in 2021) is lower than IMF PortWatch's 5.7 LA-LB container calls/day. Why?**
+Definitional. Our rate (`wait.json` `berths_per_day_7d`) counts only ships that **waited** (≥ 6 h at anchor or loitering)
+before berthing, because it is the service rate of the queue in Little's law. Ships that went straight to a berth, and
+ships under 200 m, are not in it; PortWatch counts every call. Day to day the two move together (r = 0.42, 7-day means,
+Jun–Dec 2021, 201 days; Overseer check). Same two inputs (free AIS for the queue, PortWatch for berthings) exist for
+~1,600 ports.
+
+**Q: Is the "published wait ran 2–3 days short" claim cherry-picked?**
+No. Same code on 2024: the published-style 7-day average has bias 0.00 d in steady weeks, −1.0 d when the queue grew,
++1.2 d when it shrank (a lagging average does exactly that). In Sep–Oct 2021 the queue grew for months, so it was short
+in all 9 weeks (−2.5 d for container-size ships). Our reconstruction matches the published figures (Aug 15: 6.5 vs 6.8 d;
+Sep 9: ~7.3 d 30-day vs POLA 8.5; Oct 14: 13.9 vs NBC4 12). Little's law is unbiased but NOT more accurate per day
+(MAE 4.3 vs 3.8 d): we claim bias, not accuracy.
+
+**Q: Where does $4.9 M come from?**
+Net understatement only: Σ over the 437 ships that joined the queue in Sep–Oct 2021 of (actual wait − the wait published
+the day before) = 893 ship-days, × 7.0 t fuel per ship-day at anchor (POLA inventory loads, our emissions method) ×
+$780/t MGO. Same calculation for 2024 gives −18 ship-days (≈ 0). Offshore loitering is priced at anchor rates (approximation).

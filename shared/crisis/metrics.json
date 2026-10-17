@@ -1,80 +1,89 @@
 {
  "1": {
-  "mae_model": 3.757,
-  "mae_baseline": 3.574,
+  "mae_model": 2.751,
+  "mae_baseline": 2.764,
   "baseline": "persistence",
-  "n_test": 132,
-  "skill_pct": -5.1,
+  "n_test": 209,
+  "skill_pct": 0.5,
   "skill_ci90": [
-   -14.1,
-   -0.4
+   -6.4,
+   4.8
   ],
-  "skill_vs_persistence_pct": -5.1,
+  "skill_vs_persistence_pct": 0.5,
+  "skill_vs_daymean_rules_pct": 0.5,
   "baselines_mae": {
-   "persistence": 3.574,
-   "ma7": 5.241,
-   "blend": 3.956
+   "persistence": 2.764,
+   "ma7": 4.043,
+   "blend": 3.009,
+   "tonight": 3.228,
+   "tonight_blend": 3.003
   },
   "model": "avg",
   "test_mae_all": {
-   "lgbm": 3.706,
-   "cat": 3.723,
-   "ridge": 4.212,
-   "avg": 3.757
+   "lgbm": 2.672,
+   "cat": 2.64,
+   "ridge": 3.333,
+   "avg": 2.751
   },
   "anchor": "persistence",
   "evaluation": "rolling-origin, monthly refit",
   "target": "n_waiting"
  },
  "2": {
-  "mae_model": 5.235,
-  "mae_baseline": 5.093,
+  "mae_model": 4.072,
+  "mae_baseline": 4.003,
   "baseline": "persistence",
-  "n_test": 132,
-  "skill_pct": -2.8,
+  "n_test": 208,
+  "skill_pct": -1.7,
   "skill_ci90": [
-   -19.2,
-   7.7
+   -11.9,
+   7.1
   ],
-  "skill_vs_persistence_pct": -2.8,
+  "skill_vs_persistence_pct": -1.7,
+  "skill_vs_daymean_rules_pct": -1.7,
   "baselines_mae": {
-   "persistence": 5.093,
-   "ma7": 6.069,
-   "blend": 5.231
+   "persistence": 4.003,
+   "ma7": 4.67,
+   "blend": 4.046,
+   "tonight": 4.664,
+   "tonight_blend": 4.184
   },
   "model": "avg",
   "test_mae_all": {
-   "lgbm": 5.298,
-   "cat": 5.054,
-   "ridge": 5.83,
-   "avg": 5.235
+   "lgbm": 4.045,
+   "cat": 4.065,
+   "ridge": 4.683,
+   "avg": 4.072
   },
   "anchor": "blend",
   "evaluation": "rolling-origin, monthly refit",
   "target": "n_waiting"
  },
  "3": {
-  "mae_model": 6.384,
-  "mae_baseline": 5.875,
+  "mae_model": 4.953,
+  "mae_baseline": 4.673,
   "baseline": "persistence",
-  "n_test": 132,
-  "skill_pct": -8.7,
+  "n_test": 208,
+  "skill_pct": -6.0,
   "skill_ci90": [
-   -23.7,
+   -16.0,
    2.8
   ],
-  "skill_vs_persistence_pct": -8.7,
+  "skill_vs_persistence_pct": -6.0,
+  "skill_vs_daymean_rules_pct": -6.0,
   "baselines_mae": {
-   "persistence": 5.875,
-   "ma7": 6.815,
-   "blend": 6.034
+   "persistence": 4.673,
+   "ma7": 5.195,
+   "blend": 4.696,
+   "tonight": 5.438,
+   "tonight_blend": 4.948
   },
   "model": "avg",
   "test_mae_all": {
-   "lgbm": 6.485,
-   "cat": 6.15,
-   "ridge": 6.85,
-   "avg": 6.384
+   "lgbm": 5.003,
+   "cat": 4.833,
+   "ridge": 5.498,
+   "avg": 4.953
   },
   "anchor": "blend",
   "evaluation": "rolling-origin, monthly refit",

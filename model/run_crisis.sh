@@ -18,7 +18,7 @@ D=${CRISIS_DAILY:-data/crisis/daily_a.parquet}
 if [[ $D == data/crisis/daily_a.parquet ]]; then
   python3 pipeline/build_daily.py --ais-dir data/ais_crisis --approach-dir data/approach_crisis \
     --weather data/crisis/weather_daily.parquet --ext data/crisis/ext_daily.parquet \
-    --out $D --out-json shared/crisis/daily.json --berth-in data/berth_cells.parquet
+    --out $D --out-json shared/crisis/daily.json --berth-in data/berth_cells.parquet --null-outages
   cp $D shared/crisis/daily.parquet
 fi
 T=${TARGET:-n_waiting}
