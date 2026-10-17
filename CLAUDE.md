@@ -13,24 +13,25 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
 - The old `coast.noaa.gov/.../AISDataHandler` zip links 404. Don't use them.
 - Sanity check 2024-01-01: 41 vessels in box, 19 reporting status=1 (at anchor), sog ≈ 0.07.
 
-## Status (A, 11:55 PDT)
-- Full 2024 pulled (366 days, bbox to -117.95). `data/daily.parquet` + `shared/daily.json` built. Model trained on full year:
-  **beats persistence at h=1/2/3 by only 2.4/1.9/1.6 % MAE** (92 test days, Oct–Dec) after fixing a leak (departures
-  were known a day early; the earlier 8/5/5 % was inflated). Near-tie overall. `shared/preds.json`, `shared/metrics.json` real.
-- **The 2024 anchored queue is ~74 % tankers** (11.3 of 15.3 on average). Frame it as "ships waiting at anchor", not "container queue".
+## Status (A, 12:25 PDT)
+- Full 2024 pulled (366 days, bbox to -117.95), plus an **approach zone** (ships 20–120 nm out, `data/approach/`).
+- Model: LightGBM + CatBoost + ridge on the change target; per-horizon choice by rolling-origin CV inside Jan–Sep
+  (CatBoost at h=1, plain average at h=2/3). Test Oct–Dec (92 days) vs persistence:
+  **+5.9 / +7.8 / +4.2 % MAE at h=1/2/3**, but the 90 % block-bootstrap CIs include 0 (h=1: [−2.4, +11.6]).
+  **On big-move days (queue moves ≥ 3 ships): +13 / +26 / +30 %**, direction right 67 / 76 / 81 %. That's the claim to make.
+  (An earlier 8/5/5 % had a departure leak; fixed: departures are only known a day later.)
+- Best new signal: **ships inbound within 60 nm** (corr 0.18 with tomorrow's queue change, more than today's arrivals).
+- **The 2024 anchored queue is ~74 % tankers** (11.3 of 15.3 on average). Say "ships waiting at anchor", not "container queue".
 - Validated against POLA's own daily Container Vessel Activity 2024 (`pipeline/pola_summary.py`, PDF in `data/ext/pola/`,
   hand-downloaded because Cloudflare blocks scripts): our ≥250 m cargo anchored count r = 0.49 with POLA container ships
   at anchor; our moored count r = 0.62 with POLA at berth.
-- Extra features: KLGB observed fog (IEM ASOS), harbor wave buoy 46222 (NDBC) → `pipeline/ext_sources.py`.
-- AIS outage 2024-12-25/26 (11–13 h coverage): arrivals/departures nulled there (`coverage_hours` column).
-- **Big-move days** (queue moves ≥ 3 ships): model beats persistence by **18/23/24 %** MAE at h=1/2/3, direction right 67–82 %.
-  That's the pitch number; the 5–8 % headline is diluted by quiet days where persistence is near-perfect.
 - **Episodes = weather, not trade news.** In gales/heavy swell part of the anchored fleet weighs anchor and rides it out
   under way (in the bay or 20–30 nm offshore), then re-anchors; the model learned to expect the rebound. It does NOT
   foresee the gale itself (no weather-forecast input). POLA's Oct release: record volume "without a single ship backed up".
-- In progress: approach-zone AIS pull (`pipeline/extract_approach.py`, ships 20–120 nm out = tomorrow's arrivals), resumable.
+- Extra features: KLGB observed fog (IEM ASOS), harbor wave buoy 46222 (NDBC) → `pipeline/ext_sources.py`.
+- AIS outage 2024-12-25/26 (11–13 h coverage): arrivals/departures nulled there (`coverage_hours` column).
 - Research notes: `pipeline/notes/port_events_2024.md` (events timeline), `pipeline/notes/aistrack2025.md` (2025 tracks: coarse only).
-- Codespace RAM: the full-year build gets SIGTERM'd if run alongside 2+ extract workers. Run heavy jobs one at a time on 8 GB.
+- Codespace now 16 GB. Next for A: emissions at anchor (OVERSEER bet 1), inbound ships in replay files.
 
 ## Shared schema: `data/ais/*.parquet` (one file per day)
 | col | type | notes |
