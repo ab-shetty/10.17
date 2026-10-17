@@ -160,8 +160,12 @@ def mae(a, b):
     return float(np.mean(np.abs(np.asarray(a) - np.asarray(b))))
 
 
-def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False):
+def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False, target="n_anchored"):
+    global TARGET
+    TARGET = target
     d = pd.read_parquet(daily)
+    if target == "n_waiting" and "n_waiting" not in d:
+        d["n_waiting"] = d.n_anchored + d.offshore_waiting  # anchored in the bay + loitering < 60 nm offshore
     d["date"] = pd.to_datetime(d.date)
     d = d.set_index("date").sort_index().asfreq("D")
     for wf in weather or []:  # extra per-day tables (weather, fog/waves) for daily files that lack them
@@ -234,7 +238,7 @@ def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False):
                  skill_ci90=block_bootstrap_skill(np.abs(pred - act).values, np.abs(base - act).values),
                  skill_vs_persistence_pct=round(100 * (1 - mae_m / test_base["persistence"]), 1),
                  baselines_mae=test_base, model=chosen, cv_mae=cv, test_mae_all=test_models,
-                 evaluation="rolling-origin, monthly refit" if rolling else "single split")
+                 evaluation="rolling-origin, monthly refit" if rolling else "single split", target=TARGET)
         if "fc_gust_target" in Xh:
             storm = (Xh.loc[te, ["fc_gust_target", "fc_gust_tomorrow"]].max(axis=1) >= STORM_KTS).values
             if storm.sum() >= 3:
@@ -278,5 +282,6 @@ if __name__ == "__main__":
     a.add_argument("--out-prefix", default="shared")
     a.add_argument("--rolling", action="store_true",
                    help="rolling-origin: refit before each test month (train on all earlier data)")
+    a.add_argument("--target", default="n_anchored", help="n_anchored, or n_waiting (= anchored + offshore_waiting)")
     x = a.parse_args()
-    main(x.daily, x.weather, x.test_start, x.out_prefix, x.test_end, x.rolling)
+    main(x.daily, x.weather, x.test_start, x.out_prefix, x.test_end, x.rolling, x.target)
