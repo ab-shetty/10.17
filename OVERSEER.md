@@ -12,6 +12,16 @@ more features. Judges reward (1) a real problem with a number attached, (2) a de
 - Honest caveat to own, not hide: 2024 had no crisis ("not a single ship backed up at sea", POLA Oct 2024),
   and the anchored queue is ~74 % tankers. So the pitch is not "we predict the next 2021"; it is the bets below.
 
+## HEADLINE (decided 11:50): the 2021-22 San Pedro Bay backlog
+- NOAA daily AIS for 2021-2023 is still online as zipped CSV (`coast.noaa.gov/htdata/CMSP/AISDataHandler/2021/AIS_2021_MM_DD.zip`,
+  ~300 MB/day). The Overseer is pulling 2021-06-01 .. 2022-03-31 to `data/ais_crisis/` (same schema as `data/ais/`).
+- First look: 35-50 ships at anchor per day in June 2021 (distinct ships/day) vs ~15 in 2024.
+- Caveat to own: from 2021-11-16 the ports moved the queue beyond 150 nm (out of shore-AIS range), so anchored counts
+  fall for a reason the data can't see. After that date, use wait time + arrivals, and tell that as part of the story.
+- Overseer produces `shared/crisis/daily.json`, `shared/crisis/daily.parquet` (same columns as data/daily.parquet minus
+  weather) and crisis replay days in `shared/crisis/replay/`. A adds 2021 weather + trains. 2024 becomes "it works in
+  normal times too".
+
 ## Ranked bets (highest odds-per-hour first)
 1. **Turn the forecast into money and emissions [A, ~45 min].** Every ship-hour at anchor burns auxiliary engines.
    From AIS alone: ship-hours at anchor × aux-engine kW (by type/size) × emission factors (CARB/EPA port
