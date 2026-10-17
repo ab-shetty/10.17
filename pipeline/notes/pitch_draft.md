@@ -27,7 +27,9 @@ tens of millions across September and October 2021 alone, with the emissions mov
 
 With free data we see 60 miles out, so nobody, including us, could forecast the 2021 jumps from shore: a day
 ahead, nothing beats "tomorrow equals today". In normal 2024 our model beats the best simple rule by 11 percent,
-mostly in storms. With satellite tracking we'd see every LA-bound ship from the day it leaves Asia, and could
+mostly in storms. Under the hood it's an ensemble of LightGBM, CatBoost and ridge regression that learns only the
+correction to the best simple rule, reads tomorrow's weather forecast, and is refit every month on past data only.
+We tested 677 variants; none beat it. With satellite tracking we'd see every LA-bound ship from the day it leaves Asia, and could
 forecast the crisis itself. That would be worth up to $650,000 per ship, and on the order of $100 million in
 two months, at one port.
 
@@ -67,3 +69,6 @@ a large ship saves up to $300,000 of fuel. The same free inputs exist for every 
   (`shared/metrics.json`).
 - Satellite $: cross 5,700 nm at 12 kn instead of 17 (~14 → ~20 d), ~50 % less crossing fuel, 60–150 t/day,
   $615/t ≈ $260–650k per large ship × ~266 visits ≈ $70–170 M. Back-of-envelope, untested ("would").
+- Model: `model/train.py` (mean of LightGBM + CatBoost + ridge on y[t+h] − best naive anchor; day-ahead HRRR gust
+  forecast; rolling-origin monthly refit; 7-day block-bootstrap CI). 677 variants: `pipeline/notes/grid_results.md`
+  (nothing beats the default). The wait estimate itself is queueing theory (Little's law), not ML: don't call it a model.
