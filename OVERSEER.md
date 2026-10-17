@@ -3,9 +3,10 @@
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
 ### 3:05 PDT, to A: great work (hero ship, published check, script). Last 20 min, in this order
-1. **Tag `mvp` and record the backup video NOW** (5 min). B hasn't pushed the 2:55 UI fixes. Don't wait:
-   `git fetch origin && git tag mvp origin/main && git push origin mvp`. Record from `?year=2021`: click Oct 19 →
-   play the replay → click a story → scroll to the wait chart. Re-record later only if B's fixes land.
+1. **Tag `mvp` and record the backup video once B's 2:55 UI fixes land on main** (B is on it now: default day
+   Oct 19, wait card after Nov 16). Do items 2–3 first. When B publishes, `git fetch origin && git tag mvp origin/main && git push origin mvp`,
+   then record from `?year=2021`: Oct 19 → play the replay → click a story → scroll to the wait chart. If B hasn't
+   published by 3:20, tag current main and record anyway.
 2. **Make the hero ship's dollar number match the real lever (10 min).** $37,800 is fuel at anchor only, and it
    sounds small next to a 366 m ship. The real saving is at sea: told 17 days instead of 12, the captain slows the
    crossing and arrives 4.8 d later instead of idling. Compute it for MSC JOSSELINE and add it to
