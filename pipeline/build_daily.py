@@ -27,8 +27,9 @@ def valid(f):
         return False
 
 
-def main():
-    files = [f for f in sorted(glob("data/ais/*.parquet")) if valid(f)]
+def main(ais_dir="data/ais", approach_dir="data/approach", weather="data/weather_daily.parquet",
+         ext="data/ext_daily.parquet", out_path="data/daily.parquet", out_json="shared/daily.json", berth_in=None):
+    files = [f for f in sorted(glob(f"{ais_dir}/*.parquet")) if valid(f)]
     print(f"{len(files)} valid day files")
     c = duckdb.connect()
     c.execute("SET memory_limit='2GB'")
@@ -38,7 +39,10 @@ def main():
       SELECT mmsi, ts, lat, lon, sog, status, draft, vessel_type, length,
              floor(lat/{CELL})::INT AS cy, floor(lon/{CELL})::INT AS cx
       FROM read_parquet({files})""")
-    c.execute(f"""
+    if berth_in:  # reuse a mask built from another period (berths don't move; 2024 = normal traffic)
+        c.execute(f"CREATE TABLE berth AS SELECT * FROM '{berth_in}'")
+    else:
+      c.execute(f"""
       CREATE TABLE berth AS
       WITH cnt AS (SELECT cy, cx, count(*) FILTER (WHERE status = 5) AS s5,
                           count(*) FILTER (WHERE status = 1) AS s1 FROM p GROUP BY 1, 2),
@@ -47,7 +51,7 @@ def main():
               FROM dense d, range(-1, 2) t1(dy), range(-1, 2) t2(dx))
       -- dilation must not swallow anchorage cells (inside-breakwater anchorages sit next to terminals)
       SELECT dil.* FROM dil LEFT JOIN cnt USING (cy, cx) WHERE coalesce(cnt.s1, 0) <= coalesce(cnt.s5, 0)""")
-    c.execute("COPY berth TO 'data/berth_cells.parquet' (FORMAT parquet)")  # reused by export_replay.py
+      c.execute("COPY berth TO 'data/berth_cells.parquet' (FORMAT parquet)")  # reused by export_replay.py
     c.execute(f"""
       CREATE TABLE q AS
       SELECT p.*, (bc.cy IS NOT NULL) AS in_berth,
@@ -105,19 +109,41 @@ def main():
     d["coverage_hours"] = cov.set_index(pd.to_datetime(cov.date)).h
     gap = (d.coverage_hours < 20) | (d.coverage_hours.shift(1) < 20)
     d.loc[gap, ["n_arrivals_24h", "n_departures_24h"]] = float("nan")
+    # censored edges: nobody can "arrive" on day 1 (no 24 h lookback), nobody "departs" on the last day
+    d.loc[d.index[0], "n_arrivals_24h"] = float("nan")
+    d.loc[d.index[-1], "n_departures_24h"] = float("nan")
     d["n_arrivals_48h"] = d.n_arrivals_24h.rolling(2).sum()
     d["avg_wait_hours"] = waits.groupby(waits.t_berth.dt.floor("D")).wait_h.mean()
 
-    w = pd.read_parquet("data/weather_daily.parquet")
+    w = pd.read_parquet(weather)
     w.index = pd.to_datetime(w.date)
     d = d.join(w.drop(columns="date"))
-    ext = Path("data/ext_daily.parquet")  # KLGB fog + harbor wave buoy (pipeline/ext_sources.py)
+    appr = sorted(glob(f"{approach_dir}/*.parquet"))  # pipeline/extract_approach.py
+    if appr:
+        # hourly snapshots of ships OUTSIDE the study bbox: loitering offshore (waiting) or inbound toward the bay
+        ap = c.sql(f"""
+          WITH x AS (
+            SELECT mmsi, date_trunc('hour', t10) AS hr, sog, cog,
+                   sqrt(power((lat - 33.70) * 60, 2) + power((lon + 118.20) * 60 * cos(radians(33.7)), 2)) AS nm,
+                   (degrees(atan2((-118.20 - lon) * cos(radians(33.7)), 33.70 - lat)) + 360) % 360 AS brg
+            FROM read_parquet({appr})),
+          h AS (
+            SELECT hr, count(DISTINCT mmsi) FILTER (WHERE nm < 60 AND sog < 3) AS waiting,
+                   count(DISTINCT mmsi) FILTER (WHERE nm < 60 AND sog >= 6
+                                                AND abs(((cog - brg + 540) % 360) - 180) < 30) AS inbound
+            FROM x GROUP BY 1)
+          SELECT hr::DATE AS date, avg(waiting) AS offshore_waiting, avg(inbound) AS inbound_60nm,
+                 count(*) AS appr_hours FROM h GROUP BY 1""").df()
+        ap.index = pd.to_datetime(ap.date)
+        d = d.join(ap.drop(columns="date"))
+        print(f"approach features from {len(appr)} days")
+    ext = Path(ext)  # KLGB fog + harbor wave buoy (pipeline/ext_sources.py)
     if ext.exists():
         e = pd.read_parquet(ext)
         e.index = pd.to_datetime(e.date)
         d = d.join(e.drop(columns="date"))
     d["dow"] = d.index.dayofweek
-    hol = USFederalHolidayCalendar().holidays("2024-01-01", "2024-12-31")
+    hol = USFederalHolidayCalendar().holidays(d.index.min(), d.index.max())
     d["is_holiday"] = d.index.isin(hol).astype(int)
     news = Path("shared/news.json")
     d["news_score"] = float("nan")
@@ -129,18 +155,31 @@ def main():
             d["news_score"] = n.groupby(pd.to_datetime(n.date))["score"].max().reindex(d.index)
 
     d = d.reset_index().rename(columns={"index": "date"})
-    d.to_parquet("data/daily.parquet", index=False)
+    if "offshore_waiting" in d:
+        d["n_waiting"] = d.n_anchored + d.offshore_waiting  # anchored in the bay + loitering < 60 nm offshore
+    d.to_parquet(out_path, index=False)
     print(d.describe().T.round(2).to_string())
 
     out = d.rename(columns={"n_arrivals_24h": "arrivals_24h", "n_departures_24h": "departures_24h",
                             "avg_wait_hours": "avg_wait_h", "visibility_min_m": "vis_min_m"})
     out["date"] = out.date.dt.strftime("%Y-%m-%d")
     cols = ["date", "n_anchored", "n_moored", "arrivals_24h", "departures_24h", "avg_wait_h", "wind_max_kts", "vis_min_m"]
+    cols += [c for c in ("offshore_waiting", "inbound_60nm", "n_waiting") if c in out]
     rec = json.loads(out[cols].round(2).to_json(orient="records"))
-    Path("shared").mkdir(exist_ok=True)
-    Path("shared/daily.json").write_text(json.dumps(rec))
-    print(f"wrote shared/daily.json ({len(rec)} days)")
+    Path(out_json).parent.mkdir(parents=True, exist_ok=True)
+    Path(out_json).write_text(json.dumps(rec))
+    print(f"wrote {out_path} + {out_json} ({len(rec)} days)")
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    a = argparse.ArgumentParser()
+    a.add_argument("--ais-dir", default="data/ais")
+    a.add_argument("--approach-dir", default="data/approach")
+    a.add_argument("--weather", default="data/weather_daily.parquet")
+    a.add_argument("--ext", default="data/ext_daily.parquet")
+    a.add_argument("--out", default="data/daily.parquet")
+    a.add_argument("--out-json", default="shared/daily.json")
+    a.add_argument("--berth-in", help="reuse this berth mask instead of computing (and overwriting) one")
+    x = a.parse_args()
+    main(x.ais_dir, x.approach_dir, x.weather, x.ext, x.out, x.out_json, x.berth_in)
