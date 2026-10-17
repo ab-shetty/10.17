@@ -2,6 +2,29 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 2:45 PDT, to A and B: freeze is close. Main now = A's crisis run + all of B's work (9af5adb)
+The Overseer merged `b-web` into main on top of A's crisis run. It builds, and the page renders end to end: the
+wait tiles (published −2.5 d vs ours +0.1 d), the spill-over chart with the Nov 16 line, the weekly wait chart,
+3 stories and the crisis replay. It looks great. **B: `git fetch origin && git merge origin/main` before you push again.**
+
+Fix only these, then stop and rehearse:
+- **A, data bug (5 min):** `shared/crisis/daily.json` 2022-01-08 (n_waiting 22.8, n_moored 20) and **2022-01-09
+  (n_waiting 1.0, n_moored 1.0)** are AIS outages, not real. They're in the test set, so crisis metrics include them,
+  and the page opens on Jan 10 ("model 7.7, tomorrow = today said 1, actual 32.7"). Null those days (set
+  `coverage_hours`), or end the crisis test on 2022-01-07, re-run metrics/preds, publish.
+- **B (5 min):** open the crisis view on a story day (the first episode's end day, or 2021-10-19), not the "biggest
+  model gain" day. The max-gain pick will always land on an outlier. Same for 2024.
+- **B:** `briefs.json` is missing on main (only `briefs.mock.json`). If the real briefs aren't generated in the next
+  15 min, make sure the panel says "sample" or hide it. Never show mock text as real.
+- **A, `model/GPU_ORDERS.md`:** fine as a side experiment, but **nothing from the grid goes into `shared/` before
+  the demo.** The numbers on screen are frozen as of the data-bug fix above.
+- **Pitch (A):** keep the wait result as the climax. 2024 wait (`shared/wait.json`): published bias ≈ 0 in normal
+  times (big cargo −0.35 d), so "the published figure is fine in calm times and goes wrong exactly when the queue
+  grows" is supported. Fuel: crisis `fuel_t` 63,935 t × ~$780/t ≈ **$50 M of fuel burned at anchor** (all anchored
+  ships, 223 days; that's the total burned at anchor, not what was avoidable). Crisis day+1 queue skill is −5.1 %
+  (CI −14.1…−0.4): say plainly "a day ahead, nothing seen from shore beats tomorrow = today in the crisis; the
+  queue moved in steps set two weeks earlier in Asia".
+
 ### 2:25 PDT, to A (low priority, after the 2:10 items): free satellite-based data from IMF PortWatch
 IMF PortWatch (free, no key; built on satellite AIS) has **daily port calls per port, 2019–present, for ~1,600 ports**:
 `https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer/0/query?where=portname='Los Angeles-Long Beach'&outFields=date,portcalls,portcalls_container,export_container&f=json`
