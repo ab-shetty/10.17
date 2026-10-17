@@ -22,6 +22,7 @@
    "ridge": 1.762,
    "avg": 1.735
   },
+  "anchor": "blend",
   "evaluation": "rolling-origin, monthly refit",
   "target": "n_anchored",
   "n_storm": 10,
@@ -52,6 +53,7 @@
    "ridge": 2.253,
    "avg": 2.182
   },
+  "anchor": "blend",
   "evaluation": "rolling-origin, monthly refit",
   "target": "n_anchored",
   "n_storm": 11,
@@ -82,6 +84,7 @@
    "ridge": 2.457,
    "avg": 2.314
   },
+  "anchor": "blend",
   "evaluation": "rolling-origin, monthly refit",
   "target": "n_anchored",
   "n_storm": 11,

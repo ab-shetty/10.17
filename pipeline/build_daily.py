@@ -76,7 +76,10 @@ def main(ais_dir="data/ais", approach_dir="data/approach", weather="data/weather
         FROM q GROUP BY 1)
       SELECT hr::DATE AS date, avg(a) AS n_anchored, max(a) AS n_anchored_max, avg(m) AS n_moored,
              avg(a_tank) AS n_anchored_tanker, avg(a_cargo) AS n_anchored_cargo,
-             avg(a_big) AS n_anchored_bigcargo  -- >=250 m cargo, mostly container ships (cf. POLA summary)
+             avg(a_big) AS n_anchored_bigcargo,  -- >=250 m cargo, mostly container ships (cf. POLA summary)
+             -- the queue at the END of the day (last 3 hourly snapshots): known at issue time and fresher than
+             -- the day's mean, which lags a moving queue by ~12 h
+             avg(a) FILTER (WHERE hour(hr) >= 21) AS n_anchored_eod
       FROM h GROUP BY 1""").df()
 
     # visits: new visit when an mmsi reappears after >= GAP_H hours (first-ever ping on day 1 is censored)
@@ -138,9 +141,29 @@ def main(ais_dir="data/ais", approach_dir="data/approach", weather="data/weather
                                                 AND abs(((cog - brg + 540) % 360) - 180) < 30) AS inbound
             FROM xt GROUP BY 1)
           SELECT hr::DATE AS date, avg(waiting) AS offshore_waiting, avg(inbound) AS inbound_60nm,
+                 avg(waiting) FILTER (WHERE hour(hr) >= 21) AS offshore_waiting_eod,
                  count(*) AS appr_hours FROM h GROUP BY 1""").df()
         ap.index = pd.to_datetime(ap.date)
         d = d.join(ap.drop(columns="date"))
+        # end-of-day ETA view (last ping per ship in the day's last hour): ships heading for the bay that would reach
+        # it within 24 h at their current speed, and ships 60-140 nm out heading in. Corr with next-day arrivals in
+        # 2024: 0.48 (ETA < 24 h) vs -0.08 for today's arrivals.
+        eta = c.sql(f"""
+          WITH x AS (
+            SELECT mmsi, t10::DATE AS date, arg_max(sog, t10) AS sog, arg_max(cog, t10) AS cog, arg_max(status, t10) AS status,
+                   arg_max(lat, t10) AS lat, arg_max(lon, t10) AS lon
+            FROM read_parquet({appr}) WHERE hour(t10) = 23 GROUP BY 1, 2),
+          y AS (SELECT *, sqrt(power((lat - 33.70) * 60, 2) + power((lon + 118.20) * 60 * cos(radians(33.7)), 2)) AS nm,
+                   (degrees(atan2((-118.20 - lon) * cos(radians(33.7)), 33.70 - lat)) + 360) % 360 AS brg,
+                   coalesce(({OTHER_TERMINAL}), false) AS other_terminal FROM x)
+          SELECT date, count(*) FILTER (WHERE nm / sog <= 24) AS inbound_eta24,
+                 count(*) FILTER (WHERE nm >= 60 AND nm < 140) AS inbound_60_140
+          FROM y WHERE sog >= 6 AND NOT other_terminal AND abs(((cog - brg + 540) % 360) - 180) < 30
+          GROUP BY 1""").df()
+        eta.index = pd.to_datetime(eta.date)
+        d = d.join(eta.drop(columns="date"))
+        d.loc[d.appr_hours.notna(), ["inbound_eta24", "inbound_60_140"]] = \
+            d.loc[d.appr_hours.notna(), ["inbound_eta24", "inbound_60_140"]].fillna(0)
         print(f"approach features from {len(appr)} days")
     ext = Path(ext)  # KLGB fog + harbor wave buoy (pipeline/ext_sources.py)
     if ext.exists():
@@ -162,6 +185,7 @@ def main(ais_dir="data/ais", approach_dir="data/approach", weather="data/weather
     d = d.reset_index().rename(columns={"index": "date"})
     if "offshore_waiting" in d:
         d["n_waiting"] = d.n_anchored + d.offshore_waiting  # anchored in the bay + loitering < 60 nm offshore
+        d["n_waiting_eod"] = d.n_anchored_eod + d.offshore_waiting_eod
     d.to_parquet(out_path, index=False)
     print(d.describe().T.round(2).to_string())
 
@@ -169,7 +193,7 @@ def main(ais_dir="data/ais", approach_dir="data/approach", weather="data/weather
                             "avg_wait_hours": "avg_wait_h", "visibility_min_m": "vis_min_m"})
     out["date"] = out.date.dt.strftime("%Y-%m-%d")
     cols = ["date", "n_anchored", "n_moored", "arrivals_24h", "departures_24h", "avg_wait_h", "wind_max_kts", "vis_min_m"]
-    cols += [c for c in ("offshore_waiting", "inbound_60nm", "n_waiting") if c in out]
+    cols += [c for c in ("offshore_waiting", "inbound_60nm", "inbound_eta24", "n_waiting") if c in out]
     rec = json.loads(out[cols].round(2).to_json(orient="records"))
     Path(out_json).parent.mkdir(parents=True, exist_ok=True)
     Path(out_json).write_text(json.dumps(rec))

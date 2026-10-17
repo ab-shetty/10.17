@@ -1,0 +1,38 @@
+[
+ {
+  "start": "2021-09-04",
+  "end": "2021-09-06",
+  "replay_days": [
+   "2021-09-05",
+   "2021-09-06"
+  ],
+  "title": "Sep 6, 2021: the forecast turned up before the queue did",
+  "why": "On Sep 5 8 ships were loitering within 60 nm (vs 14 a week earlier) and 5 were inbound.",
+  "model_note": "Forecast for Sep 6: 63 ships waiting. Tomorrow-equals-today said 61, the 7-day mean 59. Actual: 64. Why it went up: 5.4 ships inbound within 60 nm; Monday pattern.",
+  "lead_score": 1.2
+ },
+ {
+  "start": "2021-09-12",
+  "end": "2021-09-14",
+  "replay_days": [
+   "2021-09-13",
+   "2021-09-14"
+  ],
+  "title": "Sep 14, 2021: the forecast turned up before the queue did",
+  "why": "On Sep 13 20 ships were loitering within 60 nm (vs 10 a week earlier) and 5 were inbound. Ships loitering offshore today are tomorrow's anchorage queue.",
+  "model_note": "Forecast for Sep 14: 78 ships waiting. Tomorrow-equals-today said 77, the 7-day mean 67. Actual: 79. Why it went up: 4.7 ships inbound within 60 nm; 20 ships arrived today.",
+  "lead_score": 0.34
+ },
+ {
+  "start": "2021-10-17",
+  "end": "2021-10-19",
+  "replay_days": [
+   "2021-10-18",
+   "2021-10-19"
+  ],
+  "title": "Oct 19, 2021: the forecast turned up before the queue did",
+  "why": "On Oct 18 38 ships were loitering within 60 nm (vs 33 a week earlier) and 5 were inbound. Ships loitering offshore today are tomorrow's anchorage queue.",
+  "model_note": "Forecast for Oct 19: 90 ships waiting. Tomorrow-equals-today said 89, the 7-day mean 81. Actual: 93. Why it went up: 4.6 ships inbound within 60 nm.",
+  "lead_score": 1.21
+ }
+]

@@ -33,7 +33,8 @@ def model_note(start, preds):
     out = []
     for day in KEY_DAYS[start]:
         r = preds[(day, 1)]
-        bname = {"blend": "blend of the two naive rules", "ma7": "7-day mean", "persistence": "tomorrow = today"}[r["baseline_name"]]
+        bname = {"blend": "blend of the two naive rules", "ma7": "7-day mean", "persistence": "tomorrow = today",
+                 "tonight": "tomorrow = tonight's count", "tonight_blend": "half tonight's count, half the 7-day mean"}[r["baseline_name"]]
         better = abs(r["pred"] - r["actual"]) < abs(r["baseline"] - r["actual"])
         out.append(f"{day}: model {r['pred']:.1f}, tomorrow = today {r['persistence']:.1f}, {bname} {r['baseline']:.1f}; "
                    f"actual {r['actual']:.1f} ({'model' if better else bname} closer). "

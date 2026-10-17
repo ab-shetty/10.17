@@ -28,12 +28,13 @@ from sklearn.preprocessing import StandardScaler
 TARGET = "n_anchored"
 HORIZONS = (1, 2, 3)
 STORM_KTS = 25
+SHRINK = False
 PARAMS = dict(objective="l1", learning_rate=0.03, n_estimators=300, num_leaves=7, min_child_samples=15,
               subsample=0.8, subsample_freq=1, colsample_bytree=0.8, reg_lambda=1.0, verbose=-1, seed=0)
 CANDIDATES = ("lgbm", "cat", "ridge", "avg")
 BASELINES = ("persistence", "ma7", "blend")
 
-HIDDEN = {"anchored_today"}  # "18 tomorrow because 18 today" explains nothing
+HIDDEN = {"anchored_today", "queue_tonight"}  # "18 tomorrow because 18 today" explains nothing
 LABELS = {
     "anchored_chg_1d": "change in queue since yesterday", "anchored_chg_2d": "change in queue over 2 days",
     "anchored_chg_3d": "change in queue over 3 days", "anchored_chg_7d": "change in queue over a week",
@@ -47,6 +48,9 @@ LABELS = {
     "wave_period_max_s": "longest swell period (s)", "target_dow": "day of week",
     "offshore_waiting": "ships waiting offshore (<60 nm, <3 kn)", "inbound_60nm": "ships inbound within 60 nm",
     "fc_gust_target": "forecast max gust on the target day (kn)", "fc_gust_tomorrow": "forecast max gust tomorrow (kn)",
+    "queue_tonight": "queue at the end of today", "tonight_vs_today": "queue change during today",
+    "inbound_eta24": "ships due within 24 h (heading in, at current speed)",
+    "inbound_60_140": "ships 60-140 nm out, heading in",
 }
 
 
@@ -73,6 +77,9 @@ def phrase(name, value, contrib):
         "offshore_waiting": f"{v:g} ships waiting offshore, outside the anchorage",
         "inbound_60nm": f"{v:g} ships inbound within 60 nm",
         "avg_wait_h": f"ships are waiting {v:g} h on average for a berth",
+        "tonight_vs_today": f"queue {'rose' if v > 0 else 'fell'} by {abs(v):g} ships during today",
+        "inbound_eta24": f"{v:g} ships due within 24 h at their current speed",
+        "inbound_60_140": f"{v:g} ships 60-140 nm out, heading in",
     }
     if name in special:
         return f"{special[name]}; {pushes}"
@@ -84,9 +91,15 @@ def phrase(name, value, contrib):
     return f"{LABELS.get(name, name)} = {v:g}; {pushes}"
 
 
-def baselines(y):
+def baselines(y, eod=None):
+    """Naive rules. With the end-of-day queue (mean of the day's last 3 hourly snapshots, known at issue time) two
+    more: tonight (tomorrow = tonight's count) and tonight_blend (half tonight, half the 7-day mean). They are much
+    harder to beat at h=1 than the day-mean rules, so skill vs the best of ALL of them is the honest number."""
     ma7 = y.rolling(7, min_periods=4).mean()
-    return dict(persistence=y, ma7=ma7, blend=0.5 * y + 0.5 * ma7)
+    b = dict(persistence=y, ma7=ma7, blend=0.5 * y + 0.5 * ma7)
+    if eod is not None:
+        b.update(tonight=eod.fillna(y), tonight_blend=0.5 * eod.fillna(y) + 0.5 * ma7)
+    return b
 
 
 def features(d):
@@ -96,6 +109,9 @@ def features(d):
     for k in (1, 2, 3, 7):
         f[f"anchored_chg_{k}d"] = y - y.shift(k)
     f["anchored_vs_7d_mean"] = y - y.rolling(7, min_periods=4).mean()
+    if f"{TARGET}_eod" in d:
+        f["queue_tonight"] = d[f"{TARGET}_eod"]
+        f["tonight_vs_today"] = d[f"{TARGET}_eod"] - y  # queue moved during the day
     opt = {"anchored_max_today": "n_anchored_max", "moored_today": "n_moored", "arrivals_24h": "n_arrivals_24h",
            "arrivals_48h": "n_arrivals_48h", "wind_max_kts": "wind_max_kts", "gust_max_kts": "gust_max_kts",
            "visibility_min_m": "visibility_min_m", "is_holiday": "is_holiday"}
@@ -112,7 +128,8 @@ def features(d):
         f["avg_wait_h"] = d.avg_wait_hours.ffill()
     if "wind_max_kts" in d:
         f["wind_max_3d"] = d.wind_max_kts.rolling(3).max()
-    for c in ("klgb_vis_min_mi", "klgb_fog_hours", "wave_hs_max_m", "wave_period_max_s", "offshore_waiting", "inbound_60nm"):
+    for c in ("klgb_vis_min_mi", "klgb_fog_hours", "wave_hs_max_m", "wave_period_max_s", "offshore_waiting", "inbound_60nm",
+              "inbound_eta24", "inbound_60_140"):
         if c in d:
             f[c] = d[c]
     # news_score (shared/news.json) is deliberately not a feature: tested on 2024 Oct-Dec (B's session) it moved skill
@@ -158,13 +175,31 @@ def block_bootstrap_skill(err_m, err_b, block=7, n=2000, seed=0):
     return [round(float(np.percentile(out, 5)), 1), round(float(np.percentile(out, 95)), 1)]
 
 
+def shrink_factor(Xh, dy, ok, tgt_date, m0, months=3, grid=np.linspace(0, 1, 11)):
+    """How much of the model's correction to trust: lambda in [0, 1] minimising out-of-fold MAE of
+    anchor + lambda * correction over the `months` months before m0 (each fit only on data before that month).
+    With a few hundred rows the trees fit noise; in calm spells lambda -> 0 falls back to the naive anchor."""
+    corr, true = [], []
+    for k in range(months, 0, -1):
+        a0 = m0 - pd.DateOffset(months=k)
+        trk, vak = ok & (tgt_date < a0), ok & (tgt_date >= a0) & (tgt_date < a0 + pd.DateOffset(months=1))
+        if trk.sum() < 60 or not vak.any():
+            continue
+        corr.append(predict(fit_all(Xh[trk], dy[trk]), "avg", Xh[vak]))
+        true.append(dy[vak].values)
+    if not corr:
+        return 1.0
+    corr, true = np.concatenate(corr), np.concatenate(true)
+    return float(min(grid, key=lambda l: np.mean(np.abs(true - l * corr))))
+
+
 def mae(a, b):
     return float(np.mean(np.abs(np.asarray(a) - np.asarray(b))))
 
 
-def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False, target="n_anchored"):
-    global TARGET
-    TARGET = target
+def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False, target="n_anchored", shrink=False):
+    global TARGET, SHRINK
+    TARGET, SHRINK = target, shrink
     d = pd.read_parquet(daily)
     if target == "n_waiting" and "n_waiting" not in d:
         d["n_waiting"] = d.n_anchored + d.offshore_waiting  # anchored in the bay + loitering < 60 nm offshore
@@ -178,7 +213,8 @@ def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False, t
     test_end = pd.Timestamp(test_end) if test_end else d.index.max()
     cv_months = [test_start - pd.DateOffset(months=k) for k in (3, 2, 1)]
     X = features(d)
-    base_all = baselines(d[TARGET])
+    base_all = baselines(d[TARGET], d.get(f"{TARGET}_eod"))
+    base_names = tuple(base_all)
     rows, metrics = [], {}
     for h in HORIZONS:
         Xh = X.copy()
@@ -193,12 +229,12 @@ def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False, t
         tr = ok & (tgt_date < test_start)
         # the model predicts the change from a naive anchor; pick the anchor on TRAINING data only (in a steadily
         # trending queue the 7-day mean lags badly; in normal times the blend is best)
-        anchor_name = min(BASELINES, key=lambda k: mae(base_all[k][tr], y_fut[tr]))
+        anchor_name = min(base_names, key=lambda k: mae(base_all[k][tr], y_fut[tr]))
         anchor = base_all[anchor_name]
         dy = y_fut - anchor
         te = ok & (tgt_date >= test_start) & (tgt_date <= test_end)
 
-        cv = {k: [] for k in CANDIDATES + BASELINES}
+        cv = {k: [] for k in CANDIDATES + base_names}
         for m0 in cv_months:
             m1 = m0 + pd.DateOffset(months=1)
             ftr, fva = tr & (tgt_date < m0), tr & (tgt_date >= m0) & (tgt_date < m1)
@@ -207,7 +243,7 @@ def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False, t
             fm = fit_all(Xh[ftr], dy[ftr])
             for k in CANDIDATES:
                 cv[k].append(mae(anchor[fva] + predict(fm, k, Xh[fva]), y_fut[fva]))
-            for k in BASELINES:
+            for k in base_names:
                 cv[k].append(mae(base_all[k][fva], y_fut[fva]))
         cv = {k: round(float(np.nanmean(v)), 3) if v else None for k, v in cv.items()}
         chosen = "avg" if rolling or cv["avg"] is None else min(CANDIDATES, key=cv.get)
@@ -220,14 +256,17 @@ def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False, t
             pred = pd.Series(np.nan, index=act.index)
             sv = np.zeros((int(te.sum()), Xh.shape[1]))
             test_models = {k: [] for k in CANDIDATES}
+            lams = []
             pos = pd.Series(np.arange(int(te.sum())), index=act.index)
             for m0 in pd.date_range(test_start, test_end, freq="MS"):
                 fte = te & (tgt_date >= m0) & (tgt_date < m0 + pd.DateOffset(months=1))
                 if not fte.any():
                     continue
                 fm = fit_all(Xh[ok & (tgt_date < m0)], dy[ok & (tgt_date < m0)])
-                pred[fte[fte].index] = anchor[fte] + predict(fm, chosen, Xh[fte])
-                sv[pos[fte[fte].index].values] = contributions(fm, chosen, Xh[fte])
+                lam = shrink_factor(Xh, dy, ok, tgt_date, m0) if SHRINK else 1.0
+                lams.append(lam)
+                pred[fte[fte].index] = anchor[fte] + lam * predict(fm, chosen, Xh[fte])
+                sv[pos[fte[fte].index].values] = lam * contributions(fm, chosen, Xh[fte])
                 for k in CANDIDATES:
                     test_models[k].append(anchor[fte] + predict(fm, k, Xh[fte]))
             test_models = {k: round(mae(pd.concat(v), act), 3) for k, v in test_models.items()}
@@ -236,17 +275,19 @@ def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False, t
             pred = anchor[te] + predict(models, chosen, Xh[te])
             sv = contributions(models, chosen, Xh[te])
             test_models = {k: round(mae(anchor[te] + predict(models, k, Xh[te]), act), 3) for k in CANDIDATES}
-        test_base = {k: round(mae(base_all[k][te], act), 3) for k in BASELINES}
-        best = min(BASELINES, key=test_base.get)
+        test_base = {k: round(mae(base_all[k][te], act), 3) for k in base_names}
+        best = min(base_names, key=test_base.get)
         base = base_all[best][te]
         mae_m, mae_b = mae(pred, act), test_base[best]
         m = dict(mae_model=round(mae_m, 3), mae_baseline=mae_b, baseline=best, n_test=int(te.sum()),
                  skill_pct=round(100 * (1 - mae_m / mae_b), 1),
                  skill_ci90=block_bootstrap_skill(np.abs(pred - act).values, np.abs(base - act).values),
                  skill_vs_persistence_pct=round(100 * (1 - mae_m / test_base["persistence"]), 1),
+                 skill_vs_daymean_rules_pct=round(100 * (1 - mae_m / min(test_base[k] for k in BASELINES)), 1),
                  baselines_mae=test_base, model=chosen, test_mae_all=test_models, anchor=anchor_name,
                  **({} if rolling else dict(cv_mae=cv)),
-                 evaluation="rolling-origin, monthly refit" if rolling else "single split", target=TARGET)
+                 evaluation="rolling-origin, monthly refit" if rolling else "single split", target=TARGET,
+                 **(dict(shrink_lambda=[round(l, 2) for l in lams]) if rolling and SHRINK else {}))
         if "fc_gust_target" in Xh:
             storm = (Xh.loc[te, ["fc_gust_target", "fc_gust_tomorrow"]].max(axis=1) >= STORM_KTS).values
             if storm.sum() >= 3:
@@ -291,5 +332,7 @@ if __name__ == "__main__":
     a.add_argument("--rolling", action="store_true",
                    help="rolling-origin: refit before each test month (train on all earlier data)")
     a.add_argument("--target", default="n_anchored", help="n_anchored, or n_waiting (= anchored + offshore_waiting)")
+    a.add_argument("--shrink", action="store_true",
+                   help="rolling only: scale the model's correction by an out-of-fold lambda (see shrink_factor)")
     x = a.parse_args()
-    main(x.daily, x.weather, x.test_start, x.out_prefix, x.test_end, x.rolling, x.target)
+    main(x.daily, x.weather, x.test_start, x.out_prefix, x.test_end, x.rolling, x.target, x.shrink)

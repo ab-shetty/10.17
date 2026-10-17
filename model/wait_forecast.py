@@ -30,6 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pipeline"))
 from build_daily import ANCHOR_BOX, CELL, OTHER_TERMINAL  # noqa: E402
 
 MAX_WAIT_D = 45
+FUEL_USD_T = 780  # MGO, pipeline/notes/fuel_prices.md
 
 
 def events(ais_dir, approach_dir):
@@ -77,7 +78,7 @@ def visits(e):
     return v[(v.wait_d > 0.25) & (v.wait_d < MAX_WAIT_D)]  # < 6 h = straight to berth (not a queue)
 
 
-def main(ais_dir, approach_dir, start, end, out, refresh=False):
+def main(ais_dir, approach_dir, start, end, out, refresh=False, emissions=None):
     cache = Path(f"data/cache/wait_events_{Path(ais_dir).name}.parquet")
     if cache.exists() and not refresh:
         e = pd.read_parquet(cache)
@@ -113,6 +114,8 @@ def main(ais_dir, approach_dir, start, end, out, refresh=False):
         m = j.big_cargo == cls
         j.loc[m, "little"] = series[cls]["little"].reindex(prev[m]).values
         j.loc[m, "reported"] = series[cls]["reported"].reindex(prev[m]).values
+        # queue trend known on the issue day: change in this class's queue over the 14 days to t-1
+        j.loc[m, "q_trend"] = (series[cls]["Q"] - series[cls]["Q"].shift(14)).reindex(prev[m]).values
     j = j.replace([np.inf, -np.inf], np.nan).dropna(subset=["little", "reported"])
     Q = series[True]["Q"]
     mu7 = series[True]["mu"]
@@ -124,6 +127,27 @@ def main(ais_dir, approach_dir, start, end, out, refresh=False):
                     mae_reported_d=round(float((x.reported - x.wait_d).abs().mean()), 2),
                     bias_little_d=round(float((x.little - x.wait_d).mean()), 2),
                     bias_reported_d=round(float((x.reported - x.wait_d).mean()), 2))
+    # calm vs build-up: does the reported (lagging) figure only go wrong while the queue grows?
+    j["regime"] = np.where(j.q_trend >= 5, "growing", np.where(j.q_trend <= -5, "shrinking", "steady"))
+    res["by_regime"] = {g: score(x) for g, x in j.groupby("regime")}
+    # cost of the gap: ship-days a ship spent waiting beyond what it was told (sum of positive under-statements),
+    # priced at the in-bay hotelling rates of the same period (emissions.json: fuel and NOx per ship-day at anchor)
+    if emissions and Path(emissions).exists():
+        es = json.loads(Path(emissions).read_text())["summary"]
+        fuel_d, nox_d = es["fuel_t"] / es["ship_days_at_anchor"], es["nox_kg_per_ship_day"]
+        res["gap_cost"] = {}
+        for k in ("reported", "little"):
+            under = (j.wait_d - j[k]).clip(lower=0).sum()
+            over = (j[k] - j.wait_d).clip(lower=0).sum()
+            res["gap_cost"][k] = dict(ship_days_longer_than_told=round(float(under)),
+                                      ship_days_shorter_than_told=round(float(over)),
+                                      fuel_t=round(float(under * fuel_d)), fuel_usd_m=round(float(under * fuel_d * FUEL_USD_T / 1e6), 1),
+                                      nox_t=round(float(under * nox_d / 1000), 1))
+        res["gap_cost"]["note"] = (f"{len(j)} visits joining in the window. 'longer than told' = sum over ships of max(0, actual wait - "
+                                   f"the figure available the day before it joined): idle time nobody planned for, which slow steaming "
+                                   f"could have moved to sea. Priced at {fuel_d:.1f} t fuel and {nox_d:.0f} kg NOx per ship-day at "
+                                   f"anchor ({emissions}) and ${FUEL_USD_T}/t MGO; ships loitering offshore are priced the same (an "
+                                   f"approximation).")
     # what an operator would publish: the mean wait of ships joining each day (container-size ships)
     jb = j[j.big_cargo].groupby("join_day").agg(wait_d=("wait_d", "mean"), little=("little", "first"),
                                                  reported=("reported", "first"))
@@ -142,7 +166,7 @@ def main(ais_dir, approach_dir, start, end, out, refresh=False):
     res["daily"] = json.loads(daily.round(2).to_json(orient="records"))
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     Path(out).write_text(json.dumps(res))
-    print(json.dumps({k: res[k] for k in ("window", "data_end", "all", "big_cargo", "big_cargo_daily_mean", "other")}, indent=1))
+    print(json.dumps({k: res[k] for k in ("window", "data_end", "all", "big_cargo", "big_cargo_daily_mean", "other", "by_regime", "gap_cost") if k in res}, indent=1))
 
 
 if __name__ == "__main__":
@@ -152,6 +176,7 @@ if __name__ == "__main__":
     a.add_argument("--start", default="2021-09-01")
     a.add_argument("--end", default="2021-10-31")
     a.add_argument("--out", default="shared/crisis/wait.json")
+    a.add_argument("--emissions", help="emissions.json of the same period, to price the gap (fuel, NOx per ship-day)")
     a.add_argument("--refresh", action="store_true", help="re-extract events (after new days were pulled)")
     x = a.parse_args()
-    main(x.ais_dir, x.approach_dir, x.start, x.end, x.out, x.refresh)
+    main(x.ais_dir, x.approach_dir, x.start, x.end, x.out, x.refresh, x.emissions)
