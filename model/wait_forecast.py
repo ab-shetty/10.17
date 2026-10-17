@@ -117,6 +117,7 @@ def main(ais_dir, approach_dir, start, end, out, refresh=False, emissions=None):
         # queue trend known on the issue day: change in this class's queue over the 14 days to t-1
         j.loc[m, "q_trend"] = (series[cls]["Q"] - series[cls]["Q"].shift(14)).reindex(prev[m]).values
     j = j.replace([np.inf, -np.inf], np.nan).dropna(subset=["little", "reported"])
+    j.to_parquet(f"data/cache/wait_visits_{Path(ais_dir).name}.parquet")  # per-visit table (for the hero-ship pick)
     Q = series[True]["Q"]
     mu7 = series[True]["mu"]
     reported7 = series[True]["reported"]
@@ -140,8 +141,11 @@ def main(ais_dir, approach_dir, start, end, out, refresh=False, emissions=None):
     # cost of the gap: ship-days a ship spent waiting beyond what it was told (sum of positive under-statements),
     # priced at the in-bay hotelling rates of the same period (emissions.json: fuel and NOx per ship-day at anchor)
     if emissions and Path(emissions).exists():
-        es = json.loads(Path(emissions).read_text())["summary"]
-        fuel_d, nox_d = es["fuel_t"] / es["ship_days_at_anchor"], es["nox_kg_per_ship_day"]
+        ej = json.loads(Path(emissions).read_text())
+        ed = pd.DataFrame(ej["daily"])
+        ed = ed[(ed.date >= start) & (ed.date <= end)]  # the window's own fleet mix, not the whole file's
+        fuel_d, nox_d = ed.fuel_t.sum() / ed.ship_days.sum(), 1000 * ed.nox_t.sum() / ed.ship_days.sum()
+        es = dict(co2_t=ed.co2_t.sum(), ship_days_at_anchor=ed.ship_days.sum())
         res["gap_cost"] = {}
         for k in ("reported", "little"):
             under = (j.wait_d - j[k]).clip(lower=0).sum()
@@ -161,7 +165,7 @@ def main(ais_dir, approach_dir, start, end, out, refresh=False, emissions=None):
         res["gap_cost"]["note"] = (f"{len(j)} visits joining in the window. 'longer than told' = sum over ships of max(0, actual wait - "
                                    f"the figure available the day before it joined): idle time nobody planned for, which slow steaming "
                                    f"could have moved to sea. Priced at {fuel_d:.1f} t fuel and {nox_d:.0f} kg NOx per ship-day at "
-                                   f"anchor ({emissions}) and ${FUEL_USD_T}/t MGO; ships loitering offshore are priced the same (an "
+                                   f"anchor ({emissions}, days in the window) and ${FUEL_USD_T}/t MGO; ships loitering offshore are priced the same (an "
                                    f"approximation).")
     for k in ("all", "big_cargo", "big_cargo_daily_mean", "other"):
         r = res[k]

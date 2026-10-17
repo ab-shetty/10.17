@@ -36,8 +36,8 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
   (`pipeline/notes/wayback_2021.md`).
 - **2024 control** (`shared/wait.json`): reported bias 0.00 d in steady weeks, −1.0 d when the queue grew, +1.2 d when it shrank:
   the published figure is fine in calm times and lags exactly when the queue moves.
-- **Cost of the gap** (net understatement, bias × 437 visits, Sep–Oct 2021 only): **893 ship-days ≈ 6,300 t fuel ≈ $4.9 M,
-  192 t NOx, 20 kt CO2** of idling nobody planned for. 2024: −18 ship-days (≈ 0). Per-ship sums are noise; don't quote them.
+- **Cost of the gap** (net understatement, bias × 437 visits, Sep–Oct 2021 only): **893 ship-days ≈ 6,500 t fuel ≈ $5.1 M,
+  200 t NOx, 21 kt CO2** (priced at the Sep–Oct fleet mix, 7.3 t fuel/ship-day; was $4.9 M / 192 t with the whole-file average) of idling nobody planned for. 2024: −18 ship-days (≈ 0). Per-ship sums are noise; don't quote them.
   Total burned at anchor in the crisis: `shared/crisis/emissions.json` fuel_t × $780/t (not all avoidable).
 - **Crisis count forecast, honest** (`shared/crisis/metrics.json`, full run 2021-06-01..2022-03-31, rolling from Sep 2021):
   a day ahead, nothing seen from shore beats tomorrow = today: h=1 +0.5 % [−6.4, +4.8], h=2 −1.7 %, h=3 −6.0 % (no detectable
@@ -152,6 +152,7 @@ Don't import across folders. A and B only talk through `shared/` files.
 | `shared/crisis/preds.json`, `metrics.json` | A | same shapes as `shared/preds.json` / `metrics.json` (no storm metric: no archived forecasts for 2021) | B crisis chart |
 | `shared/crisis/chart.json` | A | `{target, window, note, events:[{date, label, note}], series:[{date, actual, forecast_1d, forecast_2d, tomorrow_equals_today, seven_day_mean, n_anchored, offshore_waiting, inbound_60nm, arrivals_24h, avg_wait_h}]}` Sep–Oct 2021: **the money shot** (forecast turns up before the queue; both naive rules lag). target = n_waiting = anchored + loitering < 60 nm | B crisis chart |
 | `shared/crisis/episodes.json` | A | same shape as `shared/episodes.json` + `lead_score`; the 2–3 days where the 1-day forecast rose above both naive rules on a day the queue really rose. **Weak** (forecast only 1–2 ships above the naive rules): don't pitch as "saw it coming" | B story mode |
+| `shared/crisis/hero_ship.json` | A | `{name, mmsi, length_m, join, berth, real_d, published_d, ours_d, gap_d, fuel_t, usd, nox_t, note, published_d_def, ours_d_def}`: ONE example ship (MSC JOSSELINE, Oct 2021). Quote `note` (it's mid-range, and ours beat the published figure for only 52 % of October ships) | B hook / pitch |
 | `shared/crisis/wait.json` (Sep–Oct 2021), `shared/wait.json` (2024) | A (`model/wait_forecast.py`) | `{window, data_end, all, big_cargo, big_cargo_daily_mean, other, by_regime:{growing, steady, shrinking}, gap_cost:{reported, little, net_understatement:{ship_days, fuel_t, fuel_usd_m, nox_t, co2_t, note}, note}, daily:[{date, ships_waiting_eod, berths_per_day_7d, little_wait_d, reported_wait_7d, actual_wait_of_ships_joining_next_day}], weekly:[{week, real_d, reported_d, little_d, n}]}`. Score blocks: `{n, actual_mean_d, mae_little_d, mae_reported_d, bias_little_d, bias_reported_d, skill_pct}`. real = actual wait of container-size ships joining that week; reported = trailing 7-day mean wait of ships that berthed (what was published); little = queue ÷ berthings per day | B wait chart |
 | `shared/crisis/replay/YYYY-MM-DD.json` | A (`model/run_crisis.sh`) | same shape as `shared/replay/` | B map |
 B starts by committing **mock** versions of A's files that have exactly these shapes, so the UI never waits on A.
