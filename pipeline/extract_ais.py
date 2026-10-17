@@ -22,6 +22,7 @@ def main(start, end=None):
         out = OUT / f"ais_lalb_{d0}.parquet"
         if not out.exists():
             t = time.time()
+            tmp = out.with_suffix(".tmp")
             c.execute(f"""
                 COPY (
                   SELECT mmsi, base_date_time AS ts, ST_Y(geometry) AS lat, ST_X(geometry) AS lon,
@@ -30,7 +31,8 @@ def main(start, end=None):
                   WHERE vessel_type BETWEEN 70 AND 89
                     AND ST_Y(geometry) BETWEEN {LAT[0]} AND {LAT[1]}
                     AND ST_X(geometry) BETWEEN {LON[0]} AND {LON[1]}
-                ) TO '{out}' (FORMAT parquet)""")
+                ) TO '{tmp}' (FORMAT parquet)""")
+            tmp.rename(out)  # atomic: a killed/stalled worker never leaves a partial day file
             n = c.execute(f"SELECT count(*), count(DISTINCT mmsi) FROM '{out}'").fetchone()
             print(f"{d0}: {n[0]} rows, {n[1]} vessels, {out.stat().st_size/1e6:.2f} MB, {time.time()-t:.1f}s", flush=True)
         d0 += dt.timedelta(days=1)
