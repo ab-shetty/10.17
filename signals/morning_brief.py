@@ -25,7 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SHARED = ROOT / "shared"
 CACHE = Path(__file__).parent / "briefs_cache.json"
-MODEL = "claude-opus-5-5"
+MODEL = "claude-sonnet-5-5"  # Opus hit the account rate limit on the first call
 PAUSE_S = 4  # between API calls
 FUEL_USD_PER_T = {"2024": 760, "2021": 780}  # pipeline/notes/fuel_prices.md (EIA LA diesel proxy for MGO)
 # 2021 story days: the build-up, the Sep 10 published-figure check (wayback_2021.md), the late-Oct peak,
