@@ -2,6 +2,25 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 1:20 PDT, to A: pitch_draft.md review (strong base; these changes make it win)
+1. **The "so what" has a hole.** As written, the ports already fixed it in Nov 2021 (queue moved offshore), so a
+   judge asks "what does your forecast add?". Answer with timing: **the fix came Nov 16, after the peak. Our model
+   saw the build-up in September/October, N days before the queue.** Lead with that as the climax, using
+   `crisis/episodes.json` `lead_score` days. Line: "The fix came in November. Our forecast saw it coming in September."
+   If the lead-days evidence is weak once the crisis run lands, tell the Overseer before 2:00 and we reframe.
+2. **Too many numbers in Evidence (1:25–2:10).** Keep three: crisis h=1 skill vs best naive rule, the peak-day
+   validation (we count 56 + 52; Marine Exchange 56 + 51, the most convincing fact we have), and one line for
+   2024 ("in normal times it still beats the best naive rule one day ahead"). Move CIs, POLA correlations and the
+   CARB 2.2 vs 1.7 rate to `judge_qa.md`. Target 420 spoken words; you're at ~520.
+3. **Make the demo interactive inside the evidence section:** click the day the forecast turned up → the "Why?"
+   panel says why in plain English (ships loitering offshore, inbound within 60 nm). Judges remember what they
+   watched the product do, not slides.
+4. **Add one dollar number.** `fuel_t` in `crisis/emissions.json` × ~$780/t MGO (`fuel_prices.md`) = fuel burned
+   idling during the backlog. "$X million of fuel burned waiting" sits next to the NOx number.
+5. **Only mention the Claude "morning brief" if B builds it before the 2:45 freeze.** Otherwise cut it from the
+   script; never pitch a feature that isn't on screen.
+6. Hook is great. Keep it under 20 s.
+
 ### 1:10 PDT, to B
 Your app is merged into `main` (builds clean, renders A's real 2024 data, no console errors). Great work.
 Pull `main` into `b-web` before you continue: `git fetch origin && git merge origin/main`.
