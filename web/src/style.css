@@ -33,8 +33,14 @@ a:hover { text-decoration: underline; }
 .chart-panel { grid-area: chart; }
 .explain-panel { grid-area: explain; }
 .story-panel { grid-area: story; }
+.wait-panel { grid-area: wait; }
+.panel[hidden] { display: none; }
+body.wait .grid { grid-template-areas: "map chart" "map wait" "story explain"; }
+.wait-block { background: #0d1a27; border-left: 3px solid var(--amber); border-radius: 6px; padding: 8px 10px; margin-bottom: 10px; }
+.wait-block p { margin: 4px 0; }
 @media (max-width: 900px) {
   .grid { grid-template-columns: 1fr; grid-template-areas: "chart" "map" "explain" "story"; padding: 10px 16px; }
+  body.wait .grid { grid-template-areas: "chart" "wait" "map" "explain" "story"; }
 }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; min-width: 0; }
 .panel-head { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; margin-bottom: 8px; }
@@ -103,3 +109,4 @@ select, .btn, .seg button { background: #0d1a27; color: var(--text); border: 1px
   .controls input[type=range] { flex-basis: calc(100% - 140px); }
   .controls select { flex-basis: 100%; }
 }
+.tiles-sep { width: 1px; align-self: stretch; background: var(--line); margin: 0 4px; }

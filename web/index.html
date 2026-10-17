@@ -46,7 +46,7 @@
 
     <section class="panel chart-panel">
       <div class="panel-head">
-        <h2>Forecast vs actual</h2>
+        <h2 id="chart-title">Forecast vs actual</h2>
         <div class="seg" id="horizon">
           <button data-h="1" class="on">Day +1</button><button data-h="2">Day +2</button><button data-h="3">Day +3</button>
         </div>
@@ -56,6 +56,12 @@
       </div>
       <div class="chart-wrap"><canvas id="chart"></canvas></div>
       <p class="hint">Click a day to explain it. Orange ticks along the bottom are scored news.</p>
+    </section>
+
+    <section class="panel wait-panel" id="wait-panel" hidden>
+      <div class="panel-head"><h2>How long will a ship wait?</h2></div>
+      <div class="chart-wrap"><canvas id="wait-chart"></canvas></div>
+      <p class="hint" id="wait-note"></p>
     </section>
 
     <section class="panel explain-panel">

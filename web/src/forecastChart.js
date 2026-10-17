@@ -79,7 +79,8 @@ export function createChart(canvas, { daily, preds, news, onPick, target = 'n_an
              ticks: { color: C.tick }, grid: { color: C.grid } },
       },
       plugins: {
-        legend: { labels: { color: '#c9d1d9', boxWidth: 18, boxHeight: 2 } },
+        legend: { labels: { color: '#c9d1d9', boxWidth: 18, boxHeight: 2,
+          filter: (item, data) => data.datasets[item.datasetIndex].data.some((v) => v != null) } }, // no empty series
         tooltip: { callbacks: { title: (it) => labels[it[0].dataIndex],
           label: (it) => it.raw == null ? null : `${it.dataset.label}: ${it.raw.toFixed(1)}` } },
         overlay: { test: testIdx, news: newsMarks, cursor: null, episode: null },
