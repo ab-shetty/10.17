@@ -1,35 +1,35 @@
 {
  "1": {
-  "mae_model": 1.936,
+  "mae_model": 2.054,
   "mae_baseline": 2.104,
   "n_test": 92,
-  "skill_pct": 8.0,
-  "mae_model_bigmove": 3.618,
+  "skill_pct": 2.4,
+  "mae_model_bigmove": 3.799,
   "mae_baseline_bigmove": 4.645,
   "n_bigmove": 24,
-  "skill_pct_bigmove": 22.1,
-  "direction_hit_bigmove": 0.79
+  "skill_pct_bigmove": 18.2,
+  "direction_hit_bigmove": 0.67
  },
  "2": {
-  "mae_model": 2.566,
+  "mae_model": 2.654,
   "mae_baseline": 2.704,
   "n_test": 92,
-  "skill_pct": 5.1,
-  "mae_model_bigmove": 3.839,
+  "skill_pct": 1.9,
+  "mae_model_bigmove": 3.861,
   "mae_baseline_bigmove": 5.003,
   "n_bigmove": 34,
-  "skill_pct_bigmove": 23.3,
+  "skill_pct_bigmove": 22.8,
   "direction_hit_bigmove": 0.82
  },
  "3": {
-  "mae_model": 2.579,
+  "mae_model": 2.673,
   "mae_baseline": 2.718,
   "n_test": 92,
-  "skill_pct": 5.1,
-  "mae_model_bigmove": 3.841,
+  "skill_pct": 1.6,
+  "mae_model_bigmove": 3.939,
   "mae_baseline_bigmove": 5.176,
   "n_bigmove": 31,
-  "skill_pct_bigmove": 25.8,
-  "direction_hit_bigmove": 0.74
+  "skill_pct_bigmove": 23.9,
+  "direction_hit_bigmove": 0.77
  }
 }
