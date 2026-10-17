@@ -1,0 +1,77 @@
+"""Emissions from ships idling at anchor in San Pedro Bay, per day, from AIS ship-hours at anchor.
+
+Usage: python pipeline/emissions.py --daily data/daily.parquet --out shared/emissions.json
+       python pipeline/emissions.py --daily shared/crisis/daily.parquet --out shared/crisis/emissions.json
+
+Method = the ports' own inventory method (Port of Los Angeles Inventory of Air Emissions 2023, Starcrest, Aug 2024):
+  energy (kWh) = ship-hours at anchor x anchorage hotelling load (aux engines + aux boilers), by ship class
+  emissions    = energy x emission factor (g/kWh), 0.1 % S marine gas oil (CARB fuel rule).
+Ship classes from AIS (type code + length): tankers / cargo < 250 m (bulk, general, car carriers) /
+cargo >= 250 m (large container ships). Loads are averages of the inventory's per-class defaults (below).
+Aux engines use the Tier II medium-speed factors (most of the fleet); a Tier I fleet would be ~16 % higher NOx.
+Cross-check: the inventory's 2023 at-anchorage hotelling total for POLA alone is 118 t NOx, 12,981 t CO2e.
+"""
+import argparse
+import json
+from pathlib import Path
+import pandas as pd
+
+# anchorage hotelling loads, kW. Table 3.2 (aux engines) and Table 3.5 (aux boilers), POLA EI 2023.
+LOAD_KW = {
+    # Tanker - Chemical / Handysize / Panamax: aux 409 / 560 / 401, boiler 208 / 321 / 512
+    "tanker": dict(aux=(409 + 560 + 401) / 3, boiler=(208 + 321 + 512) / 3),
+    # Bulk / General Cargo / Auto Carrier: aux 250 / 180 / 494, boiler 184 / 227 / 259
+    "cargo_small": dict(aux=(250 + 180 + 494) / 3, boiler=(184 + 227 + 259) / 3),
+    # Container 8000..14000 TEU: aux 1052,1174,1181,1134,1212,1319,1155; boiler 588,722,656,452,374,558,532
+    "cargo_big": dict(aux=(1052 + 1174 + 1181 + 1134 + 1212 + 1319 + 1155) / 7,
+                      boiler=(588 + 722 + 656 + 452 + 374 + 558 + 532) / 7),
+}
+# g/kWh, 0.1 % S MGO. Table 3.13 (aux, medium speed, Tier II) and Table 3.12 (steam/aux boilers).
+EF = {"aux": dict(nox=10.5, pm25=0.17, co2=696), "boiler": dict(nox=1.97, pm25=0.186, co2=962)}
+FUEL_G_PER_KWH = {k: v["co2"] / 3.206 for k, v in EF.items()}  # MGO: 3.206 t CO2 per t fuel
+
+# Cross-check against POLA's own 2023 inventory. Table 3.7 (anchorage hours = avg hours x vessel count per class)
+# sums to ~11,300 ship-hours behind the 118 t NOx at-anchorage total => ~250 kg NOx per ship-day. POLA counts only
+# ships that then call POLA, and its tanker classes stop at Panamax: crude tankers anchored for Long Beach's crude
+# terminals / refineries, and ships waiting on orders or bunkers, are outside it. We count every anchored cargo ship
+# and tanker in the bay (what the harbor neighborhoods breathe), at a deliberately conservative per-ship rate.
+POLA_2023 = dict(anchorage_ship_hours=11312, nox_t=118.0, co2e_t=12981, nox_kg_per_ship_day=round(118.0e3 / (11312 / 24), 1))
+
+
+def main(daily, out):
+    d = pd.read_parquet(daily)
+    d["date"] = pd.to_datetime(d.date)
+    hours = pd.DataFrame({  # mean hourly count x 24 = ship-hours at anchor that day
+        "tanker": d.n_anchored_tanker * 24,
+        "cargo_small": (d.n_anchored_cargo - d.n_anchored_bigcargo).clip(lower=0) * 24,
+        "cargo_big": d.n_anchored_bigcargo * 24,
+    })
+    res = pd.DataFrame({"date": d.date.dt.strftime("%Y-%m-%d"), "ship_hours": hours.sum(axis=1)})
+    for pol in ("nox", "pm25", "co2"):
+        res[f"{pol}_t"] = sum(hours[c] * LOAD_KW[c][src] * EF[src][pol] for c in hours for src in ("aux", "boiler")) / 1e6
+    res["fuel_t"] = sum(hours[c] * LOAD_KW[c][src] * FUEL_G_PER_KWH[src] for c in hours for src in ("aux", "boiler")) / 1e6
+    res["ship_days"] = res.ship_hours / 24
+    tot = res[["ship_days", "nox_t", "pm25_t", "co2_t", "fuel_t"]].sum()
+    summary = dict(start=res.date.iloc[0], end=res.date.iloc[-1], days=len(res),
+                   ship_days_at_anchor=round(float(tot.ship_days)), nox_t=round(float(tot.nox_t), 1),
+                   pm25_t=round(float(tot.pm25_t), 2), co2_t=round(float(tot.co2_t)), fuel_t=round(float(tot.fuel_t)),
+                   nox_kg_per_ship_day=round(float(tot.nox_t / tot.ship_days * 1000), 1),
+                   peak_day=res.loc[res.nox_t.idxmax(), "date"], peak_day_nox_kg=round(float(res.nox_t.max() * 1000)),
+                   method="POLA Inventory of Air Emissions 2023: anchorage hotelling loads (Tables 3.2, 3.5) x "
+                          "0.1% S MGO emission factors (Tables 3.12, 3.13); ship-hours at anchor from AIS",
+                   scope="every cargo ship and tanker anchored in San Pedro Bay (both ports, plus refinery/crude "
+                         "tankers and ships waiting on orders), not only POLA calls",
+                   cross_check=dict(pola_2023_inventory=POLA_2023,
+                                    note="our rate per ship-day is about half POLA's implied rate (conservative); "
+                                         "our ship-days are higher because POLA counts only its own calls"))
+    Path(out).parent.mkdir(parents=True, exist_ok=True)
+    Path(out).write_text(json.dumps(dict(summary=summary, daily=json.loads(res.round(3).to_json(orient="records"))), indent=None))
+    print(json.dumps(summary, indent=1))
+
+
+if __name__ == "__main__":
+    a = argparse.ArgumentParser()
+    a.add_argument("--daily", default="data/daily.parquet")
+    a.add_argument("--out", default="shared/emissions.json")
+    x = a.parse_args()
+    main(x.daily, x.out)

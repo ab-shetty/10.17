@@ -100,6 +100,7 @@ Don't import across folders. A and B only talk through `shared/` files.
 | `shared/replay/YYYY-MM-DD.json` | A | `[{mmsi, name, t, lat, lon, status, sog, state}]`, 10-min downsample, only the story days. **Color by `state`** (anchored/moored/underway, same rules as the counts), not raw `status` | B map, by 12:30 |
 | `shared/episodes.json` | A | `[{start, end, title, why, model_note, replay_days:[...]}]` 3 out-of-sample (Oct–Dec 2024) weather-driven dips + rebounds | B story mode, by 2:00 |
 | `shared/news.json` | B | `[{date, score, title, reason, url}]` | A as a feature (optional) |
+| `shared/emissions.json` (+ `shared/crisis/emissions.json`) | A | `{summary:{start, end, days, ship_days_at_anchor, nox_t, pm25_t, co2_t, fuel_t, nox_kg_per_ship_day, peak_day, peak_day_nox_kg, method, scope, cross_check}, daily:[{date, ship_hours, nox_t, pm25_t, co2_t, fuel_t, ship_days}]}`. Every anchored cargo ship + tanker in the bay × POLA-inventory loads/factors. Quote `scope` with the number | B closing slide |
 | `shared/crisis/daily.json`, `daily.parquet` | Overseer | same columns as `shared/daily.json` / `data/daily.parquet`, 2021-06-01..2022-03-31, no weather | A model, B chart |
 | `shared/crisis/weather_daily.json` | A | `[{date, wind_max_kts, gust_max_kts, visibility_min_m, fc1..3_gust_max_kts, fc1..3_wind_max_kts}]` (fc* are null before 2024-01-19: no archived forecasts) | A model |
 | `shared/crisis/preds.json`, `metrics.json` | A | same shapes as `shared/preds.json` / `metrics.json` (no storm metric: no archived forecasts for 2021) | B crisis chart |
