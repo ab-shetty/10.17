@@ -32,16 +32,16 @@ Read the whole year: `duckdb -c "select * from 'data/ais/*.parquet'"`.
 - `data/daily.parquet`: one row per UTC day (or local day, but pick one and keep it consistent):
   `date, n_anchored, n_moored, n_arrivals_24h, n_arrivals_48h, n_departures_24h, avg_wait_hours,
    wind_max_kts, gust_max_kts, visibility_min_m, dow, is_holiday, news_score`
-- "At anchor" = `status = 1 AND sog < 0.5 AND inside an ANCHORAGE box`. Status alone is noisy:
-  some ships leave status=1 on at berth, which the box filter catches.
+- "At anchor" = `status = 1 AND sog < 0.5 AND inside ANCHOR_BOX AND NOT in a berth cell` (see Geography).
+  Counts (`n_anchored`, `n_moored`) = mean over 24 hourly snapshots of distinct vessels. Days are **UTC**.
 - Arrival = first ping of an mmsi in the bbox after ≥ 24 h absent. Wait = first anchored ping → first moored ping.
 
-## Geography (approximate, check them against the 2024 anchored-ping heatmap and adjust)
-- Study bbox: lat 33.55–33.80, lon -118.35 to **-118.05**. Ships at anchor appear right at lon -118.05/-118.06,
-  so the eastern outer anchorages may be clipped. Consider widening to -117.95 and re-pulling (only ~30 min).
-- ANCHORAGE (outside breakwater, LA+LB anchorages): lat 33.60–33.72, lon -118.30 to -118.05
-- BERTHS (inside the breakwater / terminals): lat 33.72–33.78, lon -118.29 to -118.15
-- Plot `status=1` pings first, then fix these boxes. Don't trust the numbers above blindly.
+## Geography (fixed from the heatmap, `pipeline/figs/heatmap_status.png`)
+- Study bbox: lat 33.55–33.80, lon -118.35 to **-117.95** (widened; real anchor clusters sit at lon -118.03).
+- Rectangles don't work: the inside-breakwater anchorages (lat 33.72–33.75) sit right next to the terminals.
+- ANCHOR_BOX: lat 33.58–33.77, lon -118.30 to -117.97 (`pipeline/build_daily.py`).
+- Berth cells (data-driven, `data/berth_cells.parquet`): 0.002° grid cells with ≥ 30 status=5 pings where moored
+  pings outnumber anchored ones, dilated 1 cell, minus any cell where status=1 pings outnumber status=5.
 
 ## Repo layout and ownership
 ```
@@ -74,9 +74,9 @@ Don't import across folders. A and B only talk through `shared/` files.
 | file | owner | shape | needed by |
 |---|---|---|---|
 | `shared/daily.json` | A | `[{date, n_anchored, n_moored, arrivals_24h, departures_24h, avg_wait_h, wind_max_kts, vis_min_m}]` | B chart, by 11:45 |
-| `shared/preds.json` | A | `[{date, h, actual, pred, baseline, top_features:[{name, value, shap}]}]` (h = 1,2,3) | B chart + explanation, by 1:15 |
-| `shared/metrics.json` | A | `{h: {mae_model, mae_baseline, n_test}}` | B header tiles |
-| `shared/replay/YYYY-MM-DD.json` | A | `[{mmsi, name, t, lat, lon, status, sog}]`, 10-min downsample, only the story days | B map, by 12:30 |
+| `shared/preds.json` | A | `[{date, issued, h, actual, pred, baseline, top_features:[{name, value, shap}]}]` (h = 1,2,3; `date` = target day, `issued` = date - h) | B chart + explanation, by 1:15 |
+| `shared/metrics.json` | A | `{h: {mae_model, mae_baseline, n_test, skill_pct}}` (skill_pct = 100·(1 − mae_model/mae_baseline); negative = loses to baseline) | B header tiles |
+| `shared/replay/YYYY-MM-DD.json` | A | `[{mmsi, name, t, lat, lon, status, sog, state}]`, 10-min downsample, only the story days. **Color by `state`** (anchored/moored/underway, same rules as the counts), not raw `status` | B map, by 12:30 |
 | `shared/episodes.json` | A | `[{start, end, title, why}]` 2–3 spike stories | B story mode, by 2:00 |
 | `shared/news.json` | B | `[{date, score, title, reason, url}]` | A as a feature (optional) |
 B starts by committing **mock** versions of A's files that have exactly these shapes, so the UI never waits on A.
