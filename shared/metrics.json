@@ -1,15 +1,15 @@
 {
  "1": {
-  "mae_model": 1.789,
+  "mae_model": 1.746,
   "mae_baseline": 1.944,
   "baseline": "blend",
   "n_test": 92,
-  "skill_pct": 8.0,
+  "skill_pct": 10.2,
   "skill_ci90": [
-   0.9,
-   14.5
+   2.9,
+   16.3
   ],
-  "skill_vs_persistence_pct": 15.0,
+  "skill_vs_persistence_pct": 17.0,
   "baselines_mae": {
    "persistence": 2.104,
    "ma7": 2.172,
@@ -26,33 +26,34 @@
    "blend": 1.618
   },
   "test_mae_all": {
-   "lgbm": 1.887,
-   "cat": 1.832,
-   "ridge": 1.848,
-   "avg": 1.789
+   "lgbm": 1.776,
+   "cat": 1.807,
+   "ridge": 1.795,
+   "avg": 1.746
   },
+  "evaluation": "rolling-origin, monthly refit",
   "n_storm": 10,
-  "mae_model_storm": 2.277,
+  "mae_model_storm": 2.166,
   "mae_baseline_storm": 3.202,
-  "skill_pct_storm": 28.9
+  "skill_pct_storm": 32.4
  },
  "2": {
-  "mae_model": 2.413,
+  "mae_model": 2.244,
   "mae_baseline": 2.327,
   "baseline": "ma7",
   "n_test": 92,
-  "skill_pct": -3.7,
+  "skill_pct": 3.6,
   "skill_ci90": [
-   -17.5,
-   8.4
+   -10.0,
+   15.0
   ],
-  "skill_vs_persistence_pct": 10.7,
+  "skill_vs_persistence_pct": 17.0,
   "baselines_mae": {
    "persistence": 2.704,
    "ma7": 2.327,
    "blend": 2.373
   },
-  "model": "cat",
+  "model": "avg",
   "cv_mae": {
    "lgbm": 2.044,
    "cat": 1.942,
@@ -63,27 +64,28 @@
    "blend": 1.899
   },
   "test_mae_all": {
-   "lgbm": 2.447,
-   "cat": 2.413,
-   "ridge": 2.349,
-   "avg": 2.329
+   "lgbm": 2.332,
+   "cat": 2.29,
+   "ridge": 2.312,
+   "avg": 2.244
   },
+  "evaluation": "rolling-origin, monthly refit",
   "n_storm": 11,
-  "mae_model_storm": 2.593,
+  "mae_model_storm": 2.338,
   "mae_baseline_storm": 2.863,
-  "skill_pct_storm": 9.4
+  "skill_pct_storm": 18.3
  },
  "3": {
-  "mae_model": 2.41,
+  "mae_model": 2.301,
   "mae_baseline": 2.381,
   "baseline": "ma7",
   "n_test": 92,
-  "skill_pct": -1.2,
+  "skill_pct": 3.4,
   "skill_ci90": [
-   -18.1,
-   10.6
+   -9.8,
+   13.0
   ],
-  "skill_vs_persistence_pct": 11.3,
+  "skill_vs_persistence_pct": 15.3,
   "baselines_mae": {
    "persistence": 2.718,
    "ma7": 2.381,
@@ -100,14 +102,15 @@
    "blend": 2.036
   },
   "test_mae_all": {
-   "lgbm": 2.515,
-   "cat": 2.283,
-   "ridge": 2.784,
-   "avg": 2.41
+   "lgbm": 2.429,
+   "cat": 2.273,
+   "ridge": 2.531,
+   "avg": 2.301
   },
+  "evaluation": "rolling-origin, monthly refit",
   "n_storm": 11,
-  "mae_model_storm": 2.497,
+  "mae_model_storm": 2.429,
   "mae_baseline_storm": 2.464,
-  "skill_pct_storm": -1.3
+  "skill_pct_storm": 1.4
  }
 }

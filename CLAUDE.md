@@ -17,9 +17,12 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
 - Full 2024 pulled (366 days, bbox to -117.95), plus an **approach zone** (ships 20–120 nm out, `data/approach/`).
 - Model: LightGBM + CatBoost + ridge predicting y[t+h] − blend(persistence, 7-day mean); per-horizon choice by
   rolling-origin CV on the 3 months before test. `model/train.py --daily --weather --test-start --out-prefix`.
-- **2024 test (Oct–Dec, 92 days) vs the BEST naive baseline: h=1 +8.0 % [90 % CI +0.9, +14.5] (beats it);
-  h=2 −3.7 %, h=3 −1.2 % (7-day mean is as good; CIs include 0). Storm days (forecast gust ≥ 25 kn): h=1 +29 %.**
-  Vs persistence alone: +15 / +11 / +11 %. (Old "big move" metric dropped: it selected days by the outcome.)
+- **2024 test (Oct–Dec, 92 days) vs the BEST naive baseline**, rolling-origin (refit before each month, model fixed
+  in advance = plain average; this is what a deployed system would do and what the crisis run uses):
+  **h=1 +10.2 % [90 % CI +2.9, +16.3] (beats it); h=2 +3.6 %, h=3 +3.4 % (CIs include 0: a tie with the 7-day mean).**
+  Storm days (forecast gust ≥ 25 kn, known on the issue day): h=1 +32 %. Vs persistence alone: +17 / +17 / +15 %.
+  Single split (train Jan–Sep once, CV-chosen model): +8.0 % [+0.9, +14.5] / −3.7 % / −1.2 %. Same story.
+  (Old "big move" metric dropped: it selected days by the outcome.)
 - Weather forecasts: Open-Meteo previous-runs (`fc1..3_*`) exist only from 2024-01-19. The crisis model can't see storms coming.
 - Best new signal: **ships inbound within 60 nm** (corr 0.18 with tomorrow's queue change, more than today's arrivals).
 - **The 2024 anchored queue is ~74 % tankers** (11.3 of 15.3 on average). Say "ships waiting at anchor", not "container queue".

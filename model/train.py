@@ -160,7 +160,7 @@ def mae(a, b):
     return float(np.mean(np.abs(np.asarray(a) - np.asarray(b))))
 
 
-def main(daily, weather, test_start, out_prefix, test_end=None):
+def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False):
     d = pd.read_parquet(daily)
     d["date"] = pd.to_datetime(d.date)
     d = d.set_index("date").sort_index().asfreq("D")
@@ -201,11 +201,30 @@ def main(daily, weather, test_start, out_prefix, test_end=None):
         cv = {k: round(float(np.nanmean(v)), 3) for k, v in cv.items()}
         chosen = min(CANDIDATES, key=cv.get)
 
-        models = fit_all(Xh[tr], dy[tr])
         act = y_fut[te]
-        pred = anchor[te] + predict(models, chosen, Xh[te])
-        sv = contributions(models, chosen, Xh[te])
-        test_models = {k: round(mae(anchor[te] + predict(models, k, Xh[te]), act), 3) for k in CANDIDATES}
+        if rolling:
+            # rolling origin: each test month is forecast by models fit on everything before it. Model choice is
+            # fixed in advance ("avg") so no test month influences it.
+            chosen = "avg"
+            pred = pd.Series(np.nan, index=act.index)
+            sv = np.zeros((int(te.sum()), Xh.shape[1]))
+            test_models = {k: [] for k in CANDIDATES}
+            pos = pd.Series(np.arange(int(te.sum())), index=act.index)
+            for m0 in pd.date_range(test_start, test_end, freq="MS"):
+                fte = te & (tgt_date >= m0) & (tgt_date < m0 + pd.DateOffset(months=1))
+                if not fte.any():
+                    continue
+                fm = fit_all(Xh[ok & (tgt_date < m0)], dy[ok & (tgt_date < m0)])
+                pred[fte[fte].index] = anchor[fte] + predict(fm, chosen, Xh[fte])
+                sv[pos[fte[fte].index].values] = contributions(fm, chosen, Xh[fte])
+                for k in CANDIDATES:
+                    test_models[k].append(anchor[fte] + predict(fm, k, Xh[fte]))
+            test_models = {k: round(mae(pd.concat(v), act), 3) for k, v in test_models.items()}
+        else:
+            models = fit_all(Xh[tr], dy[tr])
+            pred = anchor[te] + predict(models, chosen, Xh[te])
+            sv = contributions(models, chosen, Xh[te])
+            test_models = {k: round(mae(anchor[te] + predict(models, k, Xh[te]), act), 3) for k in CANDIDATES}
         test_base = {k: round(mae(base_all[k][te], act), 3) for k in BASELINES}
         best = min(BASELINES, key=test_base.get)
         base = base_all[best][te]
@@ -214,7 +233,8 @@ def main(daily, weather, test_start, out_prefix, test_end=None):
                  skill_pct=round(100 * (1 - mae_m / mae_b), 1),
                  skill_ci90=block_bootstrap_skill(np.abs(pred - act).values, np.abs(base - act).values),
                  skill_vs_persistence_pct=round(100 * (1 - mae_m / test_base["persistence"]), 1),
-                 baselines_mae=test_base, model=chosen, cv_mae=cv, test_mae_all=test_models)
+                 baselines_mae=test_base, model=chosen, cv_mae=cv, test_mae_all=test_models,
+                 evaluation="rolling-origin, monthly refit" if rolling else "single split")
         if "fc_gust_target" in Xh:
             storm = (Xh.loc[te, ["fc_gust_target", "fc_gust_tomorrow"]].max(axis=1) >= STORM_KTS).values
             if storm.sum() >= 3:
@@ -256,5 +276,7 @@ if __name__ == "__main__":
     a.add_argument("--test-start", default="2024-10-01")
     a.add_argument("--test-end")
     a.add_argument("--out-prefix", default="shared")
+    a.add_argument("--rolling", action="store_true",
+                   help="rolling-origin: refit before each test month (train on all earlier data)")
     x = a.parse_args()
-    main(x.daily, x.weather, x.test_start, x.out_prefix, x.test_end)
+    main(x.daily, x.weather, x.test_start, x.out_prefix, x.test_end, x.rolling)
