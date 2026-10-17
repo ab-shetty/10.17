@@ -16,8 +16,11 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
 ## ⚠ For the Overseer / crisis data (A, 12:10 PDT): count LOITERING ships, not only anchored ones
 - Checked raw NOAA AIS for the peak day **2021-10-25** (`pipeline/check_crisis_box.py`, fig `pipeline/figs/crisis_anchor_check.png`):
   our boxes catch every status=1 ship (56 anchored, all inside ANCHOR_BOX), **but 52 more cargo/tankers were drifting at
-  0.5–3 kn outside the bay** (loitering, engines off), 59 of 61 within 60 nm (median 29 nm). Anchored + loitering ≈ 110
-  ≈ the Marine Exchange's "109 vessels at anchor" (CARB, Oct 2021). A bay-only count misses half the crisis queue.
+  0.5–3 kn outside the bay** (loitering, engines off), 59 of 61 within 60 nm (median 29 nm). **The Marine Exchange's
+  count that day: 56 at anchor + 51 in holding areas = 107** (gCaptain; `pipeline/notes/crisis_timeline_2021.md`). Ours:
+  56 + 52. Both components match. A bay-only count misses half the crisis queue. (The famous "109" is a DIFFERENT count,
+  2022-01-09, after the Nov-16 rule: it includes ships 150+ nm out that shore AIS can't see. On 2022-01-12 only 11 of
+  104 were within 40 mi. Don't mix them.)
 - So for 2021–22 the target should be **n_waiting = n_anchored + offshore_waiting**, where offshore_waiting = hourly mean
   of distinct cargo/tanker ships < 60 nm from (33.70, -118.20), outside the study bbox, SOG < 3 kn — the same definition
   as `pipeline/extract_approach.py` + `build_daily.py`. Pull box for that: lat 32.5–34.6, lon -121.0 to -117.2.
@@ -42,6 +45,9 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
   business-as-usual 1.7 tpd for tankers + containers at anchor (we also count bulk/car carriers). CARB Nov 2021: as of
   Oct 2021 up to 79 container ships (109 total) at anchor, **+20 tpd NOx ≈ 5.8 million passenger cars**, +0.5 tpd PM ≈
   100,000 Class 8 trucks. CARB Feb 2023 Table 1: excess NOx at anchor 17.9 tpd (Nov 21) → 7.0 → 4.3 → 3.5 → 2.6 (Mar 22).
+- **Slide-ready facts (sourced, in `pipeline/notes/`):** Wilmington: all 14 populated tracts in CA's worst quarter on
+  CalEnviroScreen 4.0, 6 at ≥ 97th pct for diesel PM (`health_context.md`, verified live). MGO ≈ $780/t (Jun 21–Mar 22),
+  $760/t (2024) (`fuel_prices.md`, proxy from EIA LA diesel). Crisis timeline + story windows: `crisis_timeline_2021.md`.
 - Weather forecasts: Open-Meteo previous-runs (`fc1..3_*`) exist only from 2024-01-19. The crisis model can't see storms coming.
 - Best new signal: **ships inbound within 60 nm** (corr 0.18 with tomorrow's queue change, more than today's arrivals).
 - **The 2024 anchored queue is ~74 % tankers** (11.3 of 15.3 on average). Say "ships waiting at anchor", not "container queue".
