@@ -74,12 +74,28 @@ def main(daily, out):
         res[f"{pol}_t"] = sum(hours[c] * LOAD_KW[c][src] * EF[src][pol] for c in hours for src in ("aux", "boiler")) / 1e6
     res["fuel_t"] = sum(hours[c] * LOAD_KW[c][src] * FUEL_G_PER_KWH[src] for c in hours for src in ("aux", "boiler")) / 1e6
     res["ship_days"] = res.ship_hours / 24
+    if "offshore_waiting" in d:
+        # ships loitering < 60 nm offshore (< 3 kn, engines mostly off): same hotelling loads; mostly container
+        # ships in the 2021 backlog (45 of 52 on 2021-10-25), so the large-cargo class is used. Reported separately:
+        # these emissions are 10-60 nm out, not over the harbor neighborhoods.
+        oh = d.offshore_waiting.fillna(0).values * 24
+        for pol in ("nox", "pm25", "co2"):
+            res[f"offshore_{pol}_t"] = sum(oh * LOAD_KW["cargo_big"][src] * EF[src][pol] for src in ("aux", "boiler")) / 1e6
+        res["offshore_ship_days"] = oh / 24
     tot = res[["ship_days", "nox_t", "pm25_t", "co2_t", "fuel_t"]].sum()
     summary = dict(start=res.date.iloc[0], end=res.date.iloc[-1], days=len(res),
                    ship_days_at_anchor=round(float(tot.ship_days)), nox_t=round(float(tot.nox_t), 1),
                    pm25_t=round(float(tot.pm25_t), 2), co2_t=round(float(tot.co2_t)), fuel_t=round(float(tot.fuel_t)),
                    nox_kg_per_ship_day=round(float(tot.nox_t / tot.ship_days * 1000), 1),
                    peak_day=res.loc[res.nox_t.idxmax(), "date"], peak_day_nox_kg=round(float(res.nox_t.max() * 1000)),
+                   **({} if "offshore_nox_t" not in res else dict(
+                       offshore_ship_days=round(float(res.offshore_ship_days.sum())),
+                       offshore_nox_t=round(float(res.offshore_nox_t.sum()), 1),
+                       offshore_pm25_t=round(float(res.offshore_pm25_t.sum()), 2),
+                       offshore_co2_t=round(float(res.offshore_co2_t.sum())),
+                       offshore_note="loitering ships < 60 nm, < 3 kn, at large-container-ship hotelling loads. Valid "
+                                     "for the 2021-22 backlog (mostly queued container ships); in normal times these "
+                                     "slow ships are a mixed fleet, so do not headline the offshore number for 2024")),
                    method="POLA Inventory of Air Emissions 2023: anchorage hotelling loads (Tables 3.2, 3.5) x "
                           "0.1% S MGO emission factors (Tables 3.12, 3.13); ship-hours at anchor from AIS",
                    scope="every cargo ship and tanker anchored in San Pedro Bay (both ports, plus refinery/crude "
