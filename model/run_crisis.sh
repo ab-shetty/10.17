@@ -25,3 +25,4 @@ python3 model/train.py --daily $D --weather $W --test-start 2021-09-01 --rolling
 python3 model/train.py --daily $D --weather $W --test-start 2021-09-01 --test-end 2021-11-15 --rolling --target $T \
   --out-prefix data/crisis_prechange
 python3 pipeline/emissions.py --daily $D --out shared/crisis/emissions.json
+python3 model/crisis_story.py --daily $D --preds shared/crisis/preds.json

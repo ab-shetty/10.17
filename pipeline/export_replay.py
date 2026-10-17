@@ -19,13 +19,13 @@ from build_daily import ANCHOR_BOX, CELL
 OUT = Path("shared/replay")
 
 
-def export(day):
+def export(day, ais_dir="data/ais", approach_dir="data/approach", out_dir=OUT):
     b = ANCHOR_BOX
     rows = duckdb.sql(f"""
       WITH p AS (
         SELECT *, time_bucket(INTERVAL 10 MINUTE, ts) AS t10,
                floor(lat/{CELL})::INT AS cy, floor(lon/{CELL})::INT AS cx
-        FROM 'data/ais/ais_lalb_{day}.parquet'),
+        FROM '{ais_dir}/ais_lalb_{day}.parquet'),
       s AS (
         SELECT p.*, CASE
           WHEN status = 1 AND sog < 0.5 AND bc.cy IS NULL AND lat BETWEEN {b['lat0']} AND {b['lat1']}
@@ -37,26 +37,34 @@ def export(day):
              round(arg_max(lat, ts), 5) AS lat, round(arg_max(lon, ts), 5) AS lon,
              arg_max(status, ts) AS status, round(arg_max(sog, ts)::DOUBLE, 1) AS sog, arg_max(state, ts) AS state
       FROM s GROUP BY mmsi, t10 ORDER BY t10, mmsi""").df()
-    appr = Path(f"data/approach/appr_{day}.parquet")
+    appr = Path(f"{approach_dir}/appr_{day}.parquet")
     if appr.exists():
         ap = duckdb.sql(f"""
           WITH x AS (
             SELECT *, sqrt(power((lat - 33.70) * 60, 2) + power((lon + 118.20) * 60 * cos(radians(33.7)), 2)) AS nm,
                    (degrees(atan2((-118.20 - lon) * cos(radians(33.7)), 33.70 - lat)) + 360) % 360 AS brg
             FROM '{appr}'),
-          names AS (SELECT mmsi, any_value(vessel_name) AS name FROM 'data/ais/*.parquet' GROUP BY 1)
+          names AS (SELECT mmsi, any_value(vessel_name) AS name FROM '{ais_dir}/*.parquet' GROUP BY 1)
           SELECT x.mmsi, names.name, strftime(t10, '%Y-%m-%dT%H:%M:00Z') AS t, round(lat, 5) AS lat, round(lon, 5) AS lon,
                  status, round(sog::DOUBLE, 1) AS sog,
                  CASE WHEN sog >= 6 AND abs(((cog - brg + 540) % 360) - 180) < 30 THEN 'inbound'
                       WHEN sog < 3 THEN 'waiting_offshore' ELSE 'passing' END AS state
           FROM x LEFT JOIN names USING (mmsi) WHERE nm < 60""").df()
         rows = pd.concat([rows, ap]).sort_values(["t", "mmsi"])
-    OUT.mkdir(parents=True, exist_ok=True)
-    f = OUT / f"{day}.json"
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    f = out_dir / f"{day}.json"
     f.write_text(json.dumps(json.loads(rows.to_json(orient="records"))))
     print(f"{f}: {len(rows)} rows, {rows.mmsi.nunique()} vessels, {f.stat().st_size/1e3:.0f} KB")
 
 
 if __name__ == "__main__":
-    for day in sys.argv[1:]:
-        export(day)
+    import argparse
+    a = argparse.ArgumentParser()
+    a.add_argument("days", nargs="+")
+    a.add_argument("--ais-dir", default="data/ais")
+    a.add_argument("--approach-dir", default="data/approach")
+    a.add_argument("--out-dir", default=str(OUT))
+    x = a.parse_args()
+    for day in x.days:
+        export(day, x.ais_dir, x.approach_dir, x.out_dir)

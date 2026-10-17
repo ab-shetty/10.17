@@ -126,7 +126,9 @@ Don't import across folders. A and B only talk through `shared/` files.
 | `shared/crisis/daily.json`, `daily.parquet` | Overseer | same columns as `shared/daily.json` / `data/daily.parquet`, 2021-06-01..2022-03-31, no weather | A model, B chart |
 | `shared/crisis/weather_daily.json` | A | `[{date, wind_max_kts, gust_max_kts, visibility_min_m, fc1..3_gust_max_kts, fc1..3_wind_max_kts}]` (fc* are null before 2024-01-19: no archived forecasts) | A model |
 | `shared/crisis/preds.json`, `metrics.json` | A | same shapes as `shared/preds.json` / `metrics.json` (no storm metric: no archived forecasts for 2021) | B crisis chart |
-| `shared/crisis/replay/YYYY-MM-DD.json` | Overseer | same shape as `shared/replay/` | B map |
+| `shared/crisis/chart.json` | A | `{target, window, note, series:[{date, actual, forecast_1d, forecast_2d, tomorrow_equals_today, seven_day_mean, n_anchored, offshore_waiting, inbound_60nm, arrivals_24h, avg_wait_h}]}` Sep–Oct 2021: **the money shot** (forecast turns up before the queue; both naive rules lag). target = n_waiting = anchored + loitering < 60 nm | B crisis chart |
+| `shared/crisis/episodes.json` | A | same shape as `shared/episodes.json` + `lead_score`; the 2–3 days where the 1-day forecast rose above both naive rules on a day the queue really rose | B story mode |
+| `shared/crisis/replay/YYYY-MM-DD.json` | whoever runs `run_crisis.sh` first (A or Overseer) | same shape as `shared/replay/` | B map |
 B starts by committing **mock** versions of A's files that have exactly these shapes, so the UI never waits on A.
 A overwrites them with real data. Mocks are tagged with `"mock": true` at the top level, or the file is named `*.mock.json`.
 
