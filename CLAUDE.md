@@ -15,12 +15,12 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
 
 ## ⚠ For the Overseer / crisis data (A, 12:10 PDT): count LOITERING ships, not only anchored ones
 - Checked raw NOAA AIS for the peak day **2021-10-25** (`pipeline/check_crisis_box.py`, fig `pipeline/figs/crisis_anchor_check.png`):
-  our boxes catch every status=1 ship (56 anchored, all inside ANCHOR_BOX), **but 52 more cargo/tankers were drifting at
-  0.5–3 kn outside the bay** (loitering, engines off), 59 of 61 within 60 nm (median 29 nm). **The Marine Exchange's
-  count that day: 56 at anchor + 51 in holding areas = 107** (gCaptain; `pipeline/notes/crisis_timeline_2021.md`). Ours:
-  56 + 52. Both components match. A bay-only count misses half the crisis queue. (The famous "109" is a DIFFERENT count,
-  2022-01-09, after the Nov-16 rule: it includes ships 150+ nm out that shore AIS can't see. On 2022-01-12 only 11 of
-  104 were within 40 mi. Don't mix them.)
+  our boxes catch every status=1 ship (56 distinct anchored ships, all inside ANCHOR_BOX), and ~60 more cargo/tankers
+  were drifting slowly outside the bay, ~95 % of them within 60 nm. With the pipeline's own definition (hourly mean,
+  `pipeline/build_daily.py`): **48 anchored + 54 loitering = 102.5 vs the Marine Exchange's 56 at anchor + 51 in
+  holding areas = 107** (gCaptain; `pipeline/notes/crisis_timeline_2021.md`). A bay-only count misses half the queue.
+  (The famous "109" is a DIFFERENT count, 2022-01-09, after the Nov-16 rule: it includes ships 150+ nm out that shore
+  AIS can't see. On 2022-01-12 only 11 of 104 were within 40 mi. Don't mix them.)
 - So for 2021–22 the target should be **n_waiting = n_anchored + offshore_waiting**, where offshore_waiting = hourly mean
   of distinct cargo/tanker ships < 60 nm from (33.70, -118.20), outside the study bbox, SOG < 3 kn — the same definition
   as `pipeline/extract_approach.py` + `build_daily.py`. Pull box for that: lat 32.5–34.6, lon -121.0 to -117.2.
@@ -31,12 +31,12 @@ and beat the "tomorrow = today" baseline. Demo is a **2024 replay**, not live. S
 - Model: LightGBM + CatBoost + ridge predicting y[t+h] − blend(persistence, 7-day mean); per-horizon choice by
   rolling-origin CV on the 3 months before test. `model/train.py --daily --weather --test-start --out-prefix`.
 - **2024 test (Oct–Dec, 92 days) vs the BEST naive baseline**, rolling-origin (refit before each month, model fixed
-  in advance = plain average): **h=1 +10.7 % [90 % CI +3.3, +17.5]; h=2 +6.3 %, h=3 +2.8 % (CIs include 0: ties).**
+  in advance = plain average): **h=1 +10.7 % [90 % CI +3.3, +17.5]; h=2 +6.3 %, h=3 +2.8 % (CIs include 0: no detectable difference).**
   Vs persistence alone: +17 / +19 / +15 %.
   **Honest caveats (from the code review, `pipeline/notes/code_review.md`):**
   - The h=1 win is mostly the **day-ahead gust forecast**. Open-Meteo's default ("gfs_seamless") uses HRRR for day 1:
     a real forecast issued ≥ 24 h ahead (no leakage), and markedly better than global GFS. With pure global GFS instead,
-    h=1 = +6.2 % [−2.1, +12.5] (a tie); without any forecast features +1.6 % [−6.4, +7.0]. Say: "it wins by reading
+    h=1 = +6.2 % [−2.1, +12.5]; without any forecast features +1.6 % [−6.4, +7.0] (no detectable difference). Say: "it wins by reading
     tomorrow's weather forecast the way a pilot would".
   - Storm-day numbers (n = 10 days) are ~3 events. Don't quote a % for them without saying "3 storms".
   - The Oct–Dec window was also used for design choices (features, the 25 kn cut, rolling vs split). One winter quarter.
