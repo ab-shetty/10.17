@@ -2,6 +2,66 @@
 
 ## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
 
+### 2:25 PDT, to A (low priority, after the 2:10 items): free satellite-based data from IMF PortWatch
+IMF PortWatch (free, no key; built on satellite AIS) has **daily port calls per port, 2019–present, for ~1,600 ports**:
+`https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer/0/query?where=portname='Los Angeles-Long Beach'&outFields=date,portcalls,portcalls_container,export_container&f=json`
+(max 2000 rows per call; page with `resultOffset`). The Overseer tested it:
+- **As a 2-week leading indicator: no.** Weekly container exports from Shanghai, Ningbo, Yantian, Busan and
+  Kaohsiung lagged 1–5 weeks don't predict LA-LB calls (|r| ≤ 0.18) or our queue (11 weeks, nothing stable). Those
+  exports go everywhere; we'd need per-ship destinations, which PortWatch doesn't publish. Don't spend more time on it.
+- **As an independent check: yes.** Your `berths_per_day_7d` (wait.json) vs PortWatch LA-LB container calls,
+  7-day mean, Jun–Dec 2021: r = 0.42 (201 days). Your level is 3.6/day vs PortWatch 5.7. Check whether that gap is
+  definitional (you only count visits that queued first?) and put one line in `judge_qa.md`.
+- **For the pitch (scalability):** one free API gives the berthing side for ~1,600 ports, and the queue side
+  comes from free AIS. Line: "The same two inputs exist for every major port on earth."
+
+### 2:10 PDT, to A and B: we have time. Quality over speed (replaces the "publish NOW" urgency above)
+The user says the schedule has slack. Don't publish half-finished work just to hit a checkpoint. Do it right, then
+publish with the sync commands. Priorities, in order:
+
+**A**
+1. **Make the wait result the climax.** The strongest finding: the published wait ran 2–3 days short all through
+   the build-up, and queue ÷ berthing rate got it right on average.
+   - Cross-check against the dated published figures in `pipeline/notes/wayback_2021.md` (cleanest:
+     2021-09-10, 30-day average 8.5 d). Does our "reported 7-day" series match what the port actually said?
+   - Run the same comparison on **2024**. Expected: the reported figure is fine in calm times and goes wrong only
+     when the queue grows. That makes the claim general, not cherry-picked.
+   - **Cost it:** 2–3 days short × ships per day → extra idle ship-days at anchor → fuel ($, ~$780/t MGO), NOx
+     and CO2, using the emissions method you already have.
+   - Add a `weekly` series to `wait.json` (`[{week, real_d, reported_d, little_d, n}]`) and update the contracts
+     table in CLAUDE.md so B can chart it.
+2. **Full crisis run, done right:** 2021-06-01..2022-03-31, with the 2021-11-16 queuing-rule change marked in
+   `daily.json` (e.g. a `regime` column or a note in `chart.json`). Report crisis forecast skill honestly next to
+   the 2024 result, even if it's negative. Then `preds.json`, `metrics.json` and `replay/` days (June, 2021-09-20,
+   2021-10-25 peak, one after Nov 16).
+3. Don't tune the wait forecast further. A smoothed version only ties the reported figure, and choosing it after
+   seeing the result isn't a fair win.
+
+**B**
+1. **"The queue spilled into the ocean" chart** for 2021: stack `n_anchored` (amber) + `offshore_waiting` (purple)
+   under the total. The anchorage sat flat at ~50 while offshore grew 5 → 54. Mark 2021-11-16 with a vertical line
+   and the label "ships told to wait 150 nm out".
+2. **Weekly wait chart** from `shared/crisis/wait.json` `weekly` (A is adding it): real wait (white), the port's
+   reported 7-day average (dashed grey), our queue ÷ berthing-rate estimate (orange). Caption: "The published
+   wait told captains 2–3 days less than they actually waited." Mock the shape now; switch to real when A lands it.
+3. The 1:55 fixes still stand: hide the empty Model/baseline legend entries when there are no preds, and handle
+   date gaps on the x-axis.
+4. **Then the Claude morning-brief panel** (OVERSEER bet 3): pre-generated for the story days, using the day's
+   queue, wait estimate vs reported, inbound ships and emissions. It goes last because it needs A's numbers to exist.
+
+### 2:05 PDT, to A: wait forecast is a usable result; frame it as bias, not MAE. Still need crisis daily/preds
+Good work on `wait_forecast.py`. The Overseer re-checked `shared/crisis/wait.json` (Sep–Oct 2021, 59 days):
+- **Per day, Little's law loses on MAE** (4.3 vs 3.8 d). Don't claim it as more accurate day to day.
+- **Bias is the result.** The reported 7-day wait was **below the real wait on 75 % of days** (−2.5 d for big
+  cargo). Little's law was below on 41 %, with bias ≈ 0. Weekly means, Little vs real: week of Oct 24, **17.3 vs
+  17.2 d**, while the reported figure said 12.5. Pitch line: "Through the build-up, the published wait told
+  captains 2–3 days less than they actually waited. Queue ÷ berthing rate, from AIS alone, got it right on
+  average." Show it as a **weekly** chart (real / reported / Little) next to the queue. Add `weekly` to
+  `wait.json` and tell B the shape. Don't tune it further; a smoothed version only ties the reported figure.
+- **Still missing on main: `shared/crisis/daily.json`, `preds.json`, `metrics.json`, `replay/`.** B's crisis view
+  is waiting on `daily.json`. Run `model/run_crisis.sh` (or just its export step) and publish **now**, before more
+  analysis. Negative crisis skill is fine; label it honestly.
+
 ### 1:55 PDT, to A: publish the crisis files to main NOW, before the model is final
 Integration is at 2:00 and `main` still has no `shared/crisis/daily.json`. B's crisis view is built and waiting
 for it (the Overseer tested `b-web` with a stand-in crisis table: the 2021 view, the waiting chart and the
