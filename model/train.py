@@ -7,6 +7,11 @@ shared/metrics.json.
 import json
 from pathlib import Path
 import lightgbm as lgb
+from catboost import CatBoostRegressor
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import Ridge
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
 import shap
@@ -30,7 +35,8 @@ LABELS = {
     "visibility_min_m": "min visibility (model, m)", "wind_max_3d": "max wind over 3 days (kn)",
     "is_holiday": "public holiday", "klgb_vis_min_mi": "min visibility at Long Beach airport (mi)",
     "klgb_fog_hours": "hours of fog at Long Beach airport", "wave_hs_max_m": "max wave height at harbor entrance (m)",
-    "wave_period_max_s": "longest swell period (s)", "target_dow": "day of week", "news_score": "news disruption score",
+    "wave_period_max_s": "longest swell period (s)", "offshore_waiting": "ships waiting offshore (<60 nm, <3 kn)",
+    "inbound_60nm": "ships inbound within 60 nm", "target_dow": "day of week", "news_score": "news disruption score",
 }
 
 
@@ -50,6 +56,8 @@ def phrase(name, value, shap_value):
         "klgb_fog_hours": f"{v:g} hours of fog at Long Beach airport",
         "departures_yday": f"{v:g} ships departed yesterday",
         "arrivals_24h": f"{v:g} ships arrived today",
+        "offshore_waiting": f"{v:g} ships waiting offshore, outside the anchorage",
+        "inbound_60nm": f"{v:g} ships inbound within 60 nm",
     }
     if name in special:
         return f"{special[name]}; {pushes}"
@@ -83,12 +91,56 @@ def features(d):
     f["visibility_min_m"] = d.visibility_min_m
     f["wind_max_3d"] = d.wind_max_kts.rolling(3).max()
     f["is_holiday"] = d.is_holiday
-    for c in ("klgb_vis_min_mi", "klgb_fog_hours", "wave_hs_max_m", "wave_period_max_s"):
+    for c in ("klgb_vis_min_mi", "klgb_fog_hours", "wave_hs_max_m", "wave_period_max_s", "offshore_waiting", "inbound_60nm"):
         if c in d:
             f[c] = d[c]
     if d.news_score.notna().any():
         f["news_score"] = d.news_score.fillna(0)
     return f
+
+
+CV_MONTHS = (6, 7, 8, 9)  # rolling-origin folds inside Jan-Sep: validate on each month, train on all before it
+CANDIDATES = ("lgbm", "cat", "ridge", "avg")
+
+
+def fit_all(X, y):
+    """Fit LightGBM, CatBoost and ridge on the change target. Returns {name: model}."""
+    m = dict(lgbm=lgb.LGBMRegressor(**PARAMS).fit(X, y),
+             cat=CatBoostRegressor(loss_function="MAE", depth=4, iterations=500, learning_rate=0.03,
+                                   l2_leaf_reg=5, random_seed=0, verbose=0).fit(X, y),
+             ridge=make_pipeline(SimpleImputer(strategy="median"), StandardScaler(), Ridge(alpha=30.0)).fit(X, y))
+    return m
+
+
+def predict(models, name, X):
+    if name == "avg":  # plain average: no learned weights, so no extra overfitting on ~270 rows
+        return np.mean([models[k].predict(X) for k in ("lgbm", "cat", "ridge")], axis=0)
+    return models[name].predict(X)
+
+
+def contributions(models, name, X):
+    """Per-row feature contributions (SHAP for trees, exact coef * standardized x for ridge); additive, so the
+    average model's contributions are the average of the three."""
+    def lin(pipe):
+        imp, sc, r = pipe.named_steps.values()
+        return sc.transform(imp.transform(X)) * r.coef_
+    parts = dict(lgbm=lambda: shap.TreeExplainer(models["lgbm"]).shap_values(X),
+                 cat=lambda: shap.TreeExplainer(models["cat"]).shap_values(X),
+                 ridge=lambda: lin(models["ridge"]))
+    if name == "avg":
+        return np.mean([parts[k]() for k in ("lgbm", "cat", "ridge")], axis=0)
+    return parts[name]()
+
+
+def block_bootstrap_skill(err_m, err_b, block=7, n=2000, seed=0):
+    """90% CI of skill_pct, resampling 7-day blocks (errors are autocorrelated day to day)."""
+    rng, k = np.random.default_rng(seed), len(err_m)
+    starts = np.arange(k - block + 1)
+    out = []
+    for _ in range(n):
+        idx = np.concatenate([np.arange(s0, s0 + block) for s0 in rng.choice(starts, k // block + 1)])[:k]
+        out.append(100 * (1 - err_m[idx].mean() / err_b[idx].mean()))
+    return [round(float(np.percentile(out, 5)), 1), round(float(np.percentile(out, 95)), 1)]
 
 
 def main():
@@ -103,11 +155,25 @@ def main():
         ok = y_fut.notna() & d[TARGET].notna()
         tr = ok & (tgt_date < TEST_START)
         te = ok & (tgt_date >= TEST_START)
-        m = lgb.LGBMRegressor(**PARAMS).fit(Xh[tr], (y_fut - d[TARGET])[tr])
+        dy = y_fut - d[TARGET]
+        cv = {k: [] for k in CANDIDATES}
+        for mo in CV_MONTHS:
+            ftr = tr & (tgt_date < pd.Timestamp(2024, mo, 1))
+            fva = tr & (tgt_date.month == mo)
+            fm = fit_all(Xh[ftr], dy[ftr])
+            for k in CANDIDATES:
+                cv[k].append(np.mean(np.abs(predict(fm, k, Xh[fva]) - dy[fva])))
+        cv = {k: round(float(np.mean(v)), 3) for k, v in cv.items()}
+        cv["persistence"] = round(float(np.mean([np.mean(np.abs(dy[tr & (tgt_date.month == mo)])) for mo in CV_MONTHS])), 3)
+        chosen = min(CANDIDATES, key=cv.get)
+        print(f"h={h} CV MAE (Jun-Sep folds): {cv} -> {chosen}")
+        models = fit_all(Xh[tr], dy[tr])
         base = d[TARGET][te]
-        pred = base + m.predict(Xh[te])
         act = y_fut[te]
-        sv = shap.TreeExplainer(m).shap_values(Xh[te])
+        test_all = {k: round(float(np.mean(np.abs(base + predict(models, k, Xh[te]) - act))), 3) for k in CANDIDATES}
+        print(f"   test MAE, all candidates (reported, not used to choose): {test_all}")
+        pred = base + predict(models, chosen, Xh[te])
+        sv = contributions(models, chosen, Xh[te])
         mae_m, mae_b = float(np.mean(np.abs(pred - act))), float(np.mean(np.abs(base - act)))
         # big moves: the queue changes by >= BIG ships over the horizon. Persistence is wrong by construction
         # there; this is where a forecast earns its keep.
@@ -118,11 +184,13 @@ def main():
                                skill_pct=round(100 * (1 - mae_m / mae_b), 1),
                                mae_model_bigmove=round(mae_mb, 3), mae_baseline_bigmove=round(mae_bb, 3),
                                n_bigmove=int(big.sum()), skill_pct_bigmove=round(100 * (1 - mae_mb / mae_bb), 1),
-                               direction_hit_bigmove=round(dir_ok, 2))
+                               direction_hit_bigmove=round(dir_ok, 2), model=chosen, cv_mae=cv,
+                               test_mae_all=test_all,
+                               skill_ci90=block_bootstrap_skill(np.abs(pred - act).values, np.abs(base - act).values))
         print(f"   big moves (>= {BIG} ships, n={big.sum()}): MAE model {mae_mb:.2f} vs persistence {mae_bb:.2f}, "
               f"direction right {dir_ok:.0%}")
         print(f"h={h}: MAE model {mae_m:.3f}  persistence {mae_b:.3f}  n={te.sum()}  "
-              f"skill {metrics[str(h)]['skill_pct']}%")
+              f"skill {metrics[str(h)]['skill_pct']}%  90% CI {metrics[str(h)]['skill_ci90']}")
         cols = Xh.columns
         for i, (issued, td) in enumerate(zip(d.index[te], tgt_date[te])):
             # skip the current queue level: "18 tomorrow because 18 today" explains nothing

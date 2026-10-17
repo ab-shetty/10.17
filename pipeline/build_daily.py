@@ -114,6 +114,25 @@ def main():
     w = pd.read_parquet("data/weather_daily.parquet")
     w.index = pd.to_datetime(w.date)
     d = d.join(w.drop(columns="date"))
+    appr = sorted(glob("data/approach/*.parquet"))  # pipeline/extract_approach.py
+    if appr:
+        # hourly snapshots of ships OUTSIDE the study bbox: loitering offshore (waiting) or inbound toward the bay
+        ap = c.sql(f"""
+          WITH x AS (
+            SELECT mmsi, date_trunc('hour', t10) AS hr, sog, cog,
+                   sqrt(power((lat - 33.70) * 60, 2) + power((lon + 118.20) * 60 * cos(radians(33.7)), 2)) AS nm,
+                   (degrees(atan2((-118.20 - lon) * cos(radians(33.7)), 33.70 - lat)) + 360) % 360 AS brg
+            FROM read_parquet({appr})),
+          h AS (
+            SELECT hr, count(DISTINCT mmsi) FILTER (WHERE nm < 60 AND sog < 3) AS waiting,
+                   count(DISTINCT mmsi) FILTER (WHERE nm < 60 AND sog >= 6
+                                                AND abs(((cog - brg + 540) % 360) - 180) < 30) AS inbound
+            FROM x GROUP BY 1)
+          SELECT hr::DATE AS date, avg(waiting) AS offshore_waiting, avg(inbound) AS inbound_60nm,
+                 count(*) AS appr_hours FROM h GROUP BY 1""").df()
+        ap.index = pd.to_datetime(ap.date)
+        d = d.join(ap.drop(columns="date"))
+        print(f"approach features from {len(appr)} days")
     ext = Path("data/ext_daily.parquet")  # KLGB fog + harbor wave buoy (pipeline/ext_sources.py)
     if ext.exists():
         e = pd.read_parquet(ext)
