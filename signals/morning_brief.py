@@ -18,6 +18,7 @@ import hashlib
 import json
 import re
 import sys
+import time
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -25,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SHARED = ROOT / "shared"
 CACHE = Path(__file__).parent / "briefs_cache.json"
 MODEL = "claude-opus-5-5"
+PAUSE_S = 4  # between API calls
 FUEL_USD_PER_T = {"2024": 760, "2021": 780}  # pipeline/notes/fuel_prices.md (EIA LA diesel proxy for MGO)
 # 2021 story days: the build-up, the Sep 10 published-figure check (wayback_2021.md), the late-Oct peak,
 # the Nov 16 queuing-rule change, and the unwind.
@@ -208,9 +210,18 @@ def main():
         else:
             if client is None:
                 import anthropic
-                client = anthropic.Anthropic()
-            b = claude_brief(client, f)
+                # The SDK retries 429s with backoff (honouring retry-after); allow more retries than the default 2.
+                client = anthropic.Anthropic(max_retries=8)
+            elif rows:
+                time.sleep(PAUSE_S)  # stay under the per-minute rate limit
+            try:
+                b = claude_brief(client, f)
+            except anthropic.RateLimitError:
+                # Still limited after the retries: keep what's done; a re-run resumes from the cache.
+                print(f"rate limited at {key}; re-run in a minute to continue (finished briefs are cached)")
+                break
             cache[key] = {"hash": h, "brief": b}
+            CACHE.write_text(json.dumps(cache, indent=1))  # save after every brief, so a failure loses nothing
             print(f"{key}  {b['headline']}")
         rows.append(dict(year=year, date=d, headline=b["headline"], brief=b["brief"], watch=b["watch"],
                          facts=f, scorer=b["scorer"]))
