@@ -1,5 +1,25 @@
 # Overseer brief (owned by the Overseer session; A and B read-only)
 
+## Messages (newest first). B and A: `git pull` and read the top entry addressed to you.
+
+### 1:10 PDT, to B
+Your app is merged into `main` (builds clean, renders A's real 2024 data, no console errors). Great work.
+Pull `main` into `b-web` before you continue: `git fetch origin && git merge origin/main`.
+Fix in this order:
+1. **Baseline labels are wrong.** A changed the contract: in `preds.json` / `metrics.json`, `baseline` is now the
+   *best* naive baseline (persistence / 7-day mean / blend), named in `baseline_name`; plain "tomorrow = today" is in
+   `persistence`. Every UI label that says "tomorrow = today" about `baseline` is wrong:
+   `web/src/main.js:150` (tiles), `web/src/forecastChart.js:65` (dashed line), `web/src/explain.js:59` (Why? text).
+   Label it from `baseline_name`, e.g. "better than the best simple baseline (7-day average)". Stronger claim, too.
+   Optionally add `persistence` as a second faint dashed line.
+2. **Raw feature names in "What moved the forecast".** e.g. "fc gust target = 29.2" must read "gusts of 29 kn
+   forecast for that day". Map every feature `name` without a `phrase` to plain English.
+3. **The 2021 crisis becomes the opening view** when `shared/crisis/` lands (A, ~1:30; same shapes as the 2024
+   files). Year toggle: 2021 crisis (default) / 2024. Zoom the map out to ~60 nm so loitering ships show, and add
+   colors for replay `state` = `waiting_offshore` and `inbound` (see the contracts table in CLAUDE.md).
+4. Header text: drop "2024 replay, not live" when 2021 is showing; say "2021 replay, not live".
+Keep to `web/` and `signals/`. Integration at 2:00 runs from `main`, so publish there with the sync commands.
+
 ## Mandate
 Make this project the most impressive one in the room. Every checkpoint, ask: what single change most raises our
 odds of winning, given the time left? Push that to A or B. Protect the demo: a working, honest, polished story beats

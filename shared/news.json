@@ -1,0 +1,107 @@
+[
+ {
+  "date": "2023-12-15",
+  "score": 0.3,
+  "title": "MSC, then Maersk, Hapag-Lloyd and CMA CGM reroute around the Cape to avoid Red Sea attacks",
+  "reason": "Rerouting bunches Asia schedules and shifts some cargo west, but transpacific lanes are untouched.",
+  "url": "https://www.seatrade-maritime.com/containers/top-container-lines-reroute-from-red-sea-to-avoid-attacks"
+ },
+ {
+  "date": "2024-01-18",
+  "score": 0.3,
+  "title": "Drought forces Panama Canal to slash transits further",
+  "reason": "Canal limits divert some East Coast-bound Asian cargo to LA/Long Beach, a slow indirect push.",
+  "url": "https://www.news4jax.com/business/2024/01/18/a-drought-has-forced-authorities-to-further-slash-traffic-in-panama-canal-disrupting-global-trade/"
+ },
+ {
+  "date": "2024-02-15",
+  "score": 0.4,
+  "title": "Port of Los Angeles reports near-record January: 855,652 TEU, +18% y/y",
+  "reason": "Near-record January volume means more ship calls competing for the same berths.",
+  "url": "https://mykn.kuehne-nagel.com/news/article/la-reports-nearrecord-january-volumes-amid-li-19-Feb-2024"
+ },
+ {
+  "date": "2024-03-15",
+  "score": 0.2,
+  "title": "LA and Long Beach report strong February volumes after Lunar New Year",
+  "reason": "Post-Lunar New Year lull means fewer arrivals in March, which eases the queue.",
+  "url": "https://www.logisticsmgmt.com/article/port_of_los_angeles_and_port_of_long_beach_report_strong_february_volumes"
+ },
+ {
+  "date": "2024-05-20",
+  "score": 0.3,
+  "title": "Port of Los Angeles April cargo: 770,337 TEU, +12% y/y",
+  "reason": "Steady double-digit growth adds calls, but no sign of berth congestion.",
+  "url": "https://portoflosangeles.org/references/2024-news-releases/news_052024_april_cargo-en"
+ },
+ {
+  "date": "2024-06-12",
+  "score": 0.1,
+  "title": "Port of Los Angeles May cargo: 752,893 TEU, about 3% below May 2023",
+  "reason": "A soft month with fewer calls lowers pressure on the anchorage.",
+  "url": "https://portoflosangeles.org/references/2024-news-releases/news_061224_may_cargo"
+ },
+ {
+  "date": "2024-07-17",
+  "score": 0.3,
+  "title": "Port of Los Angeles June cargo: 827,757 TEU; first half up 14%",
+  "reason": "Volume rebound adds calls; a modest upward push.",
+  "url": "https://portoflosangeles.org/references/2024-news-releases/news_071724_june_cargo"
+ },
+ {
+  "date": "2024-08-05",
+  "score": 0.15,
+  "title": "Panama Canal eases draft and raises daily transits to 35",
+  "reason": "Canal easing pulls some cargo back to the East Coast, slightly reducing West Coast calls.",
+  "url": "https://www.hellenicshippingnews.com/shipping-panama-canal-raises-maximum-drafts-to-49ft-as-lake/"
+ },
+ {
+  "date": "2024-08-13",
+  "score": 0.55,
+  "title": "Port of Los Angeles: best July in 116 years, 939,600 TEU, +37% y/y",
+  "reason": "Early peak season brings the busiest month in two years, straining berth capacity.",
+  "url": "https://portoflosangeles.org/references/2024-news-releases/news_081324_july_cargo"
+ },
+ {
+  "date": "2024-09-18",
+  "score": 0.55,
+  "title": "Port of Los Angeles August: 960,597 TEU, busiest non-pandemic month; Long Beach sets all-time record",
+  "reason": "Record volumes at both ports raise the chance ships wait for a berth.",
+  "url": "https://portoflosangeles.org/references/2024-news-releases/news_091824_august_cargo"
+ },
+ {
+  "date": "2024-09-27",
+  "score": 0.35,
+  "title": "Section 301 tariff increases on Chinese goods take effect",
+  "reason": "Tariff deadline front-loads Chinese imports, a short burst of extra arrivals.",
+  "url": "https://www.sheppard.com/insights/blogs/the-skys-the-limit-yet-more-section-301-tariffs-on-china"
+ },
+ {
+  "date": "2024-10-01",
+  "score": 0.6,
+  "title": "ILA strike shuts 36 East and Gulf Coast ports",
+  "reason": "East and Gulf Coast strike diverts some cargo west, adding arrivals at San Pedro Bay.",
+  "url": "https://www.ajot.com/news/ship-queue-grows-at-us-ports-as-dockworker-strike-enters-third-day"
+ },
+ {
+  "date": "2024-11-20",
+  "score": 0.3,
+  "title": "Port of Los Angeles record October: 905,026 TEU, 'without a single ship backed up at sea'",
+  "reason": "Record volume, but the port says no ship waited at sea, so the queue stays small.",
+  "url": "https://portoflosangeles.org/references/2024-news-releases/news_112024_oct_cargo"
+ },
+ {
+  "date": "2024-11-25",
+  "score": 0.45,
+  "title": "Trump promises 25% tariffs on Mexico and Canada and +10% on China",
+  "reason": "Tariff threat encourages importers to front-load shipments into December and January.",
+  "url": "https://www.noticiasdenavarra.com/mundo/2024/11/26/trump-anuncia-arancel-25-importaciones-8977006.amp.html"
+ },
+ {
+  "date": "2024-12-17",
+  "score": 0.35,
+  "title": "Port of Los Angeles November: 884,315 TEU, +16% y/y; Long Beach best November",
+  "reason": "Strong November volumes keep berths busy heading into the tariff front-loading period.",
+  "url": "https://portoflosangeles.org/references/2024-news-releases/news_121724_nov_cargo"
+ }
+]
