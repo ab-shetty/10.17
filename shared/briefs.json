@@ -1,0 +1,951 @@
+[
+ {
+  "year": "2024",
+  "date": "2024-11-05",
+  "headline": "Anchorage count likely to tick up to about 12 ships",
+  "brief": "Ten ships sat at anchor yesterday, a bit under the 7-day average of 10.8. The model expects about 12.2 at anchor today, versus 10.4 from the simple rule, and its one-day record is better than the simple rule's. Gusts and berth waits averaging 35.2 hours push the forecast up. Days two and three show no detectable edge over the 7-day average.",
+  "watch": "Check whether berth waits, now averaging 35.2 hours, keep ships anchored longer than the 10.8 average suggests.",
+  "facts": {
+   "brief_date": "2024-11-05",
+   "dataset": "2024, normal operations",
+   "yesterday": {
+    "ships_at_anchor": 10.0,
+    "ships_at_berth": 22.7,
+    "seven_day_average_at_anchor": 10.8,
+    "arrivals": 12.0,
+    "departures": 5.0,
+    "ships_inbound_within_60nm": 2.9,
+    "ships_loitering_offshore_within_60nm": 2.1,
+    "max_wind_kts": 16.7
+   },
+   "forecast_ships_at_anchor": [
+    {
+     "for_date": "2024-11-05",
+     "days_ahead": 1,
+     "model": 12.2,
+     "simple_rule": 10.4,
+     "simple_rule_name": "blend of today and the 7-day average",
+     "main_reasons": [
+      "gusts reached 24.9 kn yesterday; pushes the forecast up",
+      "forecast gusts of 14.2 kn for the forecast day; pushes the forecast up",
+      "ships are waiting 35.2 h on average for a berth; pushes the forecast up"
+     ]
+    },
+    {
+     "for_date": "2024-11-06",
+     "days_ahead": 2,
+     "model": 12.2,
+     "simple_rule": 10.8,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    },
+    {
+     "for_date": "2024-11-07",
+     "days_ahead": 3,
+     "model": 10.3,
+     "simple_rule": 10.8,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    }
+   ],
+   "how_much_to_trust_each_horizon": {
+    "day_1": "better than blend of today and the 7-day average (+10.7% on Oct-Dec 2024 test)",
+    "day_2": "no detectable difference from 7-day average (+6.3% on Oct-Dec 2024 test)",
+    "day_3": "no detectable difference from 7-day average (+2.8% on Oct-Dec 2024 test)"
+   },
+   "emissions_at_anchor_yesterday": {
+    "nox_tonnes": 1.21,
+    "fuel_tonnes": 44.5,
+    "fuel_cost_usd_estimate": 33900.0,
+    "note": "estimate: POLA inventory method, fuel at about $760/t"
+   },
+   "recent_news": []
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2024",
+  "date": "2024-11-06",
+  "headline": "Anchorage expected to ease as strong gusts approach",
+  "brief": "Yesterday about 9 ships sat at anchor, below the weekly average of 10.8, with 26.5 at berth. The model expects about 8.5 at anchor today, versus 10 from the simple rule, because forecast gusts near 35 knots tend to move ships off anchor. Day one has tested better than the simple rule. Days two and three, about 9.6 and 12, are no better than the 7-day average.",
+  "watch": "Watch whether the 35-knot gusts arrive today and pull anchored ships down toward 8.5 as forecast.",
+  "facts": {
+   "brief_date": "2024-11-06",
+   "dataset": "2024, normal operations",
+   "yesterday": {
+    "ships_at_anchor": 9.2,
+    "ships_at_berth": 26.5,
+    "seven_day_average_at_anchor": 10.8,
+    "arrivals": 12.0,
+    "departures": 10.0,
+    "ships_inbound_within_60nm": 2.2,
+    "ships_loitering_offshore_within_60nm": 1.5,
+    "max_wind_kts": 14.6
+   },
+   "forecast_ships_at_anchor": [
+    {
+     "for_date": "2024-11-06",
+     "days_ahead": 1,
+     "model": 8.5,
+     "simple_rule": 10.0,
+     "simple_rule_name": "blend of today and the 7-day average",
+     "main_reasons": [
+      "forecast gusts of 35.4 kn for the forecast day (storm: ships leave anchor); pulls the forecast down",
+      "forecast gusts of 35.4 kn today; pulls the forecast down",
+      "2.2 ships inbound within 60 nm; pulls the forecast down"
+     ]
+    },
+    {
+     "for_date": "2024-11-07",
+     "days_ahead": 2,
+     "model": 9.6,
+     "simple_rule": 10.8,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    },
+    {
+     "for_date": "2024-11-08",
+     "days_ahead": 3,
+     "model": 12.0,
+     "simple_rule": 10.8,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    }
+   ],
+   "how_much_to_trust_each_horizon": {
+    "day_1": "better than blend of today and the 7-day average (+10.7% on Oct-Dec 2024 test)",
+    "day_2": "no detectable difference from 7-day average (+6.3% on Oct-Dec 2024 test)",
+    "day_3": "no detectable difference from 7-day average (+2.8% on Oct-Dec 2024 test)"
+   },
+   "emissions_at_anchor_yesterday": {
+    "nox_tonnes": 1.06,
+    "fuel_tonnes": 39.0,
+    "fuel_cost_usd_estimate": 29600.0,
+    "note": "estimate: POLA inventory method, fuel at about $760/t"
+   },
+   "recent_news": []
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2024",
+  "date": "2024-11-07",
+  "headline": "Anchorage count expected to rise modestly after windy day",
+  "brief": "Yesterday 6.2 ships sat at anchor, well below the 7-day average of 9.7, with winds up to 28 knots. The model expects about 8.6 ships at anchor today, a bit above the simple rule's 8.0, and it has tested better than that rule at this one-day range. For Friday and Saturday the model says about 10.8 and 10.7, but those are no proven improvement over the 9.7 average.",
+  "watch": "Watch whether today's gusts near 29 knots push ships off anchor or whether those that left during yesterday's gusts return, since both pull the count in different directions.",
+  "facts": {
+   "brief_date": "2024-11-07",
+   "dataset": "2024, normal operations",
+   "yesterday": {
+    "ships_at_anchor": 6.2,
+    "ships_at_berth": 26.7,
+    "seven_day_average_at_anchor": 9.7,
+    "arrivals": 11.0,
+    "departures": 15.0,
+    "ships_inbound_within_60nm": 3.5,
+    "ships_loitering_offshore_within_60nm": 4.5,
+    "max_wind_kts": 28.0
+   },
+   "forecast_ships_at_anchor": [
+    {
+     "for_date": "2024-11-07",
+     "days_ahead": 1,
+     "model": 8.6,
+     "simple_rule": 8.0,
+     "simple_rule_name": "blend of today and the 7-day average",
+     "main_reasons": [
+      "gusts reached 36 kn yesterday (ships that left anchor tend to return); pushes the forecast up",
+      "forecast gusts of 29.2 kn for the forecast day (storm: ships leave anchor); pulls the forecast down",
+      "forecast gusts of 29.2 kn today; pulls the forecast down"
+     ]
+    },
+    {
+     "for_date": "2024-11-08",
+     "days_ahead": 2,
+     "model": 10.8,
+     "simple_rule": 9.7,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    },
+    {
+     "for_date": "2024-11-09",
+     "days_ahead": 3,
+     "model": 10.7,
+     "simple_rule": 9.7,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    }
+   ],
+   "how_much_to_trust_each_horizon": {
+    "day_1": "better than blend of today and the 7-day average (+10.7% on Oct-Dec 2024 test)",
+    "day_2": "no detectable difference from 7-day average (+6.3% on Oct-Dec 2024 test)",
+    "day_3": "no detectable difference from 7-day average (+2.8% on Oct-Dec 2024 test)"
+   },
+   "emissions_at_anchor_yesterday": {
+    "nox_tonnes": 0.7,
+    "fuel_tonnes": 26.0,
+    "fuel_cost_usd_estimate": 19700.0,
+    "note": "estimate: POLA inventory method, fuel at about $760/t"
+   },
+   "recent_news": []
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2024",
+  "date": "2024-11-08",
+  "headline": "Anchorage queue expected to climb back toward 10 ships",
+  "brief": "Yesterday 6.3 ships sat at anchor, below the weekly average of 9.0. The model expects about 9.9 at anchor today, versus 7.7 from the simple rule, and it has beaten that rule in recent testing. Gusts reached 36.3 knots yesterday, and ships that left anchor tend to return. For Saturday and Sunday the model says about 10.7 and 10.4, but that is no better than the 9.0 average.",
+  "watch": "Watch whether wind keeps ships returning to anchor, since today's count of about 9.9 is the one forecast with a proven edge.",
+  "facts": {
+   "brief_date": "2024-11-08",
+   "dataset": "2024, normal operations",
+   "yesterday": {
+    "ships_at_anchor": 6.3,
+    "ships_at_berth": 27.8,
+    "seven_day_average_at_anchor": 9.0,
+    "arrivals": 16.0,
+    "departures": 9.0,
+    "ships_inbound_within_60nm": 3.1,
+    "ships_loitering_offshore_within_60nm": 5.2,
+    "max_wind_kts": 25.1
+   },
+   "forecast_ships_at_anchor": [
+    {
+     "for_date": "2024-11-08",
+     "days_ahead": 1,
+     "model": 9.9,
+     "simple_rule": 7.7,
+     "simple_rule_name": "blend of today and the 7-day average",
+     "main_reasons": [
+      "gusts reached 36.3 kn yesterday (ships that left anchor tend to return); pushes the forecast up",
+      "queue is 2.7 ships below its weekly normal; pulls the forecast down",
+      "queue shrank by 4.9 ships over a week; pulls the forecast down"
+     ]
+    },
+    {
+     "for_date": "2024-11-09",
+     "days_ahead": 2,
+     "model": 10.7,
+     "simple_rule": 9.0,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    },
+    {
+     "for_date": "2024-11-10",
+     "days_ahead": 3,
+     "model": 10.4,
+     "simple_rule": 9.0,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    }
+   ],
+   "how_much_to_trust_each_horizon": {
+    "day_1": "better than blend of today and the 7-day average (+10.7% on Oct-Dec 2024 test)",
+    "day_2": "no detectable difference from 7-day average (+6.3% on Oct-Dec 2024 test)",
+    "day_3": "no detectable difference from 7-day average (+2.8% on Oct-Dec 2024 test)"
+   },
+   "emissions_at_anchor_yesterday": {
+    "nox_tonnes": 0.78,
+    "fuel_tonnes": 28.0,
+    "fuel_cost_usd_estimate": 21300.0,
+    "note": "estimate: POLA inventory method, fuel at about $760/t"
+   },
+   "recent_news": []
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2024",
+  "date": "2024-11-09",
+  "headline": "Anchorage queue above normal; modest rise expected",
+  "brief": "Yesterday 12 ships sat at anchor, above the 7-day average of 9.3, with 13 arrivals against 12 departures. The model expects about 11.9 at anchor on Nov 9, versus 10.7 from the simple rule, and that day-one forecast has tested better. For Nov 10 and 11, the model's about 11.9 and 11.2 are not detectably better than the 7-day average of 9.3.",
+  "watch": "Check whether the anchorage count holds near 12 today, since only the one-day forecast has proven better than the simple rule.",
+  "facts": {
+   "brief_date": "2024-11-09",
+   "dataset": "2024, normal operations",
+   "yesterday": {
+    "ships_at_anchor": 12.0,
+    "ships_at_berth": 26.4,
+    "seven_day_average_at_anchor": 9.3,
+    "arrivals": 13.0,
+    "departures": 12.0,
+    "ships_inbound_within_60nm": 3.5,
+    "ships_loitering_offshore_within_60nm": 2.0,
+    "max_wind_kts": 13.3
+   },
+   "forecast_ships_at_anchor": [
+    {
+     "for_date": "2024-11-09",
+     "days_ahead": 1,
+     "model": 11.9,
+     "simple_rule": 10.7,
+     "simple_rule_name": "blend of today and the 7-day average",
+     "main_reasons": [
+      "queue grew by 5.7 ships over a day; pushes the forecast up",
+      "queue is 2.6 ships above its weekly normal; pushes the forecast up",
+      "wind peaked at 28 kn in the last 3 days; pulls the forecast down"
+     ]
+    },
+    {
+     "for_date": "2024-11-10",
+     "days_ahead": 2,
+     "model": 11.9,
+     "simple_rule": 9.3,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    },
+    {
+     "for_date": "2024-11-11",
+     "days_ahead": 3,
+     "model": 11.2,
+     "simple_rule": 9.3,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    }
+   ],
+   "how_much_to_trust_each_horizon": {
+    "day_1": "better than blend of today and the 7-day average (+10.7% on Oct-Dec 2024 test)",
+    "day_2": "no detectable difference from 7-day average (+6.3% on Oct-Dec 2024 test)",
+    "day_3": "no detectable difference from 7-day average (+2.8% on Oct-Dec 2024 test)"
+   },
+   "emissions_at_anchor_yesterday": {
+    "nox_tonnes": 1.58,
+    "fuel_tonnes": 56.6,
+    "fuel_cost_usd_estimate": 43000.0,
+    "note": "estimate: POLA inventory method, fuel at about $760/t"
+   },
+   "recent_news": []
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2024",
+  "date": "2024-11-15",
+  "headline": "Anchorage queue expected to shrink as gusty winds arrive",
+  "brief": "About 11.7 ships sat at anchor yesterday, with 27.1 at berth. The model expects about 9.9 at anchor today, driven by forecast gusts of 31.1 knots and a queue that already shrank by 2.9 ships. That day-one forecast has tested better than the simple rule. For the next two days, the model says about 10.7 and 12.5, but those are no better than the 7-day average of 11.7.",
+  "watch": "Watch whether the 31.1-knot gusts actually clear ships off anchor today, since the day-one forecast depends on that.",
+  "facts": {
+   "brief_date": "2024-11-15",
+   "dataset": "2024, normal operations",
+   "yesterday": {
+    "ships_at_anchor": 11.7,
+    "ships_at_berth": 27.1,
+    "seven_day_average_at_anchor": 11.7,
+    "arrivals": 11.0,
+    "departures": 16.0,
+    "ships_inbound_within_60nm": 2.5,
+    "ships_loitering_offshore_within_60nm": 3.4,
+    "max_wind_kts": 13.4
+   },
+   "forecast_ships_at_anchor": [
+    {
+     "for_date": "2024-11-15",
+     "days_ahead": 1,
+     "model": 9.9,
+     "simple_rule": 11.7,
+     "simple_rule_name": "blend of today and the 7-day average",
+     "main_reasons": [
+      "forecast gusts of 31.1 kn for the forecast day (storm: ships leave anchor); pulls the forecast down",
+      "forecast gusts of 31.1 kn today; pulls the forecast down",
+      "queue shrank by 2.9 ships over a day; pulls the forecast down"
+     ]
+    },
+    {
+     "for_date": "2024-11-16",
+     "days_ahead": 2,
+     "model": 10.7,
+     "simple_rule": 11.7,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    },
+    {
+     "for_date": "2024-11-17",
+     "days_ahead": 3,
+     "model": 12.5,
+     "simple_rule": 11.7,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    }
+   ],
+   "how_much_to_trust_each_horizon": {
+    "day_1": "better than blend of today and the 7-day average (+10.7% on Oct-Dec 2024 test)",
+    "day_2": "no detectable difference from 7-day average (+6.3% on Oct-Dec 2024 test)",
+    "day_3": "no detectable difference from 7-day average (+2.8% on Oct-Dec 2024 test)"
+   },
+   "emissions_at_anchor_yesterday": {
+    "nox_tonnes": 1.82,
+    "fuel_tonnes": 62.6,
+    "fuel_cost_usd_estimate": 47600.0,
+    "note": "estimate: POLA inventory method, fuel at about $760/t"
+   },
+   "recent_news": []
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2024",
+  "date": "2024-11-16",
+  "headline": "Anchorage queue shrinking; storm gusts expected to thin it further",
+  "brief": "Yesterday about 7.1 ships sat at anchor, well below the weekly average of 11.0, with 8.0 arrivals and 13.0 departures. For today the model expects about 8.1 at anchor, mainly because forecast gusts near 28.4 knots tend to send ships off anchor. That day-one forecast has beaten the simple rule in testing. Days two and three, about 11.2 and 12.3, are no better than the 7-day average.",
+  "watch": "Watch whether the wind gusts near 28.4 knots arrive today and how quickly ships return to anchor once they ease.",
+  "facts": {
+   "brief_date": "2024-11-16",
+   "dataset": "2024, normal operations",
+   "yesterday": {
+    "ships_at_anchor": 7.1,
+    "ships_at_berth": 27.1,
+    "seven_day_average_at_anchor": 11.0,
+    "arrivals": 8.0,
+    "departures": 13.0,
+    "ships_inbound_within_60nm": 3.0,
+    "ships_loitering_offshore_within_60nm": 6.1,
+    "max_wind_kts": 22.5
+   },
+   "forecast_ships_at_anchor": [
+    {
+     "for_date": "2024-11-16",
+     "days_ahead": 1,
+     "model": 8.1,
+     "simple_rule": 9.1,
+     "simple_rule_name": "blend of today and the 7-day average",
+     "main_reasons": [
+      "forecast gusts of 28.4 kn for the forecast day (storm: ships leave anchor); pulls the forecast down",
+      "queue is 3.9 ships below its weekly normal; pulls the forecast down",
+      "forecast gusts of 28.4 kn today; pulls the forecast down"
+     ]
+    },
+    {
+     "for_date": "2024-11-17",
+     "days_ahead": 2,
+     "model": 11.2,
+     "simple_rule": 11.0,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    },
+    {
+     "for_date": "2024-11-18",
+     "days_ahead": 3,
+     "model": 12.3,
+     "simple_rule": 11.0,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    }
+   ],
+   "how_much_to_trust_each_horizon": {
+    "day_1": "better than blend of today and the 7-day average (+10.7% on Oct-Dec 2024 test)",
+    "day_2": "no detectable difference from 7-day average (+6.3% on Oct-Dec 2024 test)",
+    "day_3": "no detectable difference from 7-day average (+2.8% on Oct-Dec 2024 test)"
+   },
+   "emissions_at_anchor_yesterday": {
+    "nox_tonnes": 1.17,
+    "fuel_tonnes": 40.0,
+    "fuel_cost_usd_estimate": 30400.0,
+    "note": "estimate: POLA inventory method, fuel at about $760/t"
+   },
+   "recent_news": []
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2024",
+  "date": "2024-11-17",
+  "headline": "Anchorage queue expected to rebuild from yesterday's low",
+  "brief": "Yesterday only 5.6 ships sat at anchor, well under the weekly average of 10.2. The model expects about 8.2 at anchor today, a bit above the simple rule's 7.9, and it has tested better at this one-day range. Gusts of 27 knots yesterday push the number up, while few inbound ships pull it down. For the next two days the model and the 7-day average of 10.2 are indistinguishable, so treat them as equal.",
+  "watch": "Watch whether ships that left anchor in yesterday's gusts return, since that decides if today lands nearer 8.2 or lower.",
+  "facts": {
+   "brief_date": "2024-11-17",
+   "dataset": "2024, normal operations",
+   "yesterday": {
+    "ships_at_anchor": 5.6,
+    "ships_at_berth": 28.7,
+    "seven_day_average_at_anchor": 10.2,
+    "arrivals": 10.0,
+    "departures": 10.0,
+    "ships_inbound_within_60nm": 1.9,
+    "ships_loitering_offshore_within_60nm": 5.2,
+    "max_wind_kts": 20.4
+   },
+   "forecast_ships_at_anchor": [
+    {
+     "for_date": "2024-11-17",
+     "days_ahead": 1,
+     "model": 8.2,
+     "simple_rule": 7.9,
+     "simple_rule_name": "blend of today and the 7-day average",
+     "main_reasons": [
+      "gusts reached 27 kn yesterday (ships that left anchor tend to return); pushes the forecast up",
+      "queue is 4.6 ships below its weekly normal; pulls the forecast down",
+      "1.9 ships inbound within 60 nm; pulls the forecast down"
+     ]
+    },
+    {
+     "for_date": "2024-11-18",
+     "days_ahead": 2,
+     "model": 10.2,
+     "simple_rule": 10.2,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    },
+    {
+     "for_date": "2024-11-19",
+     "days_ahead": 3,
+     "model": 10.3,
+     "simple_rule": 10.2,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    }
+   ],
+   "how_much_to_trust_each_horizon": {
+    "day_1": "better than blend of today and the 7-day average (+10.7% on Oct-Dec 2024 test)",
+    "day_2": "no detectable difference from 7-day average (+6.3% on Oct-Dec 2024 test)",
+    "day_3": "no detectable difference from 7-day average (+2.8% on Oct-Dec 2024 test)"
+   },
+   "emissions_at_anchor_yesterday": {
+    "nox_tonnes": 0.6,
+    "fuel_tonnes": 22.0,
+    "fuel_cost_usd_estimate": 16700.0,
+    "note": "estimate: POLA inventory method, fuel at about $760/t"
+   },
+   "recent_news": []
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2024",
+  "date": "2024-11-18",
+  "headline": "Anchorage queue steady near 9 ships, slight rise expected",
+  "brief": "Yesterday about 9.4 ships sat at anchor, close to the 7-day average of 9.5, with 22.3 at berth. The model expects about 9.8 at anchor today, a bit above the simple rule's 9.4, and it has beaten that rule in testing at this one-day range. For the next two days the model says about 11.3 and 11.4, but that is not detectably better than the 7-day average of 9.5.",
+  "watch": "Watch whether the queue climbs toward 11 tomorrow, since the model's two-day outlook is not proven better than simply expecting about 9.5.",
+  "facts": {
+   "brief_date": "2024-11-18",
+   "dataset": "2024, normal operations",
+   "yesterday": {
+    "ships_at_anchor": 9.4,
+    "ships_at_berth": 22.3,
+    "seven_day_average_at_anchor": 9.5,
+    "arrivals": 12.0,
+    "departures": 10.0,
+    "ships_inbound_within_60nm": 2.7,
+    "ships_loitering_offshore_within_60nm": 2.3,
+    "max_wind_kts": 15.2
+   },
+   "forecast_ships_at_anchor": [
+    {
+     "for_date": "2024-11-18",
+     "days_ahead": 1,
+     "model": 9.8,
+     "simple_rule": 9.4,
+     "simple_rule_name": "blend of today and the 7-day average",
+     "main_reasons": [
+      "queue shrank by 4.8 ships over a week; pulls the forecast down",
+      "queue grew by 3.8 ships over a day; pushes the forecast up",
+      "9 more ships left than arrived over the last 3 days; pulls the forecast down"
+     ]
+    },
+    {
+     "for_date": "2024-11-19",
+     "days_ahead": 2,
+     "model": 11.3,
+     "simple_rule": 9.5,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    },
+    {
+     "for_date": "2024-11-20",
+     "days_ahead": 3,
+     "model": 11.4,
+     "simple_rule": 9.5,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    }
+   ],
+   "how_much_to_trust_each_horizon": {
+    "day_1": "better than blend of today and the 7-day average (+10.7% on Oct-Dec 2024 test)",
+    "day_2": "no detectable difference from 7-day average (+6.3% on Oct-Dec 2024 test)",
+    "day_3": "no detectable difference from 7-day average (+2.8% on Oct-Dec 2024 test)"
+   },
+   "emissions_at_anchor_yesterday": {
+    "nox_tonnes": 0.99,
+    "fuel_tonnes": 36.4,
+    "fuel_cost_usd_estimate": 27700.0,
+    "note": "estimate: POLA inventory method, fuel at about $760/t"
+   },
+   "recent_news": []
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2024",
+  "date": "2024-12-09",
+  "headline": "Anchorage queue above normal; expected to ease slowly",
+  "brief": "Yesterday about 19.2 ships sat at anchor, well above the 7-day average of 14.7, while 36.0 were at berth. The model expects about 18.1 at anchor on December 9, and that day-one forecast has beaten the simple rule in testing. For December 10 and 11 the model says about 16.7 and 16.9, but those are no better than just using the 7-day average.",
+  "watch": "Watch whether the anchorage count falls toward the 14.7 weekly average, since only the next-day forecast is reliable and later days are uncertain.",
+  "facts": {
+   "brief_date": "2024-12-09",
+   "dataset": "2024, normal operations",
+   "yesterday": {
+    "ships_at_anchor": 19.2,
+    "ships_at_berth": 36.0,
+    "seven_day_average_at_anchor": 14.7,
+    "arrivals": 10.0,
+    "departures": 12.0,
+    "ships_inbound_within_60nm": 2.5,
+    "ships_loitering_offshore_within_60nm": 2.2,
+    "max_wind_kts": 13.0
+   },
+   "forecast_ships_at_anchor": [
+    {
+     "for_date": "2024-12-09",
+     "days_ahead": 1,
+     "model": 18.1,
+     "simple_rule": 17.0,
+     "simple_rule_name": "blend of today and the 7-day average",
+     "main_reasons": [
+      "queue is 4.5 ships above its weekly normal; pushes the forecast up",
+      "2.5 ships inbound within 60 nm; pulls the forecast down",
+      "forecast gusts of 12.2 kn for the forecast day; pushes the forecast up"
+     ]
+    },
+    {
+     "for_date": "2024-12-10",
+     "days_ahead": 2,
+     "model": 16.7,
+     "simple_rule": 14.7,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    },
+    {
+     "for_date": "2024-12-11",
+     "days_ahead": 3,
+     "model": 16.9,
+     "simple_rule": 14.7,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    }
+   ],
+   "how_much_to_trust_each_horizon": {
+    "day_1": "better than blend of today and the 7-day average (+10.7% on Oct-Dec 2024 test)",
+    "day_2": "no detectable difference from 7-day average (+6.3% on Oct-Dec 2024 test)",
+    "day_3": "no detectable difference from 7-day average (+2.8% on Oct-Dec 2024 test)"
+   },
+   "emissions_at_anchor_yesterday": {
+    "nox_tonnes": 2.61,
+    "fuel_tonnes": 93.6,
+    "fuel_cost_usd_estimate": 71100.0,
+    "note": "estimate: POLA inventory method, fuel at about $760/t"
+   },
+   "recent_news": [
+    {
+     "date": "2024-11-20",
+     "title": "Port of Los Angeles record October: 905,026 TEU, 'without a single ship backed up at sea'",
+     "risk_score": 0.3
+    },
+    {
+     "date": "2024-11-25",
+     "title": "Trump promises 25% tariffs on Mexico and Canada and +10% on China",
+     "risk_score": 0.45
+    }
+   ]
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2024",
+  "date": "2024-12-10",
+  "headline": "Anchorage queue above normal, but gusty winds may thin it",
+  "brief": "Yesterday 18.1 ships sat at anchor, above the 7-day average of 15.3, with 33 at berth. For today, the model expects about 15.2 at anchor, since forecast gusts near 28.6 knots usually send ships off anchor. That one-day forecast has beaten the simple blend of today and the weekly average (16.7) in recent testing. Days two and three, about 16.6 and 16.8, are no better than the 7-day average.",
+  "watch": "Watch whether the wind gusts near 28.6 knots actually clear ships from anchor today, since the one-day forecast depends on it.",
+  "facts": {
+   "brief_date": "2024-12-10",
+   "dataset": "2024, normal operations",
+   "yesterday": {
+    "ships_at_anchor": 18.1,
+    "ships_at_berth": 33.0,
+    "seven_day_average_at_anchor": 15.3,
+    "arrivals": 14.0,
+    "departures": 19.0,
+    "ships_inbound_within_60nm": 3.5,
+    "ships_loitering_offshore_within_60nm": 2.3,
+    "max_wind_kts": 9.9
+   },
+   "forecast_ships_at_anchor": [
+    {
+     "for_date": "2024-12-10",
+     "days_ahead": 1,
+     "model": 15.2,
+     "simple_rule": 16.7,
+     "simple_rule_name": "blend of today and the 7-day average",
+     "main_reasons": [
+      "forecast gusts of 28.6 kn for the forecast day (storm: ships leave anchor); pulls the forecast down",
+      "forecast gusts of 28.6 kn today; pulls the forecast down",
+      "queue is 2.8 ships above its weekly normal; pushes the forecast up"
+     ]
+    },
+    {
+     "for_date": "2024-12-11",
+     "days_ahead": 2,
+     "model": 16.6,
+     "simple_rule": 15.3,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    },
+    {
+     "for_date": "2024-12-12",
+     "days_ahead": 3,
+     "model": 16.8,
+     "simple_rule": 15.3,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    }
+   ],
+   "how_much_to_trust_each_horizon": {
+    "day_1": "better than blend of today and the 7-day average (+10.7% on Oct-Dec 2024 test)",
+    "day_2": "no detectable difference from 7-day average (+6.3% on Oct-Dec 2024 test)",
+    "day_3": "no detectable difference from 7-day average (+2.8% on Oct-Dec 2024 test)"
+   },
+   "emissions_at_anchor_yesterday": {
+    "nox_tonnes": 2.37,
+    "fuel_tonnes": 85.8,
+    "fuel_cost_usd_estimate": 65200.0,
+    "note": "estimate: POLA inventory method, fuel at about $760/t"
+   },
+   "recent_news": [
+    {
+     "date": "2024-11-20",
+     "title": "Port of Los Angeles record October: 905,026 TEU, 'without a single ship backed up at sea'",
+     "risk_score": 0.3
+    },
+    {
+     "date": "2024-11-25",
+     "title": "Trump promises 25% tariffs on Mexico and Canada and +10% on China",
+     "risk_score": 0.45
+    }
+   ]
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2024",
+  "date": "2024-12-11",
+  "headline": "Anchorage queue eases to 10 ships, may edge back up",
+  "brief": "Yesterday about 10.1 ships sat at anchor, well below the 7-day average of 15.1, with 33.5 at berth. The model expects about 13.4 at anchor today, a bit above the simple rule's 12.6, and it has beaten that rule in recent testing. Gusts reached 32.5 knots yesterday, and ships that left anchor tend to return. Forecasts for the next two days (about 14.6 and 13.8) are no better than the 7-day average.",
+  "watch": "Watch whether wind-driven departures from anchor return today, since 8.2 ships are loitering offshore within 60 nautical miles.",
+  "facts": {
+   "brief_date": "2024-12-11",
+   "dataset": "2024, normal operations",
+   "yesterday": {
+    "ships_at_anchor": 10.1,
+    "ships_at_berth": 33.5,
+    "seven_day_average_at_anchor": 15.1,
+    "arrivals": 10.0,
+    "departures": 13.0,
+    "ships_inbound_within_60nm": 3.5,
+    "ships_loitering_offshore_within_60nm": 8.2,
+    "max_wind_kts": 23.3
+   },
+   "forecast_ships_at_anchor": [
+    {
+     "for_date": "2024-12-11",
+     "days_ahead": 1,
+     "model": 13.4,
+     "simple_rule": 12.6,
+     "simple_rule_name": "blend of today and the 7-day average",
+     "main_reasons": [
+      "gusts reached 32.5 kn yesterday (ships that left anchor tend to return); pushes the forecast up",
+      "queue is 4.9 ships below its weekly normal; pulls the forecast down",
+      "queue shrank by 8 ships over a day; pulls the forecast down"
+     ]
+    },
+    {
+     "for_date": "2024-12-12",
+     "days_ahead": 2,
+     "model": 14.6,
+     "simple_rule": 15.1,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    },
+    {
+     "for_date": "2024-12-13",
+     "days_ahead": 3,
+     "model": 13.8,
+     "simple_rule": 15.1,
+     "simple_rule_name": "7-day average",
+     "main_reasons": null
+    }
+   ],
+   "how_much_to_trust_each_horizon": {
+    "day_1": "better than blend of today and the 7-day average (+10.7% on Oct-Dec 2024 test)",
+    "day_2": "no detectable difference from 7-day average (+6.3% on Oct-Dec 2024 test)",
+    "day_3": "no detectable difference from 7-day average (+2.8% on Oct-Dec 2024 test)"
+   },
+   "emissions_at_anchor_yesterday": {
+    "nox_tonnes": 1.42,
+    "fuel_tonnes": 50.6,
+    "fuel_cost_usd_estimate": 38500.0,
+    "note": "estimate: POLA inventory method, fuel at about $760/t"
+   },
+   "recent_news": [
+    {
+     "date": "2024-11-20",
+     "title": "Port of Los Angeles record October: 905,026 TEU, 'without a single ship backed up at sea'",
+     "risk_score": 0.3
+    },
+    {
+     "date": "2024-11-25",
+     "title": "Trump promises 25% tariffs on Mexico and Canada and +10% on China",
+     "risk_score": 0.45
+    }
+   ]
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2021",
+  "date": "2021-09-10",
+  "headline": "Ship queue grows to 48 as berthing stays slow",
+  "brief": "Last night 48 container ships were waiting, up from 33 a week earlier, while only about 3.0 ships a day reached a berth. Dividing the queue by that berthing rate suggests a ship joining today could wait about 16 days. The published 7-day average of 7.1 days looks backward at ships already berthed, so it likely understates the wait for new arrivals.",
+  "watch": "Watch whether daily berthings rise above 3.0 ships, since the queue keeps growing if they do not.",
+  "facts": {
+   "brief_date": "2021-09-10",
+   "dataset": "2021 container backlog (replay)",
+   "container_size_ships_waiting_last_night": 48,
+   "same_figure_one_week_earlier": 33,
+   "ships_reaching_a_berth_per_day_last_7_days": 3.0,
+   "wait_estimate_for_a_ship_joining_today_days": {
+    "ours_queue_divided_by_berthing_rate": 16.0,
+    "published_7_day_average_of_recent_berthings": 7.1
+   },
+   "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
+   "fuel_price_usd_per_tonne": 780,
+   "yesterday_all_ships": {
+    "at_anchor": 43.9,
+    "loitering_offshore_within_60nm": 9.7,
+    "inbound_within_60nm": 4.1
+   }
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2021",
+  "date": "2021-09-21",
+  "headline": "Container ship queue grows to 61 as waits lengthen",
+  "brief": "Last night 61 container ships were waiting, up from 53 a week earlier, while about 4.3 ships a day reached a berth over the past week. Dividing the queue by that berthing rate suggests a ship joining today could wait about 14.2 days. The published 7-day average is 10.3 days, but it looks backward at ships already berthed.",
+  "watch": "Watch whether daily berthings stay near 4.3 ships, since a slower pace would push waits past the 14-day estimate.",
+  "facts": {
+   "brief_date": "2021-09-21",
+   "dataset": "2021 container backlog (replay)",
+   "container_size_ships_waiting_last_night": 61,
+   "same_figure_one_week_earlier": 53,
+   "ships_reaching_a_berth_per_day_last_7_days": 4.3,
+   "wait_estimate_for_a_ship_joining_today_days": {
+    "ours_queue_divided_by_berthing_rate": 14.2,
+    "published_7_day_average_of_recent_berthings": 10.3
+   },
+   "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
+   "fuel_price_usd_per_tonne": 780,
+   "yesterday_all_ships": {
+    "at_anchor": 55.8,
+    "loitering_offshore_within_60nm": 31.0,
+    "inbound_within_60nm": 3.2
+   }
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2021",
+  "date": "2021-10-05",
+  "headline": "Offshore ship queue edges up to 56 waiting",
+  "brief": "Last night 56 ships were waiting, up from 54 a week earlier, while about 4.6 ships per day reached a berth over the last 7 days. Dividing the queue by that berthing rate gives about 12.2 days of wait for a ship joining today. The published 7-day average, which looks backward, is 11.6 days. The two estimates are close, so neither clearly beats the other.",
+  "watch": "Watch whether the daily berthing rate stays near 4.6 ships, since a slowdown would push the wait for new arrivals past 12 days.",
+  "facts": {
+   "brief_date": "2021-10-05",
+   "dataset": "2021 container backlog (replay)",
+   "container_size_ships_waiting_last_night": 56,
+   "same_figure_one_week_earlier": 54,
+   "ships_reaching_a_berth_per_day_last_7_days": 4.6,
+   "wait_estimate_for_a_ship_joining_today_days": {
+    "ours_queue_divided_by_berthing_rate": 12.2,
+    "published_7_day_average_of_recent_berthings": 11.6
+   },
+   "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
+   "fuel_price_usd_per_tonne": 780,
+   "yesterday_all_ships": {
+    "at_anchor": 53.2,
+    "loitering_offshore_within_60nm": 28.6,
+    "inbound_within_60nm": 2.4
+   }
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2021",
+  "date": "2021-10-24",
+  "headline": "Container ship queue grows to 69 as berthing stays slow",
+  "brief": "Last night 69 container ships were waiting, up from 61 a week earlier, while about 3.6 ships a day reached a berth over the past week. Dividing the queue by that berthing rate suggests a ship joining today could wait about 19.3 days. The published figure, a backward-looking 7-day average, says 12.5 days, so it may understate the wait if the queue keeps growing.",
+  "watch": "Watch whether daily berthings rise above about 3.6 ships; if not, the queue will keep growing and waits will lengthen.",
+  "facts": {
+   "brief_date": "2021-10-24",
+   "dataset": "2021 container backlog (replay)",
+   "container_size_ships_waiting_last_night": 69,
+   "same_figure_one_week_earlier": 61,
+   "ships_reaching_a_berth_per_day_last_7_days": 3.6,
+   "wait_estimate_for_a_ship_joining_today_days": {
+    "ours_queue_divided_by_berthing_rate": 19.3,
+    "published_7_day_average_of_recent_berthings": 12.5
+   },
+   "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
+   "fuel_price_usd_per_tonne": 780,
+   "yesterday_all_ships": {
+    "at_anchor": 49.4,
+    "loitering_offshore_within_60nm": 51.1,
+    "inbound_within_60nm": 2.7
+   }
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2021",
+  "date": "2021-11-16",
+  "headline": "Offshore waiting rule hides part of the ship queue",
+  "brief": "The published 7-day average wait is 14.9 days, but it only looks backward at ships that already reached a berth, about 4.0 per day. Since today, container ships wait about 150 nm offshore, beyond shore AIS range, so we cannot count that queue or estimate its wait. Yesterday's counts, 43.6 at anchor and 57.8 loitering within 60 nm, may now understate the true backlog.",
+  "watch": "Watch whether the anchorage count drops simply because ships moved out of range, not because the backlog is easing.",
+  "facts": {
+   "brief_date": "2021-11-16",
+   "dataset": "2021 container backlog (replay)",
+   "ships_reaching_a_berth_per_day_last_7_days": 4.0,
+   "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
+   "fuel_price_usd_per_tonne": 780,
+   "rule_change": "Since Nov 16 2021, container ships are told to wait about 150 nm offshore instead of at the anchorage. That is beyond shore AIS range, so we cannot count that queue or estimate its wait.",
+   "published_7_day_average_wait_days": 14.9,
+   "yesterday_all_ships": {
+    "at_anchor": 43.6,
+    "loitering_offshore_within_60nm": 57.8,
+    "inbound_within_60nm": 4.8
+   }
+  },
+  "scorer": "claude-sonnet-5-5"
+ },
+ {
+  "year": "2021",
+  "date": "2021-12-14",
+  "headline": "Published wait near 15 days, but offshore queue unseen",
+  "brief": "The published average wait is 14.9 days, but it only counts ships that reached a berth in the last 7 days, so it looks backward. Ships are reaching berths at about 2.4 per day. Since Nov 16, container ships wait about 150 nm offshore, beyond our AIS range, so that queue and its wait cannot be counted. Yesterday 28 ships were at anchor and 18.8 loitering within 60 nm.",
+  "watch": "Watch whether the berth arrival rate stays near 2.4 ships per day, since the offshore queue cannot be seen.",
+  "facts": {
+   "brief_date": "2021-12-14",
+   "dataset": "2021 container backlog (replay)",
+   "ships_reaching_a_berth_per_day_last_7_days": 2.4,
+   "how_the_published_figure_works": "average wait of ships that reached a berth in the last 7 days, so it looks backward",
+   "fuel_price_usd_per_tonne": 780,
+   "rule_change": "Since Nov 16 2021, container ships are told to wait about 150 nm offshore instead of at the anchorage. That is beyond shore AIS range, so we cannot count that queue or estimate its wait.",
+   "published_7_day_average_wait_days": 14.9,
+   "yesterday_all_ships": {
+    "at_anchor": 28.0,
+    "loitering_offshore_within_60nm": 18.8,
+    "inbound_within_60nm": 2.5
+   }
+  },
+  "scorer": "claude-sonnet-5-5"
+ }
+]
