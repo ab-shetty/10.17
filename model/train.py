@@ -7,7 +7,7 @@ Usage:
                         --test-start 2021-12-01 --out-prefix shared/crisis
 
 Baselines: persistence (y_t), 7-day mean, and their 50/50 blend. skill_pct is against the BEST of the three on the
-test set (the toughest honest comparison). The models predict y[t+h] - blend[t] (blend + learned correction).
+test set (the toughest honest comparison). The models predict y[t+h] - anchor[t], where the anchor is the naive rule with the lowest TRAINING-period error.
 Candidates LightGBM / CatBoost / ridge / plain average; per-horizon choice by rolling-origin CV on the 3 months
 before the test start. "Storm days" = days where the forecast (known on the issue day) shows gusts >= 25 kn.
 Archived weather forecasts (Open-Meteo previous-runs) only exist from 2024-01-19, so 2021-22 runs without them.
@@ -188,11 +188,14 @@ def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False, t
             Xh["fc_gust_target"] = d[f"fc{h}_gust_max_kts"].shift(-h)
             Xh["fc_gust_tomorrow"] = d["fc1_gust_max_kts"].shift(-1)
         y_fut = d[TARGET].shift(-h)
-        anchor = base_all["blend"]
-        dy = y_fut - anchor
         tgt_date = d.index + pd.Timedelta(days=h)
-        ok = y_fut.notna() & anchor.notna()
+        ok = y_fut.notna() & base_all["blend"].notna()
         tr = ok & (tgt_date < test_start)
+        # the model predicts the change from a naive anchor; pick the anchor on TRAINING data only (in a steadily
+        # trending queue the 7-day mean lags badly; in normal times the blend is best)
+        anchor_name = min(BASELINES, key=lambda k: mae(base_all[k][tr], y_fut[tr]))
+        anchor = base_all[anchor_name]
+        dy = y_fut - anchor
         te = ok & (tgt_date >= test_start) & (tgt_date <= test_end)
 
         cv = {k: [] for k in CANDIDATES + BASELINES}
@@ -241,7 +244,7 @@ def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False, t
                  skill_pct=round(100 * (1 - mae_m / mae_b), 1),
                  skill_ci90=block_bootstrap_skill(np.abs(pred - act).values, np.abs(base - act).values),
                  skill_vs_persistence_pct=round(100 * (1 - mae_m / test_base["persistence"]), 1),
-                 baselines_mae=test_base, model=chosen, test_mae_all=test_models,
+                 baselines_mae=test_base, model=chosen, test_mae_all=test_models, anchor=anchor_name,
                  **({} if rolling else dict(cv_mae=cv)),
                  evaluation="rolling-origin, monthly refit" if rolling else "single split", target=TARGET)
         if "fc_gust_target" in Xh:
@@ -251,7 +254,7 @@ def main(daily, weather, test_start, out_prefix, test_end=None, rolling=False, t
                          mae_baseline_storm=round(mae(base[storm], act[storm]), 3))
                 m["skill_pct_storm"] = round(100 * (1 - m["mae_model_storm"] / m["mae_baseline_storm"]), 1)
         metrics[str(h)] = m
-        print(f"h={h} [{chosen}] MAE {mae_m:.3f} vs best baseline {best} {mae_b:.3f}: skill {m['skill_pct']}% "
+        print(f"h={h} [{chosen}, anchor={anchor_name}] MAE {mae_m:.3f} vs best baseline {best} {mae_b:.3f}: skill {m['skill_pct']}% "
               f"CI {m['skill_ci90']} | vs persistence {m['skill_vs_persistence_pct']}% | baselines {test_base}"
               + (f" | storm days n={m['n_storm']}: {m['skill_pct_storm']}%" if "n_storm" in m else ""))
         print(f"   CV {cv}")
