@@ -30,7 +30,8 @@ LABELS = {
     "visibility_min_m": "min visibility (model, m)", "wind_max_3d": "max wind over 3 days (kn)",
     "is_holiday": "public holiday", "klgb_vis_min_mi": "min visibility at Long Beach airport (mi)",
     "klgb_fog_hours": "hours of fog at Long Beach airport", "wave_hs_max_m": "max wave height at harbor entrance (m)",
-    "wave_period_max_s": "longest swell period (s)", "target_dow": "day of week", "news_score": "news disruption score",
+    "wave_period_max_s": "longest swell period (s)", "offshore_waiting": "ships waiting offshore (<60 nm, <3 kn)",
+    "inbound_60nm": "ships inbound within 60 nm", "target_dow": "day of week", "news_score": "news disruption score",
 }
 
 
@@ -50,6 +51,8 @@ def phrase(name, value, shap_value):
         "klgb_fog_hours": f"{v:g} hours of fog at Long Beach airport",
         "departures_yday": f"{v:g} ships departed yesterday",
         "arrivals_24h": f"{v:g} ships arrived today",
+        "offshore_waiting": f"{v:g} ships waiting offshore, outside the anchorage",
+        "inbound_60nm": f"{v:g} ships inbound within 60 nm",
     }
     if name in special:
         return f"{special[name]}; {pushes}"
@@ -83,7 +86,7 @@ def features(d):
     f["visibility_min_m"] = d.visibility_min_m
     f["wind_max_3d"] = d.wind_max_kts.rolling(3).max()
     f["is_holiday"] = d.is_holiday
-    for c in ("klgb_vis_min_mi", "klgb_fog_hours", "wave_hs_max_m", "wave_period_max_s"):
+    for c in ("klgb_vis_min_mi", "klgb_fog_hours", "wave_hs_max_m", "wave_period_max_s", "offshore_waiting", "inbound_60nm"):
         if c in d:
             f[c] = d[c]
     if d.news_score.notna().any():
