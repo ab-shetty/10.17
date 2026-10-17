@@ -148,7 +148,8 @@ function renderTiles(m, mock) {
     const ci = t.skill_ci90;
     const tie = ci && ci[0] <= 0 && ci[1] >= 0;
     const win = !tie && t.skill_pct > 0;
-    const verdict = tie ? 'tie with' : win ? 'better than' : 'worse than';
+    // "No detectable difference", not "tie": a CI of about −10..+15 % can't rule out a real loss or win.
+    const verdict = tie ? 'no detectable difference vs' : win ? 'better than' : 'worse than';
     const pct = `${t.skill_pct < 0 ? '−' : t.skill_pct > 0 ? '+' : ''}${Math.abs(t.skill_pct).toFixed(1)}%`;
     return `<div class="tile ${tie ? 'tie' : win ? 'win' : 'lose'}">
       <span class="lbl">Day +${h}</span>

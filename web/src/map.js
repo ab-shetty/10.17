@@ -2,10 +2,11 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 // Replay `state` values (CLAUDE.md contract): in the bay anchored/moored/underway; within 60 nm outside it
-// inbound/waiting_offshore/passing. Unknown states fall back to underway.
+// inbound/waiting_offshore/passing/other_terminal (moored at Hueneme / El Segundo: not waiting for us, drawn
+// faint and not counted). Unknown states fall back to underway.
 export const STATE_COLORS = {
   anchored: '#f5a524', moored: '#38bdf8', underway: '#9aa4b2',
-  inbound: '#4ade80', waiting_offshore: '#c084fc', passing: '#4b5563',
+  inbound: '#4ade80', waiting_offshore: '#c084fc', passing: '#4b5563', other_terminal: '#4b5563',
 };
 export const VIEWS = {
   bay: [[-118.33, 33.56], [-117.94, 33.79]],      // study bbox, anchorage box fully in view
@@ -50,7 +51,7 @@ export function createMap(el) {
     map.addLayer({ id: 'ships', type: 'circle', source: 'ships', paint: {
       'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 2.5, 13, 7],
       'circle-color': ['match', ['get', 'state'], ...Object.entries(STATE_COLORS).flat(), STATE_COLORS.underway],
-      'circle-opacity': ['match', ['get', 'state'], 'passing', 0.6, 1],
+      'circle-opacity': ['match', ['get', 'state'], 'passing', 0.6, 'other_terminal', 0.35, 1],
       'circle-stroke-color': '#0b1622', 'circle-stroke-width': 1,
     } });
     resolve();
