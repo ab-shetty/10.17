@@ -7,16 +7,18 @@ const ANCHOR_BOX = [[-118.30, 33.58], [-117.97, 33.58], [-117.97, 33.77], [-118.
 const STYLE = {
   version: 8,
   sources: {
-    carto: {
+    // Esri dark gray canvas: no API key. (CARTO tiles now return an "API KEY REQUIRED" watermark.)
+    basemap: {
       type: 'raster',
-      tiles: ['a', 'b', 'c', 'd'].map((s) => `https://${s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png`),
+      tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
       tileSize: 256,
-      attribution: '© OpenStreetMap contributors © CARTO',
+      maxzoom: 16,
+      attribution: 'Esri, HERE, Garmin, © OpenStreetMap contributors',
     },
   },
   layers: [
     { id: 'bg', type: 'background', paint: { 'background-color': '#0b1622' } },
-    { id: 'carto', type: 'raster', source: 'carto' },
+    { id: 'basemap', type: 'raster', source: 'basemap' },
   ],
 };
 
